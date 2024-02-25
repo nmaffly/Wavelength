@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the wavelength app</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <header>
+        <h3>wavelength</h3>
+        <img src="../static/icons/menu.png" alt="Navigation Bars">
+    </header>
+    <div id="center-block">
+        <h1>Who's on your <i>wavelength?</i></h1>
+        <p>Let's find out.</p>
+        <button id="center-button">Log in with Spotify</button>
+    </div>
+    <svg id="lineGraph"></svg>
+    <svg id="graphic"></svg>
+    <script>
+        function drawGraph() {
+            const svgElement = document.getElementById('lineGraph');
+            const width = svgElement.clientWidth;
+            const height = +svgElement.clientHeight;
+            const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+            // Clear any previous graph
+            svg.selectAll("*").remove();
+
+            const margin = {top: 20, right: 20, bottom: 20, left: 20},
+                graphWidth = width - margin.left - margin.right,
+                graphHeight = height - margin.top - margin.bottom;
+            
+            const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+        
+            // Sample data - replace with your own data points
+            const data = [
+                {x: 0, y: 10}, {x: 1, y: 10}, {x: 2, y: -10}, {x: 2.5, y: 30},
+                {x: 3, y: 40}, {x: 4, y: 20}, {x: 5, y: -5}, 
+                {x: 6, y: 30}, {x: 7, y: 15}, {x: 8, y: 15}
+            ];
+        
+            // Scales
+            const x = d3.scaleLinear().domain([0, d3.max(data, d => d.x)]).range([0, graphWidth]);
+            const y = d3.scaleLinear().domain([0, d3.max(data, d => d.y)]).range([graphHeight-50, 0]);
+        
+            // Line generator
+            const line = d3.line()
+                           .x(d => x(d.x))
+                           .y(d => y(d.y))
+                           .curve(d3.curveBasis); // This makes the line smooth
+        
+            // Append the path, bind the data, and call the line generator 
+            g.append("path")
+             .datum(data) // 10. Binds data to the line 
+             .attr("fill", "none")
+             .attr("stroke", "white")
+             .attr("stroke-width", 5)
+             .attr("d", line); // 11. Calls the line generator 
+        }
+
+        drawGraph();
+
+        window.addEventListener('resize', drawGraph)
+    </script>
+<script>
+    // Correctly define margins before using them
+    const margin = {top: 20, right: 20, bottom: 20, left: 20};
+
+    // Correct the SVG container selection and sizing
+    const svg = d3.select("#graphic");
+    const svgDom = document.getElementById('graphic'); // Correct variable name used below
+    const width = svgDom.clientWidth - margin.left - margin.right;
+    const height = svgDom.clientHeight - margin.top - margin.bottom;
+
+    // Correctly append 'g' after defining margins
+    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const data = [
+        { x: 1, y: 6 }, { x: 2, y: 4 }, { x: 3, y: 4 },
+        { x: 4, y: 5 }, { x: 5, y: 6 }, { x: 6, y: 1.5 },
+        { x: 7, y: 4}, { x: 8, y: 7 },
+    ];
+
+    const newData = [
+        { x: 1, y: 5 }, { x: 2, y: 6 }, { x: 3, y: 6 },
+        { x: 4, y: 2 }, { x: 5, y: 4 }, { x: 6, y: 3 },
+        { x: 7, y: 2}, { x: 8, y: 2.5 }
+    ];
+
+    // Correct the scales to use final graph dimensions
+    const x = d3.scaleLinear()
+                .domain(d3.extent([...data, ...newData], d => d.x))
+                .range([0, width]);
+
+    const y = d3.scaleLinear()
+                .domain([0, d3.max([...data, ...newData], d => d.y)])
+                .range([height, 0]);
+
+    // Ensure SVG is set to be responsive
+    svg.attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+       .attr("preserveAspectRatio", "xMidYMid meet");
+
+    // Data sets
+    
+
+    // Define gradients before using them in paths
+    const defs = svg.append("defs");
+
+    const gradient1 = defs.append("linearGradient")
+        .attr("id", "line-gradient")
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", 0).attr("y1", y(0))
+        .attr("x2", 0).attr("y2", y(d3.max([...data, ...newData], d => d.y)));
+
+    gradient1.selectAll("stop")
+        .data([
+            {offset: "20%", color: "#FF8934"},
+            {offset: "100%", color: "white"}
+        ])
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
+
+    // Assuming the calculations for gradient2's positions are done prior
+    const gradient2 = defs.append("linearGradient")
+        .attr("id", "line-gradient1")
+        .attr("gradientUnits", "userSpaceOnUse")
+        .attr("x1", 0) // Correct these values based on your gradient direction and length
+        .attr("y1", height)
+        .attr("x2", width)
+        .attr("y2", 0);
+
+    gradient2.selectAll("stop")
+        .data([
+            {offset: "0%", color: "rgba(255,255,255, 1)"}, // Starting color
+            {offset: "5%", color: "rgba(241, 140, 231, 1)"} // Fading to transparent
+        ])
+        .enter().append("stop")
+        .attr("offset", d => d.offset)
+        .attr("stop-color", d => d.color);
+
+    // Area generator
+    const area = d3.area()
+                   .x(d => x(d.x))
+                   .y0(height)
+                   .y1(d => y(d.y))
+                   .curve(d3.curveBasis);
+
+    // Append areas for both datasets
+    g.append("path")
+        .datum(data)
+        .attr("fill", "url(#line-gradient1)")
+        .attr("d", area);
+
+    g.append("path")
+        .datum(newData)
+        .attr("fill", "url(#line-gradient)")
+        .attr("d", area)
+        .attr("opacity", "0.9");
+</script>
+
+        
+</body>
+</html>

@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Overpass+Mono:wght@300..700&display=swap');
+
+/* Variables */
+:root {
+    --background-color: #131313;
+    --primary-white: #FFFFFF;
+    --primary-orange: #FF8934;
+    --primary-pink: #F18CE7;
+    --hover-pink: #eeaee8;
+    /* Font Sizes */
+    --font-size-h1: 40px;
+    --font-size-h2: 32px;
+    --font-size-h3: 16px;
+    --font-size-p: 14px;
+
+    /* Font Weights */
+    --font-weight-bold: 700; /* Used for H1, H2, H3 */
+    --font-weight-semi-bold: 500;
+    --font-weight-normal: 300; /* Used for paragraph */
+    --font-weight-slim: 200; /* Used for paragraph */
+
+    /* Font Family */
+    --font-family-poppins: 'Poppins', sans-serif;
+    --font-family-mono: "Overpass Mono", monospace;
+}
+
+body {
+    margin: 10px;
+    padding: 10px;
+    background-color: var(--background-color);
+    color: var(--primary-white);
+    font-family: var(--font-family-poppins);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+header {
+    margin: 20px;
+    width: 98%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h3 {
+    margin: 0px;
+}
+
+header img {
+    width: 30px;
+    height: 20px;
+    margin: 0px;
+}
+
+header img:hover {
+    cursor: pointer;
+}
+
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+
+h2 {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+}
+
+h3 {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    font-style: italic; /* H3 is italic */
+}
+
+p {
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-normal);
+}
+
+button {
+    background-color: var(--primary-pink);
+    color: var(--background-color);
+    border: none;
+    font-family: var(--font-family-poppins);
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-semi-bold);
+    border-radius: 10px;
+}
+
+ol {
+    font-weight: var(--font-weight-slim);
+}
+
+button:hover {
+    cursor: pointer;
+    /* background-color: var(--hover-pink); */
+}
+
+.highlight {
+    color: var(--primary-orange);
+}
+
+.gradient-high {
+    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.gradient-low {
+    background: linear-gradient(90deg, #FFF 30.65%, var(--primary-orange) 150.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+#center-block {
+    margin-top: 150px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#center-block h1 {
+    margin: 0px;
+}
+
+#center-block p {
+    padding-top: 150px;
+}
+
+#lineGraph {
+    margin-bottom: 10px;
+    width: 1400px;
+    height: 120px;
+    position: absolute;
+    padding-top: 200px;
+}
+
+#graphic {
+    position: absolute;
+    bottom: 0; /* Aligns it to the bottom of the nearest positioned ancestor */
+    width: 100%; /* Makes it responsive, taking the full width of its container */
+    height: 20%; /* Fixed height */
+    z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
+}
+
+
+#center-button {
+    margin-top: 10px;
+    width: 260px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.view-button {
+    background-color: transparent;
+    border: 1px solid var(--primary-white);
+    color: var(--primary-white);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-p);
+    padding: 5px 10px;
+    justify-content: center;
+}
+
+.view-button.active {
+    background-color: var(--primary-pink);
+    color: var(--background-color);
+    border: 1px solid var(--primary-pink);
+
+}
+
+/* Media Queries for iPhone Screen Width */
+@media (max-width: 500px) {
+    header {
+        margin-top: 0px;
+    }
+    #lineGraph {
+        width: 1200px;
+        padding-top: 150px;
+    }
+
+    #center-block {
+        margin-top: 100px;
+    }
+
+    #graphic {
+        width: 550px;
+    }
+    
+}

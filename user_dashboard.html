@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>the wavelength app</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/dashboard.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+    <header>
+        <h3>wavelength</h3>
+        <img src="../static/icons/menu.png" alt="Navigation Bars">
+    </header>
+    <h1>username</h1>
+    <div id="button-timeframe">
+        <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
+        <script>
+            window.onload = function() {
+                document.getElementById('oneMonthBtn').classList.add('active');
+                // Optionally, you can also trigger the switch view to "oneMonth" automatically
+                switchView('oneMonth');
+            };
+        </script>
+        <script>
+            function switchView(view) {
+                // Remove 'active' class from both buttons
+                document.getElementById('oneMonthBtn').classList.remove('active');
+                document.getElementById('allTimeBtn').classList.remove('active');
+    
+                // Add 'active' class to the selected button
+                if (view === 'oneMonth') {
+                    document.getElementById('oneMonthBtn').classList.add('active');
+                } else {
+                    document.getElementById('allTimeBtn').classList.add('active');
+                }
+    
+                // Implement the logic to switch views here
+                // For example, you could adjust what's displayed on your site based on the view
+                console.log(`Switched to ${view} view`);
+                }
+    
+        </script>
+        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
+    </div>
+
+    <svg id="lineGraph"></svg>
+
+    <div id="tops">
+      <div>
+        <h3 class="gradient-low">TOP GENRES</h3>
+        <ol>
+          <li>Indie Rock</li>
+          <li>Alternative Rock</li>
+          <li>Electronic</li>
+          <li>R&B</li>
+          <li>Hiphop</li>
+      </ol>
+      </div>
+      <div>
+        <h3 class="gradient-low">TOP ARTISTS</h3>
+        <ol>
+          <li>Far Caspian</li>
+          <li>Coldplay</li>
+          <li>The Blaze</li>
+          <li>ODESZA</li>
+          <li>Noah Kahan</li>
+      </ol>
+      </div>
+    </div>
+    <div id="code">
+      <h2 id="code-h2">MY CODE: <span class="highlight"><b>XYZA</b></span></h2>
+      <button><img src="../static/icons/export.png" alt="export"></button>
+    </div>
+
+    <div id="spotify-logo"></div>
+
+    <div id="view-more">
+      <h2 class="gradient-high">Who's on your wavelength?</h2>
+      <div id="img-holder"><img src="../static/icons/down.png" alt="Go down!"></div>
+
+    </div>
+    <script>
+      function drawGraph() {
+          const svgElement = document.getElementById('lineGraph');
+          const bbox = svgElement.getBoundingClientRect();
+          const width = bbox.width-40;
+          const height = bbox.height;
+          const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+          // Clear any previous graph
+          svg.selectAll("*").remove();
+
+          const margin = {top: 10, right: 0, bottom: 10, left: 0},
+              graphWidth = width - margin.left - margin.right,
+              graphHeight = height - margin.top - margin.bottom;
+          
+          const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+          
+      
+          const data = [
+            {x: 0, y: 20},
+            {x: 1, y: 90},
+            {x: 2, y: 40},
+            {x: 3, y: 60},
+            {x: 4, y: 30},
+            {x: 5, y: 100},
+            {x: 6, y: 50},
+            {x: 7, y: 90},
+            {x: 8, y: 100},
+          ];
+      
+          // Scales
+          const x = d3.scaleLinear().domain([0, 8]).range([0, graphWidth]);
+          const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
+          svg.append("g")
+            .attr("transform", `translate(0,${y(50)})`) // This positions the x-axis at the 50% mark
+            .call(d3.axisBottom(x).tickFormat(""));
+          const defs = svg.append("defs");
+          const gradientAbove = defs.append("linearGradient")
+              .attr("id", "area-gradient-above")
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", 0).attr("y1", y(0))
+              .attr("x2", 0).attr("y2", y(100));
+          gradientAbove.append("stop").attr("offset", "0%").attr("stop-color", "white");
+          gradientAbove.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
+
+          // Gradient for the area below the X-axis
+          const gradientBelow = defs.append("linearGradient")
+              .attr("id", "area-gradient-below")
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", 0).attr("y1", y(0))
+              .attr("x2", 0).attr("y2", y(100));
+          gradientBelow.append("stop").attr("offset", "0%").attr("stop-color", "#FF8934");
+          gradientBelow.append("stop").attr("offset", "100%").attr("stop-color", "white");
+          
+        
+          // Add the y-axis
+          const yAxis = d3.axisLeft(y)
+                      .tickValues([0, 25, 50, 75, 100])
+                      .tickFormat(d => d + "%")
+                      .tickSize(0) // Remove the tick marks
+                      .tickPadding(10); // Adjust space between ticks and labels if needed
+
+          const yAxisGroup = svg.append("g").call(yAxis);
+
+          // Apply styles to the y-axis for a dotted line
+          yAxisGroup.selectAll("path")
+                    .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
+
+          // Apply custom font settings to all axis text (x and y)
+          yAxisGroup.selectAll("text")
+                    .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                    .style("font-size", "20px");
+          // Line generator
+          const line = d3.line()
+            .x(function(d) { return x(d.x); })
+            .y(function(d) { return y(d.y); })
+            .curve(d3.curveBumpX); // This makes the line smooth
+
+          // const areaAbove = d3.area()
+          //   .x(d => x(d.x))
+          //   .y0(y(50)) // X-axis line
+          //   .y1(d => Math.min(y(d.y), y(50))) // Data points or X-axis, whichever is higher
+          //   .curve(d3.curveBumpX);
+
+          // const areaBelow = d3.area()
+          //   .x(d => x(d.x))
+          //   .y0(y(50)) // X-axis line
+          //   .y1(d => Math.max(y(d.y), y(50))) // Data points or X-axis, whichever is lower
+          //   .curve(d3.curveBumpX);
+            
+          // g.append("path")
+          //   .datum(data)
+          //   .attr("fill", "url(#area-gradient-above)")
+          //   .attr("d", areaAbove);
+
+          // g.append("path")
+          //   .datum(data)
+          //   .attr("fill", "url(#area-gradient-below)")
+          //   .attr("d", areaBelow);
+      
+          // Append the path, bind the data, and call the line generator 
+          g.append("path")
+            .datum(data) // 10. Binds data to the line 
+            .attr("fill", "url")
+            .attr("stroke", "white")
+            .attr("stroke-width", 3)
+            .attr("d", line); // 11. Calls the line generator 
+        }
+
+      drawGraph();
+
+      window.addEventListener('resize', drawGraph)
+  </script>
+<!-- <script>
+    // Define dimensions and margins
+    const margin = {top: 10, right: 30, bottom: 10, left: 60},
+          width = 460 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+  
+    // Append the svg object to the div with id="lineGraph"
+    const svg = d3.select("#lineGraph")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+  
+    // Define scales
+    const x = d3.scaleLinear().domain([0, 8]).range([0, width]);
+    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+  
+    // Add the x-axis
+    svg.append("g")
+      .attr("transform", `translate(0,${y(50)})`) // This positions the x-axis at the 50% mark
+      .call(d3.axisBottom(x).tickFormat(""));
+  
+    // Add the y-axis
+    svg.append("g")
+      .call(d3.axisLeft(y).tickValues([0, 25, 50, 75, 100]).tickFormat(d => d + "%"));
+  
+    // Define the line
+    const line = d3.line()
+      .x(function(d) { return x(d.x); })
+      .y(function(d) { return y(d.y); })
+      .curve(d3.curveBasis);
+  
+    // Define the area
+    const area = d3.area()
+      .x(function(d) { return x(d.x); })
+      .y0(height)
+      .y1(function(d) { return y(d.y); });
+  
+    // Add the gradient
+    const defs = svg.append("defs");
+  
+    const gradient = defs.append("linearGradient")
+      .attr("id", "graphGradient")
+      .attr("x1", "0%")
+      .attr("x2", "0%")
+      .attr("y1", "0%")
+      .attr("y2", "100%");
+  
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", "red") // Use actual colors from your graph
+      .attr("stop-opacity", 1);
+  
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", "yellow") // Use actual colors from your graph
+      .attr("stop-opacity", 1);
+  
+    // Fetch your data from the backend API
+    // For this example, I'll use dummy data
+    const data = [
+      {x: 0, y: 10},
+      {x: 1, y: 90},
+      {x: 2, y: 40},
+      {x: 3, y: 60},
+      {x: 4, y: 30},
+      {x: 5, y: 100},
+      {x: 6, y: 50},
+      {x: 7, y: 70},
+      {x: 8, y: 10},
+    ];
+  
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
+  
+    // Add the area
+    // svg.append("path")
+    //   .datum(data)
+    //   .attr("fill", "url(#graphGradient)")
+    //   .attr("d", area);
+  
+  </script>
+   -->
+</body>
+</html>

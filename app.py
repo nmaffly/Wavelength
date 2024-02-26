@@ -4,6 +4,7 @@ import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import json
+import sqlite3
 
 app = Flask(__name__)
 
@@ -46,7 +47,15 @@ def display():
 
     spotify = spotipy.Spotify(auth=token_info['access_token'])
 
+    # extracted user data
     user_data = spotify.current_user()
+    
+    # stored user data
+    user_name = user_data['display_name']
+    profile_pic = user_data['images'][1]['url']
+
+
+
     # extracted recent data 
     top_artists_r = spotify.current_user_top_artists(limit=10, time_range='short_term')['items']
     top_tracks_r = spotify.current_user_top_tracks(limit=10, time_range='short_term')['items']
@@ -61,6 +70,7 @@ def display():
     genres_r = get_genre_count(artist_genres_r)
     popularity_r = get_popularity(top_artists_r)
     tempo_r, loudness_r, acousticness_r, danceability_r, valence_r, energy_r, speechiness_r = get_audio_features_tracks(top_tracks_r, spotify)
+    variance_r = get_variance() 
 
     #All Time stats
     artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
@@ -69,10 +79,9 @@ def display():
     popularity_a = get_popularity(top_artists_a)
     tempo_a, loudness_a, acousticness_a, danceability_a, valence_a, energy_a, speechiness_a = get_audio_features_tracks(top_tracks_a, spotify)
     variance_a = get_variance()
-    variance_r = get_variance()
 
 
-    return render_template('index.html', user_data=user_data, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
+    return render_template('index.html', user_data=user_data, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
                            artist_genres_a=artist_genres_a, genre_a=genres_a, popularity_a=popularity_a, artists_a=artists_a, tempo_a=tempo_a, loudness_a=loudness_a, acousticness_a=acousticness_a, danceability_a=danceability_a, valence_a=valence_a, energy_a=energy_a, speechiness_a=speechiness_a, variance_a=variance_a, variance_r=variance_r)
 
 def get_artist_genres(top_artists):

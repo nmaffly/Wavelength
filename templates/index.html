@@ -38,33 +38,19 @@
 
     <p> aritsts_r: {{ artists_r }}</p>
 
-    <h1>All Time Listening</h1>
+    <p> Median Tempo (tempo_r): {{ tempo_r }}</p>
 
-    <h2>Top Artist</h2>
-    <ul>
-        {% for artist, genres in genres_a.items() %}
-            <li>
-                <strong>{{ artist }}</strong>:
-                {% if genres %}
-                    <ul>
-                        {% for genre in genres %}
-                            <li>{{ genre }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <em>No genres listed</em>
-                {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
-    <h2>Top Genres</h2>
-    <ul>
-        {% for genre, count in genre_count_a.items() %}
-            <li>
-                <strong>{{ genre }}</strong>: {{ count }}
-                
-            </li>
-        {% endfor %}
-    </ul>
+    <p> Median Loudness (loudness_r): {{ loudness_r }}</p>
+
+    <p> Median Acousticness (acousticness_r): {{ acousticness_r }}</p>
+
+    <p> Median Danceability (danceability_r): {{ danceability_r }}</p>
+
+    <p> Median Valence (valence_r): {{ valence_r }}</p>
+
+    <p> Median Energy (energy_r): {{ energy_r }}</p>
+
+    <p> Median Speechiness (speechiness_r): {{ speechiness_r }}</p>
+
 </body>
 </html>

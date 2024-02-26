@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavelength</title>
+</head>
+<body>
+    <p>{{ user_data }}</p>
+    <h1> Recent Listening (Last 4 weeks)</h1>
+    <h2>Top Artist</h2>
+    <ul>
+        {% for artist, genres in artist_genres_r.items() %}
+            <li>
+                <strong>{{ artist }}</strong>:
+                {% if genres %}
+                    <ul>
+                        {% for genre in genres %}
+                            <li>{{ genre }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <em>No genres listed</em>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Top Genres</h2>
+    <ul>
+        {% for genre, count in genre__r.items() %}
+            <li>
+                <strong>{{ genre }}</strong>: {{ count }}
+                
+            </li>
+        {% endfor %}
+    </ul>
+    <p> Median Popularity (popularity_r): {{popularity_r}}</p>
+
+    <p> aritsts_r: {{ artists_r }}</p>
+
+    <h1>All Time Listening</h1>
+
+    <h2>Top Artist</h2>
+    <ul>
+        {% for artist, genres in genres_a.items() %}
+            <li>
+                <strong>{{ artist }}</strong>:
+                {% if genres %}
+                    <ul>
+                        {% for genre in genres %}
+                            <li>{{ genre }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <em>No genres listed</em>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Top Genres</h2>
+    <ul>
+        {% for genre, count in genre_count_a.items() %}
+            <li>
+                <strong>{{ genre }}</strong>: {{ count }}
+                
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

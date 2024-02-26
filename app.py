@@ -3,6 +3,8 @@ import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
+import plotly.graph_objects as go
+import plotly
 import json
 import sqlite3
 
@@ -21,7 +23,7 @@ sp_oauth = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIEN
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @app.route('/login')
 def login():
@@ -54,8 +56,6 @@ def display():
     user_name = user_data['display_name']
     profile_pic = user_data['images'][1]['url']
 
-
-
     # extracted recent data 
     top_artists_r = spotify.current_user_top_artists(limit=10, time_range='short_term')['items']
     top_tracks_r = spotify.current_user_top_tracks(limit=10, time_range='short_term')['items']
@@ -80,8 +80,18 @@ def display():
     tempo_a, loudness_a, acousticness_a, danceability_a, valence_a, energy_a, speechiness_a = get_audio_features_tracks(top_tracks_a, spotify)
     variance_a = get_variance()
 
+    median_values = [
+        popularity_r, tempo_r, loudness_r, acousticness_r,
+        danceability_r, valence_r, energy_r, speechiness_r, variance_r
+    ]
+    attributes = [
+        'Popularity', 'Tempo', 'Loudness', 'Acousticness',
+        'Danceability', 'Valence', 'Energy', 'Speechiness', 'Variance'
+    ]
+    graph_json = create_median_values_graph(median_values, attributes)
 
-    return render_template('index.html', user_data=user_data, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
+
+    return render_template('user_dashboard.html', user_data=user_data, graph_json=graph_json, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
                            artist_genres_a=artist_genres_a, genre_a=genres_a, popularity_a=popularity_a, artists_a=artists_a, tempo_a=tempo_a, loudness_a=loudness_a, acousticness_a=acousticness_a, danceability_a=danceability_a, valence_a=valence_a, energy_a=energy_a, speechiness_a=speechiness_a, variance_a=variance_a, variance_r=variance_r)
 
 def get_artist_genres(top_artists):
@@ -281,6 +291,26 @@ def find_median(numbers):
         return numbers[middle]
     else:
         return (numbers[middle - 1] + numbers[middle]) / 2.0
+    
+def create_median_values_graph(median_values, attributes):
+    # Create the figure
+    fig = go.Figure()
+
+    # Add the line
+    fig.add_trace(go.Scatter(x=attributes, y=median_values, mode='lines', fill='tozeroy'))
+
+    # Customize the layout
+    fig.update_layout(
+        plot_bgcolor='black',
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=False, range=[0, 100]),
+        yaxis_title='%',
+        xaxis_tickangle=-45
+    )
+
+    # Convert the figure to JSON format
+    graph_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graph_json
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

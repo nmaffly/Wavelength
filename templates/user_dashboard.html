@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wavelength App</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/dashboard.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h3>wavelength</h3>
+        <img src="../static/icons/menu.png" alt="Navigation Bars">
+    </header>
+    
+    <!-- User's name -->
+    <h1>{{ user_name }}</h1>
+    
+    <!-- Timeframe Buttons -->
+    <div id="button-timeframe">
+        <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
+        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
+    </div>
+
+    <!-- Placeholder for line graph -->
+    <div id="actualLineGraph" style="width:100%;max-width:700px;height:100%;max-height:400px;background-color:transparent;"></div>
+
+    <!-- Top Genres and Artists using the variables from your server -->
+    <div id="tops">
+        <div>
+            <h3 class="gradient-low">TOP GENRES</h3>
+            <ol>
+              {% for genre, count in genre_r.items() %}
+                {% if loop.index <= 5 %}
+                  <li>{{ genre }}</li>
+                {% endif %}
+              {% endfor %}
+            </ol>
+            
+        </div>
+        <div>
+            <h3 class="gradient-low">TOP ARTISTS</h3>
+            <ol>
+              {% for artist in artists_r %}
+                {% if loop.index <= 5 %}
+                  <li>{{ artist }}</li>
+                  {% endif %}
+              {% endfor %}
+            </ol>
+        </div>
+    </div>
+
+    <!-- Spotify Stats -->
+    <div id="spotify-stats">
+        <h2 class="gradient-high">Spotify Stats</h2>
+        <p> Median Popularity (popularity_r): {{ popularity_r }}</p>
+        <p> Median Tempo (tempo_r): {{ tempo_r }}</p>
+        <p> Median Loudness (loudness_r): {{ loudness_r }}</p>
+        <p> Median Acousticness (acousticness_r): {{ acousticness_r }}</p>
+        <p> Median Danceability (danceability_r): {{ danceability_r }}</p>
+        <p> Median Valence (valence_r): {{ valence_r }}</p>
+        <p> Median Energy (energy_r): {{ energy_r }}</p>
+        <p> Median Speechiness (speechiness_r): {{ speechiness_r }}</p>
+        <p> Variance (variance_r): {{ variance_r }}</p>
+    </div>
+
+    <!-- Code export section -->
+    <div id="code">
+        <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ user_code }}</b></span></h2>
+        <button><img src="../static/icons/export.png" alt="export"></button>
+    </div>
+
+    <!-- Additional sections can be added here -->
+
+    <!-- Scripts for functionality -->
+    <script src="../static/dashboard.js"></script>
+    <!-- Additional scripts can be included here -->
+    <script>
+      // Assuming 'graph_json' is the variable holding your graph JSON passed from Flask
+      var graphData = {{ graph_json|tojson|safe }};
+      var config = { 
+        staticPlot: true // This makes the plot non-interactive
+      };
+      Plotly.newPlot('actualLineGraph', JSON.parse(graphData), {}, config);
+  </script>
+</body>
+</html>

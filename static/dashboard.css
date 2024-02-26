@@ -15,12 +15,21 @@ body h1{
     top: 220px;
     padding: 40px 0px;
 }
+
+#actualLineGraph {
+    margin-bottom: 0px;
+    width: 90%;
+    max-width: 1000px;
+    height: 15%;
+    top: 220px;
+    padding: 40px 0px;
+}
   
 #tops {
     display: flex;
     justify-content: space-between;
     width: 350px;
-    margin-top: 350px;
+    margin-top: 50px;
 }
 
 #tops h3 {
@@ -101,6 +110,7 @@ body h1{
         max-width: 1000px;
         top: 180px;
         height: 18%;
+        
     }
 
     #tops {

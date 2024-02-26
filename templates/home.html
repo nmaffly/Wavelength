@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>the wavelength app</title>
-    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="static/styles.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
 </head>
 <body>
@@ -15,7 +15,7 @@
     <div id="center-block">
         <h1>Who's on your <i>wavelength?</i></h1>
         <p>Let's find out.</p>
-        <button id="center-button">Log in with Spotify</button>
+        <button id="center-button" onclick="window.location='/login';">Log in with Spotify</button>
     </div>
     <svg id="lineGraph"></svg>
     <svg id="graphic"></svg>

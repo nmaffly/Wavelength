@@ -47,19 +47,33 @@ def display():
     spotify = spotipy.Spotify(auth=token_info['access_token'])
 
     user_data = spotify.current_user()
+    # extracted recent data 
     top_artists_r = spotify.current_user_top_artists(limit=10, time_range='short_term')['items']
-    top_artists_a = spotify.current_user_top_artists(limit=10, time_range='long_term')['items']
     top_tracks_r = spotify.current_user_top_tracks(limit=10, time_range='short_term')['items']
+    
+    # extracted all time data
+    top_artists_a = spotify.current_user_top_artists(limit=10, time_range='long_term')['items']
     top_tracks_a = spotify.current_user_top_tracks(limit=10, time_range='long_term')['items']
 
+    # Recent stats
     artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre
     artists_r = list(artist_genres_r.keys())
     genres_r = get_genre_count(artist_genres_r)
     popularity_r = get_popularity(top_artists_r)
     tempo_r, loudness_r, acousticness_r, danceability_r, valence_r, energy_r, speechiness_r = get_audio_features_tracks(top_tracks_r, spotify)
 
+    #All Time stats
+    artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
+    artists_a = list(artist_genres_a.keys())
+    genres_a = get_genre_count(artist_genres_a)
+    popularity_a = get_popularity(top_artists_a)
+    tempo_a, loudness_a, acousticness_a, danceability_a, valence_a, energy_a, speechiness_a = get_audio_features_tracks(top_tracks_a, spotify)
+    variance_a = get_variance()
+    variance_r = get_variance()
 
-    return render_template('index.html', user_data=user_data, artist_genres_r=artist_genres_r, genre__r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r)
+
+    return render_template('index.html', user_data=user_data, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
+                           artist_genres_a=artist_genres_a, genre_a=genres_a, popularity_a=popularity_a, artists_a=artists_a, tempo_a=tempo_a, loudness_a=loudness_a, acousticness_a=acousticness_a, danceability_a=danceability_a, valence_a=valence_a, energy_a=energy_a, speechiness_a=speechiness_a, variance_a=variance_a, variance_r=variance_r)
 
 def get_artist_genres(top_artists):
     # returns dictionary with top 10 artists and associated genres, popularity scores, 
@@ -245,6 +259,9 @@ def get_audio_features_artists(top_artists, spotify):
     median_speechiness = round(find_median(speechiness_scores), ndigits=2)
     
     return median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness
+
+def get_variance():
+    return "TBD"
 
 def find_median(numbers):
     numbers.sort()

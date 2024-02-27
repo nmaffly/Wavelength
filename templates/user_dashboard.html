@@ -24,8 +24,8 @@
         <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
     </div>
 
-    <!-- Placeholder for line graph -->
-    <div id="actualLineGraph" style="width:100%;max-width:700px;height:100%;max-height:400px;background-color:transparent;"></div>
+    <!-- Line graph SVG -->
+    <svg id="lineGraph"></svg>
 
     <!-- Top Genres and Artists using the variables from your server -->
     <div id="tops">
@@ -72,18 +72,155 @@
         <button><img src="../static/icons/export.png" alt="export"></button>
     </div>
 
-    <!-- Additional sections can be added here -->
+    <div id="spotify-logo"></div>
+
+    <div id="view-more">
+      <h2 class="gradient-high">Who's on your wavelength?</h2>
+      <div id="img-holder"><img src="../static/icons/down.png" alt="Go down!"></div>
+
+    </div>
 
     <!-- Scripts for functionality -->
-    <script src="../static/dashboard.js"></script>
+    <!-- <script src="../static/dashboard.js"></script> -->
     <!-- Additional scripts can be included here -->
     <script>
-      // Assuming 'graph_json' is the variable holding your graph JSON passed from Flask
       var graphData = {{ graph_json|tojson|safe }};
-      var config = { 
-        staticPlot: true // This makes the plot non-interactive
+      window.onload = function() {
+          document.getElementById('oneMonthBtn').classList.add('active');
+          // Optionally, you can also trigger the switch view to "oneMonth" automatically
+          switchView('oneMonth');
+          drawGraph(graphData, true);
+
       };
-      Plotly.newPlot('actualLineGraph', JSON.parse(graphData), {}, config);
-  </script>
+      function switchView(view) {
+          // Remove 'active' class from both buttons
+          document.getElementById('oneMonthBtn').classList.remove('active');
+          document.getElementById('allTimeBtn').classList.remove('active');
+
+          // Add 'active' class to the selected button
+          if (view === 'oneMonth') {
+              document.getElementById('oneMonthBtn').classList.add('active');
+              drawGraph(graphData, true);
+          } else {
+              document.getElementById('allTimeBtn').classList.add('active');
+              drawGraph(graphData, false);
+          }
+          }
+      
+
+      function drawGraph(graphData, truth) {
+          if (truth) {
+            medianValue = graphData.median_values_r;
+          }
+          else {
+            medianValue = graphData.median_values_a;
+          }
+          const popularityR = medianValue[0];
+          const tempoR = medianValue[1];
+          const loudnessR = medianValue[2];
+          const acousticnessR = medianValue[3];
+          const danceabilityR = medianValue[4];
+          const valenceR = medianValue[5];
+          const energyR = medianValue[6];
+          const speechinessR = medianValue[7];
+          const varianceR = medianValue[8];
+
+          const svgElement = document.getElementById('lineGraph');
+          const bbox = svgElement.getBoundingClientRect();
+          const width = bbox.width-40;
+          const height = bbox.height;
+          const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+          // Clear any previous graph
+          svg.selectAll("*").remove();
+
+          const margin = {top: 10, right: 0, bottom: 10, left: 0},
+              graphWidth = width - margin.left - margin.right,
+              graphHeight = height - margin.top - margin.bottom;
+          
+          let g = svg.select("g");
+            if (g.empty()) {
+                g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+            }
+          
+      
+          const data = medianValue.slice(0, 8).map((value, index) => ({x: index, y: value}));
+      
+          // Scales
+          const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
+          const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
+          svg.append("g")
+            .attr("transform", `translate(0,${y(50)})`) // This positions the x-axis at the 50% mark
+            .call(d3.axisBottom(x).tickFormat(""));
+
+          
+          const defs = svg.append("defs");
+          const gradient = defs.append("linearGradient")
+              .attr("id", "area-gradient")
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", 0).attr("y1", y(0))
+              .attr("x2", 0).attr("y2", y(100));
+          gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, 0)");
+          gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
+          
+        
+          // Add the y-axis
+          const yAxis = d3.axisLeft(y)
+                      .tickValues([0, 25, 50, 75, 100])
+                      .tickFormat(d => d + "%")
+                      .tickSize(0) // Remove the tick marks
+                      .tickPadding(10); // Adjust space between ticks and labels if needed
+
+          const yAxisGroup = svg.append("g").call(yAxis);
+
+          // Apply styles to the y-axis for a dotted line
+          yAxisGroup.selectAll("path")
+                    .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
+
+          // Apply custom font settings to all axis text (x and y)
+          yAxisGroup.selectAll("text")
+                    .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                    .style("font-size", "20px");
+          // Line generator
+          const line = d3.line()
+              .x(d => x(d.x))
+              .y(d => y(d.y))
+              .curve(d3.curveBumpX);
+
+          const area = d3.area()
+              .x(d => x(d.x))
+              .y0(y(55))
+              .y1(d => y(d.y))
+              .curve(d3.curveBumpX);
+
+          // Update the area
+          const areaPath = g.selectAll(".area-path").data([data]);
+          areaPath.enter()
+              .append("path")
+              .attr("class", "area-path")
+              .attr("fill", "url(#area-gradient)")
+              .merge(areaPath)
+              .transition()
+              .duration(1000)
+              .attr("d", area);
+
+          // Update the line
+          const linePath = g.selectAll(".line-path").data([data]);
+          linePath.enter()
+              .append("path")
+              .attr("class", "line-path")
+              .attr("fill", "none")
+              .attr("stroke", "white")
+              .attr("stroke-width", 2)
+              .merge(linePath)
+              .transition()
+              .duration(1000)
+              .attr("d", line);
+          }
+
+      drawGraph(graphData, true);
+
+      window.addEventListener('resize', drawGraph(graphData, true));
+</script>
 </body>
 </html>

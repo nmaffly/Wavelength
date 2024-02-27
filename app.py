@@ -80,19 +80,30 @@ def display():
     tempo_a, loudness_a, acousticness_a, danceability_a, valence_a, energy_a, speechiness_a = get_audio_features_tracks(top_tracks_a, spotify)
     variance_a = get_variance()
 
-    median_values = [
+    median_values_r = [
         popularity_r, tempo_r, loudness_r, acousticness_r,
         danceability_r, valence_r, energy_r, speechiness_r, variance_r
     ]
+    median_values_a = [
+        popularity_a, tempo_a, loudness_a, acousticness_a,
+        danceability_a, valence_a, energy_a, speechiness_a, variance_a
+    ]
+    graph_json = {
+        "median_values_r": median_values_r,
+        "median_values_a": median_values_a,
+        # Include other data as necessary
+    }
     attributes = [
         'Popularity', 'Tempo', 'Loudness', 'Acousticness',
         'Danceability', 'Valence', 'Energy', 'Speechiness', 'Variance'
     ]
-    graph_json = create_median_values_graph(median_values, attributes)
+    #graph_json = create_median_values_graph(median_values, attributes)
 
 
-    return render_template('user_dashboard.html', user_data=user_data, graph_json=graph_json, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
+    return render_template('user_dashboard.html', graph_json=graph_json, user_data=user_data, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
                            artist_genres_a=artist_genres_a, genre_a=genres_a, popularity_a=popularity_a, artists_a=artists_a, tempo_a=tempo_a, loudness_a=loudness_a, acousticness_a=acousticness_a, danceability_a=danceability_a, valence_a=valence_a, energy_a=energy_a, speechiness_a=speechiness_a, variance_a=variance_a, variance_r=variance_r)
+
+############        FUNCTIONS        ############
 
 def get_artist_genres(top_artists):
     # returns dictionary with top 10 artists and associated genres, popularity scores, 
@@ -189,14 +200,23 @@ def get_audio_features_tracks(top_tracks, spotify):
         energy_scores.append(energy)
         speechiness_scores.append(speechiness)
 
-    median_tempo = round(find_median(tempo_scores),ndigits=2)
-    median_loudness = round(find_median(loudness_scores),ndigits=2)
-    median_acousticness = round(find_median(acousticness_scores), ndigits=2)
-    median_danceability = round(find_median(danceability_scores), ndigits=2)
-    median_valence = round(find_median(valence_scores), ndigits=2)
-    median_energy = round(find_median(energy_scores), ndigits=2)
-    median_speechiness = round(find_median(speechiness_scores), ndigits=2)
-    
+    median_tempo_pre = round(find_median(tempo_scores),ndigits=2)
+    median_loudness_pre = round(find_median(loudness_scores),ndigits=2)
+    median_acousticness = round(find_median(acousticness_scores), ndigits=2) * 100
+    median_danceability = round(find_median(danceability_scores), ndigits=2)* 100
+    median_valence = round(find_median(valence_scores), ndigits=2)* 100
+    median_energy = round(find_median(energy_scores), ndigits=2)* 100
+    median_speechiness = round(find_median(speechiness_scores), ndigits=2)* 100
+
+    # Normalizing process, others normalized before
+
+    print(median_loudness_pre)
+    median_tempo = median_tempo_pre / 2
+    median_loudness = abs((abs(median_loudness_pre) - 10) * 33)
+    print(median_loudness)
+    if median_loudness > 100:
+        median_loudness = 100
+    print(median_loudness)
     return median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness
 
 def get_audio_features_artists(top_artists, spotify):
@@ -269,14 +289,20 @@ def get_audio_features_artists(top_artists, spotify):
         energy_scores.append(avg_energy)
         speechiness_scores.append(avg_speechiness)
 
-    median_tempo = round(find_median(tempo_scores),ndigits=2)
-    median_loudness = round(find_median(loudness_scores),ndigits=2)
-    median_acousticness = round(find_median(acousticness_scores), ndigits=2)
-    median_danceability = round(find_median(danceability_scores), ndigits=2)
-    median_valence = round(find_median(valence_scores), ndigits=2)
-    median_energy = round(find_median(energy_scores), ndigits=2)
-    median_speechiness = round(find_median(speechiness_scores), ndigits=2)
-    
+    median_tempo_pre = round(find_median(tempo_scores),ndigits=2)
+    median_loudness_pre = round(find_median(loudness_scores),ndigits=2)
+    median_acousticness = round(find_median(acousticness_scores), ndigits=2) * 100
+    median_danceability = round(find_median(danceability_scores), ndigits=2)* 100
+    median_valence = round(find_median(valence_scores), ndigits=2)* 100
+    median_energy = round(find_median(energy_scores), ndigits=2)* 100
+    median_speechiness = round(find_median(speechiness_scores), ndigits=2)* 100
+
+    # Normalizing process, others normalized before
+    print(median_loudness_pre)
+    median_tempo = median_tempo_pre / 2
+    median_loudness = abs(median_loudness_pre - 10) * 20
+    if median_loudness > 100:
+        median_loudness = 100
     return median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness
 
 def get_variance():

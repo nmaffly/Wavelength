@@ -4,23 +4,15 @@ body h1{
 
 #button-timeframe {
     margin: 0px;
+    z-index: 1000;
 }
 
 #lineGraph {
     margin-bottom: 10px;
-    width: 90%;
+    width: 70%;
     max-width: 1000px;
-    height: 15%;
+    height: 200px;
     position: absolute;
-    top: 220px;
-    padding: 40px 0px;
-}
-
-#actualLineGraph {
-    margin-bottom: 0px;
-    width: 90%;
-    max-width: 1000px;
-    height: 15%;
     top: 220px;
     padding: 40px 0px;
 }
@@ -29,7 +21,7 @@ body h1{
     display: flex;
     justify-content: space-between;
     width: 350px;
-    margin-top: 50px;
+    margin-top: 350px;
 }
 
 #tops h3 {
@@ -106,15 +98,14 @@ body h1{
 
 @media (max-width: 500px) {
     #lineGraph {
-        width: 110%;
+        width: 100%;
         max-width: 1000px;
-        top: 180px;
-        height: 18%;
-        
+        top: 150px;
+        height: 200px;
     }
 
     #tops {
-        margin-top: 250px;
+        margin-top: 220px;
         width: 300px;
     }
     

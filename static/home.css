@@ -1,0 +1,65 @@
+body {
+    overflow: hidden;
+}
+#center-block {
+    margin-top: 150px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#center-block h1 {
+    margin: 0px;
+}
+
+#center-block p {
+    padding-top: 150px;
+}
+
+#lineGraph {
+    margin-bottom: 10px;
+    width: 1400px;
+    height: 120px;
+    position: absolute;
+    padding-top: 240px;
+}
+
+#graphic {
+    position: absolute;
+    bottom: -700px; /* Aligns it to the bottom of the nearest positioned ancestor */
+    left: -500px;
+    width: 1400px; /* Makes it responsive, taking the full width of its container */
+    height: 600px; /* Fixed height */
+    z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
+    transform: rotate(30deg);
+    transform-origin: bottom right;
+    overflow: hidden
+}
+
+
+#center-button {
+    margin-top: 10px;
+    width: 260px;
+    height: 50px;
+    border-radius: 10px;
+}
+
+@media (max-width: 500px) {
+    header {
+        margin-top: 0px;
+    }
+    #lineGraph {
+        width: 1200px;
+        padding-top: 150px;
+    }
+
+    #center-block {
+        margin-top: 100px;
+    }
+
+    #graphic {
+        width: 550px;
+    }
+}

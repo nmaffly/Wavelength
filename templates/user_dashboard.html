@@ -124,6 +124,8 @@
           const energyR = medianValue[6];
           const speechinessR = medianValue[7];
           const varianceR = medianValue[8];
+          const customTickNames = ["Popularity", "Tempo", "Loudness", "Acousticness", "Danceability", "Valence", "Energy", "Speechiness"];
+
 
           const svgElement = document.getElementById('lineGraph');
           const bbox = svgElement.getBoundingClientRect();
@@ -149,9 +151,13 @@
           // Scales
           const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
           const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
+
           svg.append("g")
-            .attr("transform", `translate(0,${y(50)})`) // This positions the x-axis at the 50% mark
-            .call(d3.axisBottom(x).tickFormat(""));
+            .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
+            .call(d3.axisBottom(x).tickFormat((d, i) => customTickNames[i]))
+            .selectAll("text")
+            .attr("transform", "translate(0,150)") // This example moves the text down by 20 pixels; adjust as needed
+            .style("text-anchor", "middle");
 
           
           const defs = svg.append("defs");
@@ -160,7 +166,7 @@
               .attr("gradientUnits", "userSpaceOnUse")
               .attr("x1", 0).attr("y1", y(0))
               .attr("x2", 0).attr("y2", y(100));
-          gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, 0)");
+          gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, .4)");
           gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
           
         

@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>the wavelength app</title>
     <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="static/home.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- <link rel="icon" href="../static/icons/Mock_Logo.png" type="image/png"> -->
+
 </head>
 <body>
     <header>
@@ -79,9 +82,9 @@
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
     const data = [
-        { x: 1, y: 6 }, { x: 2, y: 4 }, { x: 3, y: 4 },
+        { x: 1, y: 5.5 }, { x: 2, y: 6 }, { x: 3, y: 4 },
         { x: 4, y: 5 }, { x: 5, y: 6 }, { x: 6, y: 1.5 },
-        { x: 7, y: 4}, { x: 8, y: 7 },
+        { x: 7, y: 6}, { x: 8, y: 5.5 },
     ];
 
     const newData = [
@@ -117,8 +120,8 @@
 
     gradient1.selectAll("stop")
         .data([
-            {offset: "20%", color: "#FF8934"},
-            {offset: "100%", color: "white"}
+            {offset: "80%", color: "#FF8934"},
+            {offset: "100%", color: "rgba(255, 137, 52, .4)"}
         ])
         .enter().append("stop")
         .attr("offset", d => d.offset)
@@ -141,6 +144,8 @@
         .enter().append("stop")
         .attr("offset", d => d.offset)
         .attr("stop-color", d => d.color);
+
+    
 
     // Area generator
     const area = d3.area()

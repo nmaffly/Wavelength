@@ -57,12 +57,12 @@ def display():
     profile_pic = user_data['images'][1]['url']
 
     # extracted recent data 
-    top_artists_r = spotify.current_user_top_artists(limit=10, time_range='short_term')['items']
-    top_tracks_r = spotify.current_user_top_tracks(limit=10, time_range='short_term')['items']
+    top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
+    top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
     
     # extracted all time data
-    top_artists_a = spotify.current_user_top_artists(limit=10, time_range='long_term')['items']
-    top_tracks_a = spotify.current_user_top_tracks(limit=10, time_range='long_term')['items']
+    top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
+    top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
     # Recent stats
     artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre

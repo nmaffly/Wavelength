@@ -90,8 +90,8 @@
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
           switchView('oneMonth');
           drawGraph(graphData, true);
-
       };
+      
       function switchView(view) {
           // Remove 'active' class from both buttons
           document.getElementById('oneMonthBtn').classList.remove('active');
@@ -156,7 +156,7 @@
             .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
             .call(d3.axisBottom(x).tickFormat((d, i) => customTickNames[i]))
             .selectAll("text")
-            .attr("transform", "translate(0,150)") // This example moves the text down by 20 pixels; adjust as needed
+            .attr("transform", "translate(0,)") // This example moves the text down by 20 pixels; adjust as needed
             .style("text-anchor", "middle");
 
           

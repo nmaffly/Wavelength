@@ -8,7 +8,26 @@
     <link rel="stylesheet" href="static/home.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <!-- <link rel="icon" href="../static/icons/Mock_Logo.png" type="image/png"> -->
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: '/fetch_data',
+                type: 'GET',
+                success: function(response) {
+                    // Assuming the AJAX call to /fetch_data stores data in the session and
+                    // returns a success signal
+                    if(response.success) {
+                        // Redirect to the display page
+                        window.location.href = "/display"; // Redirect to the page where data will be displayed
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -16,9 +35,8 @@
         <img src="../static/icons/menu.png" alt="Navigation Bars">
     </header>
     <div id="center-block">
-        <h1>Who's on your <i>wavelength?</i></h1>
-        <p>Let's find out.</p>
-        <button id="center-button" onclick="window.location='/login';">Log in with Spotify</button>
+        <h1>Wow, you've got good taste.</h1>
+        <p>Give us a second to take it all in.</p>
     </div>
     <svg id="lineGraph"></svg>
     <svg id="graphic"></svg>

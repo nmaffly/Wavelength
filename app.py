@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import plotly.graph_objects as go
 import plotly
 import json
+from flask import jsonify, session
 import sqlite3
 
 app = Flask(__name__)
@@ -35,11 +36,11 @@ def callback():
     code = request.args.get('code')
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
-    return redirect('/display')
+    return render_template('loading.html')
 
 
-@app.route('/display')
-def display():
+@app.route('/fetch_data')
+def fetch_data():
     token_info = session.get('token_info', None)
     if not token_info:
         return redirect('/login')
@@ -69,39 +70,48 @@ def display():
     artists_r = list(artist_genres_r.keys())
     genres_r = get_genre_count(artist_genres_r)
     popularity_r = get_popularity(top_artists_r)
-    tempo_r, loudness_r, acousticness_r, danceability_r, valence_r, energy_r, speechiness_r = get_audio_features_tracks(top_tracks_r, spotify)
+    median_values_r = get_audio_features_tracks(top_tracks_r, spotify)
     variance_r = get_variance() 
+    median_values_r.append(popularity_r)
+    median_values_r.append(variance_r)
 
     #All Time stats
     artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
     artists_a = list(artist_genres_a.keys())
     genres_a = get_genre_count(artist_genres_a)
     popularity_a = get_popularity(top_artists_a)
-    tempo_a, loudness_a, acousticness_a, danceability_a, valence_a, energy_a, speechiness_a = get_audio_features_tracks(top_tracks_a, spotify)
+    median_values_a = get_audio_features_tracks(top_tracks_a, spotify)
     variance_a = get_variance()
-
-    median_values_r = [
-        popularity_r, tempo_r, loudness_r, acousticness_r,
-        danceability_r, valence_r, energy_r, speechiness_r, variance_r
-    ]
-    median_values_a = [
-        popularity_a, tempo_a, loudness_a, acousticness_a,
-        danceability_a, valence_a, energy_a, speechiness_a, variance_a
-    ]
+    median_values_a.append(popularity_a)
+    median_values_a.append(variance_a)
+    
     graph_json = {
         "median_values_r": median_values_r,
         "median_values_a": median_values_a,
-        # Include other data as necessary
     }
-    attributes = [
-        'Popularity', 'Tempo', 'Loudness', 'Acousticness',
-        'Danceability', 'Valence', 'Energy', 'Speechiness', 'Variance'
-    ]
-    #graph_json = create_median_values_graph(median_values, attributes)
 
+    session['processed_data'] = {
+        "graph_json": graph_json,
+        "median_values_r": median_values_r,
+        "median_values_a": median_values_a,
+        "user_data": user_data,
+        "user_name": user_name,
+        "profile_pic": profile_pic,
+        "artist_genres_r": artist_genres_r,
+        "genre_r": genres_r,
+        "artists_r": artists_r,
+        "artist_genres_a": artist_genres_a,
+        "genre_a": genres_a,
+        "artists_a": artists_a
+    }
+    return jsonify(success=True)
 
-    return render_template('user_dashboard.html', graph_json=graph_json, user_data=user_data, user_name=user_name, profile_pic=profile_pic, artist_genres_r=artist_genres_r, genre_r=genres_r,popularity_r=popularity_r, artists_r=artists_r, tempo_r=tempo_r, loudness_r=loudness_r, acousticness_r=acousticness_r, danceability_r=danceability_r, valence_r=valence_r, energy_r=energy_r, speechiness_r=speechiness_r,
-                           artist_genres_a=artist_genres_a, genre_a=genres_a, popularity_a=popularity_a, artists_a=artists_a, tempo_a=tempo_a, loudness_a=loudness_a, acousticness_a=acousticness_a, danceability_a=danceability_a, valence_a=valence_a, energy_a=energy_a, speechiness_a=speechiness_a, variance_a=variance_a, variance_r=variance_r)
+@app.route('/display')
+def display():
+    processed_data = session.get('processed_data', {})
+    if not processed_data:
+        return redirect('/login')  # or handle as appropriate
+    return render_template('user_dashboard.html', **processed_data)
 
 ############        FUNCTIONS        ############
 
@@ -209,15 +219,12 @@ def get_audio_features_tracks(top_tracks, spotify):
     median_speechiness = round(find_median(speechiness_scores), ndigits=2)* 100
 
     # Normalizing process, others normalized before
-
-    print(median_loudness_pre)
     median_tempo = median_tempo_pre / 2
     median_loudness = abs((abs(median_loudness_pre) - 10) * 33)
-    print(median_loudness)
     if median_loudness > 100:
         median_loudness = 100
-    print(median_loudness)
-    return median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness
+    median_values = [median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness]
+    return median_values
 
 def get_audio_features_artists(top_artists, spotify):
     # returns median tempo for top 10 artists

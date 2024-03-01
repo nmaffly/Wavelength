@@ -10,6 +10,12 @@
     <!-- <link rel="icon" href="../static/icons/Mock_Logo.png" type="image/png"> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
+
+        function add_text() {
+            document.getElementById('change_text').textContent = "Awesome, we're all done. Let's take a look!";
+            document.body.style.opacity = '0';
+        }
+
         $(document).ready(function() {
             $.ajax({
                 url: '/fetch_data',
@@ -18,8 +24,11 @@
                     // Assuming the AJAX call to /fetch_data stores data in the session and
                     // returns a success signal
                     if(response.success) {
+                        add_text();
                         // Redirect to the display page
-                        window.location.href = "/display"; // Redirect to the page where data will be displayed
+                        setTimeout(function() {
+                            window.location.href = "/display"; // Redirect to the page where data will be displayed
+                        }, 1000); // Delay in milliseconds (2000ms = 2 seconds)
                     }
                 },
                 error: function(error) {
@@ -42,7 +51,7 @@
     </script>
     <div id="center-block">
         <h1>Wow, you've got good taste.</h1>
-        <p>Give us a second to take it all in.</p>
+        <p id="change_text">Give us a second to take it all in.</p>
     </div>
     <svg id="lineGraph"></svg>
     <svg id="graphic"></svg>

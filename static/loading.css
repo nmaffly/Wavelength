@@ -1,5 +1,6 @@
 body {
     overflow: hidden;
+    transition: opacity 1s ease-out;
 }
 #center-block {
     margin-top: 150px;

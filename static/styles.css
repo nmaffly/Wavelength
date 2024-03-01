@@ -139,3 +139,7 @@ button:hover {
     border: 1px solid var(--primary-pink);
 
 }
+
+#home-nav:hover {
+    cursor: pointer;
+}

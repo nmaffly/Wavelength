@@ -10,11 +10,16 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <header>
-        <h3>wavelength</h3>
-        <img src="../static/icons/menu.png" alt="Navigation Bars">
-    </header>
-    
+  <header>
+      <h3 id="home-nav">wavelength</h3>
+      <img src="../static/icons/menu.png" alt="Navigation Bars">
+  </header>
+  <script>
+      // This code assumes you've given your <header> an id of "clickableHeader"
+      document.getElementById('home-nav').addEventListener('click', function() {
+          window.location.href = '/';
+      });
+  </script>
     <!-- User's name -->
     <h1>{{ user_name }}</h1>
     

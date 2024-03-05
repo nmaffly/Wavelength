@@ -85,10 +85,6 @@
       <div id="img-holder"><img src="../static/icons/down.png" alt="Go down!"></div>
 
     </div>
-
-    <!-- Scripts for functionality -->
-    <!-- <script src="../static/dashboard.js"></script> -->
-    <!-- Additional scripts can be included here -->
     <script>
       var graphData = {{ graph_json|tojson|safe }};
       window.onload = function() {
@@ -160,10 +156,15 @@
 
           svg.append("g")
             .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
-            .call(d3.axisBottom(x).tickFormat((d, i) => customTickNames[i]))
+            .call(d3.axisBottom(x)
+                .tickValues(data.map((d, i) => d.x)) // Set tick values based on data indices
+                .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
+            )
             .selectAll("text")
-            .attr("transform", "translate(0,)") // This example moves the text down by 20 pixels; adjust as needed
-            .style("text-anchor", "middle");
+            .attr("transform", "translate(12,0) rotate(45)")
+            .style("text-anchor", "start")
+            .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+            .style("font-size", "14px");
 
           
           const defs = svg.append("defs");

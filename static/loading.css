@@ -1,14 +1,16 @@
 body {
     overflow: hidden;
-    transition: opacity .5s ease-out;
+    opacity: 1;
+    transition: opacity 1s ease;
 }
 #center-block {
-    margin-top: 150px;
+    margin-top: 8%;
     width: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    animation: fade 1s 1;
 }
 
 #center-block h1 {
@@ -16,28 +18,43 @@ body {
 }
 
 #center-block p {
-    padding-top: 180px;
+    padding-top: 150px;
 }
 
 #lineGraph {
     margin-bottom: 10px;
-    width: 1400px;
-    height: 200px;
+    width: 550px;
+    height: 210px;
     position: absolute;
-    padding-top: 350px;
-    padding-bottom: 30px;
+    margin-top: 110px;
 }
 
 #graphic {
     position: absolute;
-    bottom: -700px; /* Aligns it to the bottom of the nearest positioned ancestor */
-    left: -500px;
+    bottom: -630px; /* Aligns it to the bottom of the nearest positioned ancestor */
+    left: -400px;
     width: 1400px; /* Makes it responsive, taking the full width of its container */
     height: 600px; /* Fixed height */
     z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
-    transform: rotate(30deg);
+    transform: rotate(20deg);
     transform-origin: bottom right;
-    overflow: hidden
+    overflow: hidden;
+    animation: fadein-left 1s 1;
+/*     transition: width 1s ease; */
+}
+
+#graphic2 {
+    position: absolute;
+    top: -1250px; /* Aligns it to the bottom of the nearest positioned ancestor */
+    right: 900px;
+    width: 1400px; /* Makes it responsive, taking the full width of its container */
+    height: 600px; /* Fixed height */
+    z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
+    transform: rotate(200deg);
+    transform-origin: bottom right;
+    overflow: hidden;
+    animation: fadein-top 1s 1;
+/*     transition: height 1s ease; */
 }
 
 
@@ -48,20 +65,64 @@ body {
     border-radius: 10px;
 }
 
-@media (max-width: 500px) {
-    header {
-        margin-top: 0px;
-    }
-    #lineGraph {
-        width: 1200px;
-        padding-top: 150px;
+/* Add in a middle 50% to the below to fix? */
+
+@keyframes fade {
+    0% { opacity: 0}
+    25% { opacity: 0 }
+    100% { opacity: 1 }
+}
+
+@keyframes fadein-lower { 
+    0% {    left: -400px;
+            bottom: -300px; }
+    100% { height: -200px } 
+}
+
+@keyframes fadein-left {
+    0% {    left: -100vw;
+            bottom: -800px; }
+    100% {  left: -400px;
+            bottom: -630px; }
+}
+
+@keyframes fadeout-top {
+    0% { top: -1250px}
+    100% { top: -2000px }
+}
+
+@keyframes fadein-top {
+    0% { top: -2000px}
+    100% { top: -1250px }
+}
+
+@media (max-width: 900px) {
+    body {
+        overflow: hidden;
     }
 
     #center-block {
-        margin-top: 100px;
+        margin-top: 8%;
     }
 
     #graphic {
-        width: 550px;
+        animation: fadein-lower 1s 1;
+        bottom: -50px;
+        left: auto;
+        transform: rotate(0deg);
+        height: 30%;
+        width: 110%;
+    }
+
+    #graphic2 {
+        animation: fadeout-top 1s 1;
+        top: -2000px;
+    }
+}
+
+@media (min-width: 1500px) {
+    #graphic {
+        transition: left 0.5s ease-out;
+        left: -20vw;
     }
 }

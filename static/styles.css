@@ -128,7 +128,7 @@ button:hover {
     border: 1px solid var(--primary-white);
     color: var(--primary-white);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-p);
+    font-size: 16px;
     padding: 5px 10px;
     justify-content: center;
 }

@@ -12,7 +12,7 @@
     --font-size-h1: 40px;
     --font-size-h2: 32px;
     --font-size-h3: 16px;
-    --font-size-p: 14px;
+    --font-size-p: 20px;
 
     /* Font Weights */
     --font-weight-bold: 700; /* Used for H1, H2, H3 */
@@ -140,6 +140,11 @@ button:hover {
 
 }
 
-#home-nav:hover {
-    cursor: pointer;
+#nav-bar {
+    display: flex;
+    flex-direction: row;
+}
+
+#nav-bar h3 {
+    padding-right: 80px;
 }

@@ -1,17 +1,20 @@
-from flask import Flask, render_template, Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, jsonify
 import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
-from extraction import get_artist_genres, get_genre_count, get_popularity, get_audio_features_tracks, get_audio_features_artists, get_variance
-
+from extraction import get_artist_genres, get_genre_count, get_popularity, get_audio_features_tracks, get_variance
+from flask_session import Session  # Correct import for using sessions
 
 app = Flask(__name__)
 
+# Configure the Flask app to use Flask-Session
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+Session(app)  # Initialize the session
 
 load_dotenv()
 
-app.secret_key = os.getenv('FLASK_SECRET_KEY')
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
@@ -35,7 +38,6 @@ def callback():
     session['token_info'] = token_info
     return render_template('loading.html')
 
-
 @app.route('/fetch_data')
 def fetch_data():
     token_info = session.get('token_info', None)
@@ -47,23 +49,21 @@ def fetch_data():
 
     spotify = spotipy.Spotify(auth=token_info['access_token'])
 
-    # extracted user data
+    # Extracted and stored user data
     user_data = spotify.current_user()
-    
-    # stored user data
     user_name = user_data['display_name']
-    profile_pic = user_data['images'][1]['url']
+    profile_pic = user_data['images'][0]['url'] if user_data['images'] else None
 
-    # extracted recent data 
+    # Extracted recent data
     top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
     top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
     
-    # extracted all time data
+    # Extracted all-time data
     top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
     top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
     # Recent stats
-    artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre
+    artist_genres_r = get_artist_genres(top_artists_r)
     artists_r = list(artist_genres_r.keys())
     genres_r = get_genre_count(artist_genres_r)
     popularity_r = get_popularity(top_artists_r)
@@ -72,8 +72,8 @@ def fetch_data():
     median_values_r.append(popularity_r)
     median_values_r.append(variance_r)
 
-    #All Time stats
-    artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
+    # All-time stats
+    artist_genres_a = get_artist_genres(top_artists_a)
     artists_a = list(artist_genres_a.keys())
     genres_a = get_genre_count(artist_genres_a)
     popularity_a = get_popularity(top_artists_a)
@@ -87,8 +87,9 @@ def fetch_data():
         "median_values_a": median_values_a,
     }
 
+    # Store the large data sets in the server-side session instead of the Flask session cookie
     session['processed_data'] = {
-        "graph_json": graph_json,
+        "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
         "median_values_r": median_values_r,
         "median_values_a": median_values_a,
         "user_data": user_data,
@@ -96,21 +97,31 @@ def fetch_data():
         "profile_pic": profile_pic,
         "artist_genres_r": artist_genres_r,
         "genre_r": genres_r,
-        "artists_r": artists_r,
+        "artists_r": list(artist_genres_r.keys()),
         "artist_genres_a": artist_genres_a,
         "genre_a": genres_a,
-        "artists_a": artists_a
+        "artists_a": list(artist_genres_a.keys()),
+        "popularity_r": popularity_r,
+        "tempo_r": median_values_r[0],
+        "loudness_r": median_values_r[1],
+        "acousticness_r": median_values_r[2],
+        "danceability_r": median_values_r[3],
+        "valence_r": median_values_r[4],
+        "energy_r": median_values_r[5],
+        "speechiness_r": median_values_r[6],
+        "variance_r": variance_r,
     }
     return jsonify(success=True)
+
+
+
 
 @app.route('/display')
 def display():
     processed_data = session.get('processed_data', {})
     if not processed_data:
-        return redirect('/login')  # or handle as appropriate
+        return redirect('/login')
     return render_template('user_dashboard.html', **processed_data)
-    
+
 if __name__ == '__main__':
     app.run(debug=True, port=4000)
-
-

@@ -97,6 +97,8 @@ def fetch_data():
         "profile_pic": profile_pic,
         "artist_genres_r": artist_genres_r,
         "genre_r": genres_r,
+        "artists_a": artists_a,
+        "artists_r": artists_r,
         "artists_r": list(artist_genres_r.keys()),
         "artist_genres_a": artist_genres_a,
         "genre_a": genres_a,

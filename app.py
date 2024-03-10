@@ -76,7 +76,7 @@ def fetch_data():
         user.access_token = token_info['access_token']
         user.refresh_token = token_info['refresh_token']
         user.token_expires_at = datetime.fromtimestamp(token_info['expires_at'])
-        user.most_recent_login = datetime.utcnow
+        user.most_recent_login = datetime.utcnow()
     
         # pull spotify data from db and put into flask session
 

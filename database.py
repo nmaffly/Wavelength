@@ -17,16 +17,18 @@ class User(db.Model):
     token_expires_at = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     most_recent_login = db.Column(db.DateTime, default=datetime.utcnow)
-    stats = db.relationship('UserStats', backref='user', lazy=True, cascade="all, delete")
+    stats = db.relationship('UserStats', backref='user', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<User {self.display_name}>'
 
 class UserStats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    genres_r = db.relationship('RecentGenres', backref='user_stats', lazy=True, cascade="all, delete")
-    genres_a = db.relationship('AllTimeGenres', backref='user_stats', lazy=True, cascade="all, delete")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    genres_r = db.relationship('RecentGenres', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    genres_a = db.relationship('AllTimeGenres', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    artists_r = db.relationship('RecentArtists', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    artistsa_a = db.relationship('AllTimeArtists', backref='user_stats', lazy=True, cascade="all, delete-orphan")
     popularity_r = db.Column(db.Float)
     popularity_a = db.Column(db.Float)
     tempo_r = db.Column(db.Float)
@@ -49,25 +51,25 @@ class UserStats(db.Model):
 
 class RecentGenres(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id'), nullable=False)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     genre = db.Column(db.String(100))
     genre_count = db.Column(db.Integer)
     
 
 class AllTimeGenres(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id'), nullable=False)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     genre = db.Column(db.String(100))
     genre_count = db.Column(db.Integer)
 
 class RecentArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id'), nullable=False)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
 
 class AllTimeArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id'), nullable=False)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
 
 def get_db_genres(user_id, time_range):
@@ -76,6 +78,8 @@ def get_db_genres(user_id, time_range):
 
     user_stats = UserStats.query.filter_by(user_id=user_id).first()
 
+    genre_dict = {}
+
     if time_range == 'r':
         if user_stats:
             recent_genres = RecentGenres.query \
@@ -83,10 +87,13 @@ def get_db_genres(user_id, time_range):
                             .order_by(RecentGenres.id.asc()) \
                             .all()
         
-            genres_list = [genre.genre for genre in recent_genres]
-            return genres_list
+            # set genres_dict to (key, value) --> (genre, count)
+            for genre in recent_genres:
+                genre_dict[genre.genre] = genre.genre_count
+            
+            return genre_dict
         else:
-            return []
+            return {}
     elif time_range == 'a':
     
         if user_stats:
@@ -95,10 +102,11 @@ def get_db_genres(user_id, time_range):
                             .order_by(AllTimeGenres.id.asc()) \
                             .all()
         
-            genres_list = [genre.genre for genre in all_time_genres]
-            return genres_list
+            for genre in all_time_genres:
+                genre_dict[genre.genre] = genre.genre_count
+            return genre_dict
         else:
-            return []
+            return {}
     else:
         # error handling
         raise ValueError("Incorrect time_range input. Expected 'r' for recent or 'a' for all time genres.")

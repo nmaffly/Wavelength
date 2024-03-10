@@ -1,3 +1,5 @@
+# Spotify extraction functions
+
 def get_artist_genres(top_artists):
     # returns dictionary with top 10 artists and associated genres, popularity scores, 
     # dictionary: (key, value) --> (artist, genres)
@@ -30,7 +32,7 @@ def get_popularity(top_artists):
     for item in top_artists:
         popularity_scores.append(item['popularity'])
 
-    print(popularity_scores)
+    #print(popularity_scores)
 
     median = find_median(popularity_scores)
     
@@ -196,7 +198,7 @@ def get_audio_features_artists(top_artists, spotify):
     return median_tempo, median_loudness, median_acousticness, median_danceability, median_valence, median_energy, median_speechiness
 
 def get_variance():
-    return "TBD"
+    return 0
 
 def find_median(numbers):
     numbers.sort()

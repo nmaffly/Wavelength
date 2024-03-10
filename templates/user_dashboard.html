@@ -88,6 +88,7 @@
     <script>
       var graphData = {{ graph_json|tojson|safe }};
       window.onload = function() {
+          console.log(graphData);
           document.getElementById('oneMonthBtn').classList.add('active');
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
           switchView('oneMonth');
@@ -117,16 +118,16 @@
           else {
             medianValue = graphData.median_values_a;
           }
-          const popularityR = medianValue[0];
+          const popularityR = medianValue["popularity"];
           console.log(popularityR)
-          const tempoR = medianValue[1];
-          const loudnessR = medianValue[2];
-          const acousticnessR = medianValue[3];
-          const danceabilityR = medianValue[4]; /* These might not be aligned to the right items */
-          const valenceR = medianValue[5];
-          const energyR = medianValue[6];
-          const speechinessR = medianValue[7];
-          const varianceR = medianValue[8];
+          const tempoR = medianValue["tempo"];
+          const loudnessR = medianValue["loudness"];
+          const acousticnessR = medianValue["acousticness"];
+          const danceabilityR = medianValue["danceability"]; /* These might not be aligned to the right items */
+          const valenceR = medianValue["valence"];
+          const energyR = medianValue["energy"];
+          const speechinessR = medianValue["speechiness"];
+          const varianceR = medianValue["variance"];
           const customTickNames = ["Tempo", "Loudness", "Acousticness", "Danceability", "Valence", "Energy", "Speechiness", "Popularity"];
 
           const svgElement = document.getElementById('lineGraph');
@@ -147,8 +148,9 @@
                 g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
             }
           
-      
-          const data = medianValue.slice(0, 8).map((value, index) => ({x: index, y: value}));
+          const medianValuesArray = Object.values(medianValue).slice(0, 8);
+
+          const data = medianValuesArray.map((value, index) => ({x: index, y: value}));
       
           // Scales
           const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);

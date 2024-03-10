@@ -95,15 +95,15 @@ def fetch_data():
         "genre_a": get_db_genres(user.id, 'a'),
         "artists_a": get_db_artists(user.id, 'a'),
         "artists_r": get_db_artists(user.id, 'r'),
-        "popularity_r": user.popularity_r,
-        "tempo_r": user.tempo_r,
-        "loudness_r": user.loudness_r,
-        "acousticness_r": user.acousticness_r,
-        "danceability_r": user.danceability_r,
-        "valence_r": user.valence_r,
-        "energy_r": user.energy_r,
-        "speechiness_r": user.speechiness_r,
-        "variance_r": user.variance_
+        "popularity_r": median_values_r["popularity"],
+        "tempo_r": median_values_r["tempo"],
+        "loudness_r": median_values_r["loudness"],
+        "acousticness_r": median_values_r["acousticness"],
+        "danceability_r": median_values_r["danceability"],
+        "valence_r": median_values_r["valence"],
+        "energy_r": median_values_r["energy"],
+        "speechiness_r": median_values_r["speechiness"],
+        "variance_r": median_values_r["variance"]
     }
 
     else:

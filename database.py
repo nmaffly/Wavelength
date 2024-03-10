@@ -149,12 +149,29 @@ def get_db_median_values(user_id, time_range):
     # param time_range: 'r' for recent genres, 'a' for all time genres
 
     user_stats = UserStats.query.filter_by(user_id=user_id).first()
-
+    median_values = {}
     if time_range == 'r':
-        median_values = [user_stats.tempo_r, user_stats.loudness_r, user_stats.acousticness_r, user_stats.danceability_r, user_stats.valence_r, user_stats.energy_r, user_stats.speechiness_r, user_stats.popularity_r, user_stats.variance_r]
+        median_values["tempo_r"] = user_stats.tempo_r
+        median_values["loudness_r"] = user_stats.loudness_r
+        median_values["acousticness_r"] = user_stats.acousticness_r
+        median_values["danceability_r"] = user_stats.danceability_r
+        median_values["valence_r"] = user_stats.valence_r
+        median_values["energy_r"] = user_stats.energy_r
+        median_values["speechiness_r"] = user_stats.speechiness_r
+        median_values["popularity_r"] = user_stats.popularity_r
+        median_values["variance_r"] = user_stats.variance_r
+
         return median_values
     elif time_range == 'a':
-        median_values = [user_stats.tempo_a, user_stats.loudness_a, user_stats.acousticness_a, user_stats.danceability_a, user_stats.valence_a, user_stats.energy_a, user_stats.speechiness_a, user_stats.popularity_a, user_stats.variance_a]
+        median_values["tempo_a"] = user_stats.tempo_a
+        median_values["loudness_a"] = user_stats.loudness_a
+        median_values["acousticness_a"] = user_stats.acousticness_a
+        median_values["danceability_a"] = user_stats.danceability_a
+        median_values["valence_a"] = user_stats.valence_a
+        median_values["energy_a"] = user_stats.energy_a
+        median_values["speechiness_a"] = user_stats.speechiness_a
+        median_values["popularity_a"] = user_stats.popularity_a
+        median_values["variance_a"] = user_stats.variance_a
         return median_values
     else:
         # error handling

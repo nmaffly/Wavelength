@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, jsonify, url_for, render_template_string
 import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
@@ -44,14 +44,17 @@ def index():
 
 @app.route('/login')
 def login():
+    cleanup()
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
-
     token_info = sp_oauth.get_access_token(code)
+    
+    session.clear()
+    cleanup()
     session['token_info'] = token_info
     return render_template('loading.html')
 
@@ -282,6 +285,12 @@ def display():
     if not processed_data:
         return redirect('/login')
     return render_template('user_dashboard.html', **processed_data)
+
+
+def cleanup():
+    cache_file = '.cache'
+    if os.path.exists(cache_file):
+        os.remove(cache_file)
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

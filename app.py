@@ -17,7 +17,10 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:dameD0LLA@localhost/wavelength'
+import os
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("MYSQL_USER")}:{os.getenv("MYSQL_PASSWORD")}@{os.getenv("MYSQL_HOST")}/{os.getenv("MYSQL_DB")}'
+
 
 db.init_app(app)
 migrate = Migrate(app, db)

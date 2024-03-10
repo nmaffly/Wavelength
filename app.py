@@ -44,13 +44,14 @@ def index():
 
 @app.route('/login')
 def login():
+    cleanup()
     auth_url = sp_oauth.get_authorize_url()
     return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
-
+    cleanup()
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
     return render_template('loading.html')
@@ -275,6 +276,10 @@ def fetch_data():
     # print(session['processed_data'])
     return jsonify(success=True)
 
+def cleanup():
+    cache_file = '.cache'
+    if os.path.exists(cache_file):
+        os.remove(cache_file)
 
 @app.route('/display')
 def display():

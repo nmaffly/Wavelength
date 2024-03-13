@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from flask_session import Session
-from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, db
+from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, db
 
 app = Flask(__name__)
 
@@ -95,6 +95,7 @@ def fetch_data():
         "user_data": user_data,
         "user_name": user.display_name,
         "profile_pic": user.profile_pic,
+        "share_token": user.share_token,
         "genre_r": get_db_genres(user.id, 'r'),
         "genre_a": get_db_genres(user.id, 'a'),
         "artists_a": get_db_artists(user.id, 'a'),
@@ -150,13 +151,14 @@ def fetch_data():
         median_values_a.append(variance_a)
 
         # setting up db entry for new user
-
+        user_share_token = generate_sharing_token()
         user = User(
             spotify_id=user_data['id'],
             display_name=user_data.get('display_name', 'No Name'),
             profile_pic=user_data['images'][0]['url'] if user_data['images'] else None,
             access_token=token_info['access_token'],
             refresh_token=token_info['refresh_token'],
+            share_token=user_share_token,
             token_expires_at=datetime.fromtimestamp(token_info['expires_at'])
         )
 
@@ -264,6 +266,7 @@ def fetch_data():
         "user_data": user_data,
         "user_name": user_name,
         "profile_pic": profile_pic,
+        "share_token": user_share_token,
         "genre_r": genres_r,
         "genre_a": genres_a,
         "artists_a": artists_a,

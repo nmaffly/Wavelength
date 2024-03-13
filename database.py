@@ -1,11 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import string, random
 
 db = SQLAlchemy()
 
 def generate_sharing_token():
-    # TODO
-    return 
+    possible_characters = string.ascii_letters + string.digits
+    share_token = ""
+    for i in range(0,5):
+        random_character = random.choice(possible_characters)
+        share_token += random_character
+    
+    return share_token
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,6 +23,7 @@ class User(db.Model):
     token_expires_at = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     most_recent_login = db.Column(db.DateTime, default=datetime.utcnow)
+    share_token = db.Column(db.String(5), nullable=False)
     stats = db.relationship('UserStats', backref='user', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):

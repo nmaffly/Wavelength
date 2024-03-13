@@ -28,7 +28,9 @@ class UserStats(db.Model):
     genres_r = db.relationship('RecentGenres', backref='user_stats', lazy=True, cascade="all, delete-orphan")
     genres_a = db.relationship('AllTimeGenres', backref='user_stats', lazy=True, cascade="all, delete-orphan")
     artists_r = db.relationship('RecentArtists', backref='user_stats', lazy=True, cascade="all, delete-orphan")
-    artistsa_a = db.relationship('AllTimeArtists', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    artists_a = db.relationship('AllTimeArtists', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    tracks_r = db.relationship('RecentTracks', backref='user_stats', lazy=True, cascade="all, delete-orphan")
+    tracks_a = db.relationship('AllTimeTracks', backref='user_stats', lazy=True, cascade="all, delete-orphan")
     popularity_r = db.Column(db.Float)
     popularity_a = db.Column(db.Float)
     tempo_r = db.Column(db.Float)
@@ -71,6 +73,16 @@ class AllTimeArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
+
+class RecentTracks(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
+    song = db.Column(db.String(100))
+
+class AllTimeTracks(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
+    song = db.Column(db.String(100))
 
 def get_db_genres(user_id, time_range):
     # param user_id: user.id 
@@ -138,6 +150,39 @@ def get_db_artists(user_id, time_range):
         
             artist_list = [artist.artist for artist in all_time_artists]
             return artist_list
+        else:
+            return []
+    else:
+        # error handling
+        raise ValueError("Incorrect time_range input. Expected 'r' for recent or 'a' for all time genres.")
+    
+def get_db_tracks(user_id, time_range):
+    # param user_id: user.id 
+    # param time_range: 'r' for recent genres, 'a' for all time genres
+
+    user_stats = UserStats.query.filter_by(user_id=user_id).first()
+
+    if time_range == 'r':
+        if user_stats:
+            recent_tracks = RecentTracks.query \
+                            .filter_by(user_stats_id=user_stats.id) \
+                            .order_by(RecentTracks.id.asc()) \
+                            .all()
+        
+            track_list = [track.song for track in recent_tracks]
+            return track_list
+        else:
+            return []
+    elif time_range == 'a':
+    
+        if user_stats:
+            all_time_tracks = AllTimeTracks.query \
+                            .filter_by(user_stats_id=user_stats.id) \
+                            .order_by(AllTimeTracks.id.asc()) \
+                            .all()
+        
+            track_list = [track.song for track in all_time_tracks]
+            return track_list
         else:
             return []
     else:

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session, jsonify
+from flask import Flask, render_template, redirect, request, session, jsonify, url_for
 import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from flask_session import Session
-from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, get_db_genres, get_db_artists, get_db_median_values, db
+from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, db
 
 app = Flask(__name__)
 
@@ -99,6 +99,8 @@ def fetch_data():
         "genre_a": get_db_genres(user.id, 'a'),
         "artists_a": get_db_artists(user.id, 'a'),
         "artists_r": get_db_artists(user.id, 'r'),
+        "tracks_r": get_db_tracks(user.id,'r'),
+        "tracks_a": get_db_tracks(user.id,'a'),
         "popularity_r": median_values_r["popularity"],
         "tempo_r": median_values_r["tempo"],
         "loudness_r": median_values_r["loudness"],
@@ -129,14 +131,9 @@ def fetch_data():
         artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre
         artists_r = list(artist_genres_r.keys())
         genres_r = get_genre_count(artist_genres_r)
+        tracks_r = [track['name'] for track in top_tracks_r]
         popularity_r = get_popularity(top_artists_r)
-        try:
-            # error handling for 
-            median_values_r = get_audio_features_tracks(top_tracks_r, spotify)
-        except Exception as e:
-            error_message = str(e)
-            return render_template('error.html', error_message=error_message)
-        
+        median_values_r = get_audio_features_tracks(top_tracks_r, spotify)
         variance_r = get_variance() 
         median_values_r.append(popularity_r)
         median_values_r.append(variance_r)
@@ -145,6 +142,7 @@ def fetch_data():
         artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
         artists_a = list(artist_genres_a.keys())
         genres_a = get_genre_count(artist_genres_a)
+        tracks_a = [track['name'] for track in top_tracks_a]
         popularity_a = get_popularity(top_artists_a)
         median_values_a = get_audio_features_tracks(top_tracks_a, spotify)
         variance_a = get_variance()
@@ -241,6 +239,23 @@ def fetch_data():
                 artist=a
             )
             db. session.add(new_artist)
+        
+        print("artists loaded in")
+
+        print(tracks_r)
+        for track in tracks_r:
+            new_track = RecentTracks(
+                user_stats_id=user_stats.id,
+                song=track
+            )
+            db.session.add(new_track)
+        
+        for track in tracks_a:
+            new_track = AllTimeTracks(
+                user_stats_id=user_stats.id,
+                song=track
+            )
+            db. session.add(new_track)
 
         session['processed_data'] = {
         "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
@@ -253,6 +268,8 @@ def fetch_data():
         "genre_a": genres_a,
         "artists_a": artists_a,
         "artists_r": artists_r,
+        "tracks_r": tracks_r,
+        "tracks_a": tracks_a,
         "popularity_r": popularity_r,
         "tempo_r": median_values_r[0],
         "loudness_r": median_values_r[1],
@@ -271,7 +288,7 @@ def fetch_data():
         # Handle database errors, such as connection issues or constraints violations
         print(f"Unable to commit to session: {e}")
         db.session.rollback()
-        return jsonify(error=str(e)), 500
+        return redirect(url_for('error_page'))
 
     # print(session['processed_data'])
     return jsonify(success=True)
@@ -287,6 +304,10 @@ def display():
     if not processed_data:
         return redirect('/login')
     return render_template('user_dashboard.html', **processed_data)
+
+@app.route('/error')
+def error_page():
+    return render_template('error.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

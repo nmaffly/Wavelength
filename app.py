@@ -308,6 +308,10 @@ def display():
         return redirect('/login')
     return render_template('user_dashboard.html', **processed_data)
 
+@app.route('/comparison')
+def comparison():
+    return render_template('comparison.html')
+
 @app.route('/error')
 def error_page():
     return render_template('error.html')

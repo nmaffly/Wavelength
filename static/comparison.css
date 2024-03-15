@@ -1,0 +1,130 @@
+body h1{
+    margin: 10px;
+}
+
+#button-timeframe {
+    margin: 0px;
+}
+
+.circle {
+    width: 15px; /* Size of the circle */
+    height: 15px; /* Size of the circle */
+    border-radius: 50%; /* This makes it round */
+    margin: 10px;
+}
+
+#user-circle {
+    background-color: var(--primary-orange);
+}
+
+#friend-circle {
+    background-color: #F8C540;
+}
+
+#user-ids {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#user-ids p {
+    margin: 0px;
+    padding: 0px;
+}
+
+.user-ids-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 5px;
+    width: 120px;
+}
+
+#lineGraph {
+    margin-bottom: 10px;
+    width: 60%;
+    max-width: 1000px;
+    height: 200px;
+    position: absolute;
+    top: 220px;
+    padding: 40px 0px;
+}
+  
+#tops {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 300px;
+    margin-top: 250px;
+}
+
+#tops h3 {
+    font-size: 20px;
+    margin: 0px;
+    margin-top: 10px;
+    background: linear-gradient(60deg, #FFF 10.65%, var(--primary-orange) 40.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+#tops p {
+    margin: 0px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+#match {
+    margin-top: 30px;
+    border: 1px solid white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    width: 200px;
+}
+#match-title {
+    position:relative;
+    top: 15px;
+    width: 100px;
+    background-color: var(--background-color);
+    text-align: center;
+    font-weight: var(--font-weight-bold);
+}
+
+#percent {
+    margin: 0px;
+    position: relative;
+    top: -10px;
+    font-size: 64px;
+}
+
+#match-text {
+    position:relative;
+    bottom: 35px;
+    background-color: var(--background-color);
+    text-align: center;
+    width: 300px;
+}
+
+@media (max-width: 500px) {
+    #lineGraph {
+        width: 110%;
+        max-width: 1000px;
+        top: 180px;
+        height: 18%;
+    }
+
+    #tops {
+        margin-top: 250px;
+        width: 300px;
+    }
+    
+    #view-more {
+        margin-top: 50px;
+    }
+}

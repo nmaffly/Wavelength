@@ -69,7 +69,7 @@ def fetch_data():
 
     # Extracted and stored user data
     user_data = spotify.current_user()
-    
+    print("Here_fetched")
     # check if user exists
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 

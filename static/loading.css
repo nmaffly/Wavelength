@@ -39,8 +39,6 @@ body {
     transform: rotate(20deg);
     transform-origin: bottom right;
     overflow: hidden;
-    animation: fadein-left 1s 1;
-/*     transition: width 1s ease; */
 }
 
 #graphic2 {
@@ -53,8 +51,6 @@ body {
     transform: rotate(200deg);
     transform-origin: bottom right;
     overflow: hidden;
-    animation: fadein-top 1s 1;
-/*     transition: height 1s ease; */
 }
 
 
@@ -67,35 +63,6 @@ body {
 
 /* Add in a middle 50% to the below to fix? */
 
-@keyframes fade {
-    0% { opacity: 0}
-    25% { opacity: 0 }
-    100% { opacity: 1 }
-}
-
-@keyframes fadein-lower { 
-    0% {    left: -400px;
-            bottom: -300px; }
-    100% { height: -200px } 
-}
-
-@keyframes fadein-left {
-    0% {    left: -100vw;
-            bottom: -800px; }
-    100% {  left: -400px;
-            bottom: -630px; }
-}
-
-@keyframes fadeout-top {
-    0% { top: -1250px}
-    100% { top: -2000px }
-}
-
-@keyframes fadein-top {
-    0% { top: -2000px}
-    100% { top: -1250px }
-}
-
 @media (max-width: 900px) {
     body {
         overflow: hidden;
@@ -106,7 +73,6 @@ body {
     }
 
     #graphic {
-        animation: fadein-lower 1s 1;
         bottom: -50px;
         left: auto;
         transform: rotate(0deg);
@@ -115,7 +81,6 @@ body {
     }
 
     #graphic2 {
-        animation: fadeout-top 1s 1;
         top: -2000px;
     }
 }

@@ -54,7 +54,19 @@ def callback():
     cleanup()
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
-    return render_template('loading.html')
+    if not token_info:
+        return redirect('/login')
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        session['token_info'] = token_info
+    spotify = spotipy.Spotify(auth=token_info['access_token'])
+    user_data = spotify.current_user()
+    user = User.query.filter_by(spotify_id=user_data['id']).first()
+
+    new_user = False
+    if user:
+        new_user = True
+    return render_template('loading.html', new_user = new_user)
 
 @app.route('/fetch_data')
 def fetch_data():

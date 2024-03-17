@@ -29,7 +29,7 @@
                         // Redirect to the display page
                         setTimeout(function() {
                             window.location.href = "/display"; // Redirect to the page where data will be displayed
-                        }, 500); // Delay in milliseconds (2000ms = 2 seconds)
+                        }, 5); // Delay in milliseconds (2000ms = 2 seconds)
                     }
                 },
                 error: function(error) {
@@ -53,7 +53,13 @@
     <div id="center-block">
         <h1>Wow, you've got good taste.</h1>
         <svg id="lineGraph"></svg>
-        <p id="change_text">Give us a second to take it all in.</p>
+        <p id="change_text">
+            {% if new_user %}
+                Welcome back!
+            {% else %}
+                Give us a second to take it all in.
+            {% endif %}
+        </p>
     </div>
     
     <svg id="graphic"></svg>

@@ -35,25 +35,16 @@
 
     <!-- Top Genres and Artists using the variables from your server -->
     <div id="tops">
-        <div>
+        <div id="tops-section">
             <h3 class="gradient-low">TOP GENRES</h3>
-            <ol>
-              {% for genre, count in genre_r.items() %}
-                {% if loop.index <= 5 %}
-                  <li>{{ genre }}</li>
-                {% endif %}
-              {% endfor %}
+            <ol id="top-genres-list">
+                <!-- List items will be inserted here by JavaScript -->
             </ol>
-            
         </div>
-        <div>
+        <div id="tops-section">
             <h3 class="gradient-low">TOP ARTISTS</h3>
-            <ol>
-              {% for artist in artists_r %}
-                {% if loop.index <= 5 %}
-                  <li>{{ artist }}</li>
-                  {% endif %}
-              {% endfor %}
+            <ol id="top-artists-list">
+                <!-- List items will be inserted here by JavaScript -->
             </ol>
         </div>
     </div>
@@ -75,8 +66,27 @@
     <!-- Code export section -->
     <div id="code">
         <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ share_token }}</b></span></h2>
-        <button><img src="../static/icons/export.png" alt="export"></button>
+        <button id="copyButton" onclick="copyButton()"><img src="../static/icons/export.png" alt="export"></button>
+        <div id="alertContainer" style="display: none;">Code copied. Get to sharing!</div>
     </div>
+    <script>
+        function copyButton() {
+            // Get the share_token text to copy
+            var shareToken = document.querySelector('#code-h2 .highlight b').innerText;
+            
+            // Copy shareToken to clipboard
+            navigator.clipboard.writeText(shareToken).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+    
+            // Show alert
+            var alertContainer = document.getElementById('alertContainer');
+            alertContainer.style.display = 'block';
+            setTimeout(function() { alertContainer.style.display = 'none'; }, 3000); // Hide alert after 3 seconds
+        }
+    </script>
 
     <div id="spotify-logo"></div>
 
@@ -87,48 +97,60 @@
     </div>
     <script>
       var graphData = {{ graph_json|tojson|safe }};
+      var artistData_r = {{ artists_r|tojson|safe }};
+      var artistData_a = {{ artists_a|tojson|safe }};
+      var genreData_r = {{ genre_r|tojson|safe }};
+      var genreData_a = {{ genre_a|tojson|safe }};
       window.onload = function() {
           console.log(graphData);
           document.getElementById('oneMonthBtn').classList.add('active');
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
           switchView('oneMonth');
-          drawGraph(graphData, true);
+          drawGraph(graphData, true, true);
       };
       
       function switchView(view) {
-          // Remove 'active' class from both buttons
-          document.getElementById('oneMonthBtn').classList.remove('active');
-          document.getElementById('allTimeBtn').classList.remove('active');
+            // Remove 'active' class from both buttons
+            document.getElementById('oneMonthBtn').classList.remove('active');
+            document.getElementById('allTimeBtn').classList.remove('active');
 
-          // Add 'active' class to the selected button
-          if (view === 'oneMonth') {
-              document.getElementById('oneMonthBtn').classList.add('active');
-              drawGraph(graphData, true);
-          } else {
-              document.getElementById('allTimeBtn').classList.add('active');
-              drawGraph(graphData, false);
-          }
+            // Add 'active' class to the selected button
+            if (view === 'oneMonth') {
+                document.getElementById('oneMonthBtn').classList.add('active');
+                drawGraph(graphData, true, false);
+            } else {
+                document.getElementById('allTimeBtn').classList.add('active');
+                drawGraph(graphData, false, false);
+            }
+            document.getElementById('top-genres-list').innerHTML = '';
+            document.getElementById('top-artists-list').innerHTML = '';
+
+            // Determine which data set to use based on the view
+            var currentArtistsData = view === 'oneMonth' ? artistData_r : artistData_a;
+            var currentGenresData = view === 'oneMonth' ? genreData_r : genreData_a;
+
+            // Update the "TOP ARTISTS" list
+            // Update the "TOP ARTISTS" list
+            currentArtistsData.slice(0, 5).forEach(function(artist) {
+                var li = document.createElement('li');
+                li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
+                document.getElementById('top-artists-list').appendChild(li);
+            });
+
+
+            // Update the "TOP GENRES" list
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(function([genre, count]) {
+                var li = document.createElement('li');
+                li.textContent = genre;
+                document.getElementById('top-genres-list').appendChild(li);
+            });
           }
       
 
-      function drawGraph(graphData, truth) {
-          if (truth) {
-            medianValue = graphData.median_values_r;
-          }
-          else {
-            medianValue = graphData.median_values_a;
-          }
-          const popularityR = medianValue["popularity"];
-          console.log(popularityR)
-          const tempoR = medianValue["tempo"];
-          const loudnessR = medianValue["loudness"];
-          const acousticnessR = medianValue["acousticness"];
-          const danceabilityR = medianValue["danceability"]; /* These might not be aligned to the right items */
-          const valenceR = medianValue["valence"];
-          const energyR = medianValue["energy"];
-          const speechinessR = medianValue["speechiness"];
-          const varianceR = medianValue["variance"];
-          const customTickNames = ["Tempo", "Loudness", "Acousticness", "Danceability", "Valence", "Energy", "Speechiness", "Popularity"];
+      function drawGraph(graphData, truth, draw) {
+          const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
+          const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
+          const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
 
           const svgElement = document.getElementById('lineGraph');
           const bbox = svgElement.getBoundingClientRect();
@@ -147,10 +169,6 @@
             if (g.empty()) {
                 g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
             }
-          
-          const medianValuesArray = Object.values(medianValue).slice(0, 8);
-
-          const data = medianValuesArray.map((value, index) => ({x: index, y: value}));
       
           // Scales
           const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
@@ -168,21 +186,19 @@
             .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
             .style("font-size", "14px");
 
-          
           const defs = svg.append("defs");
           const gradient = defs.append("linearGradient")
               .attr("id", "area-gradient")
               .attr("gradientUnits", "userSpaceOnUse")
               .attr("x1", 0).attr("y1", y(0))
               .attr("x2", 0).attr("y2", y(100));
-          gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, .4)");
-          gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
+          gradient.append("stop").attr("offset", "40%").attr("stop-color", "rgba(255, 137, 52, .4)");
+          gradient.append("stop").attr("offset", "80%").attr("stop-color", "#FF8934");
           
         
           // Add the y-axis
           const yAxis = d3.axisLeft(y)
                       .tickValues([0, 25, 50, 75, 100])
-                      .tickFormat(d => d + "%")
                       .tickSize(0) // Remove the tick marks
                       .tickPadding(10); // Adjust space between ticks and labels if needed
 
@@ -197,7 +213,9 @@
                     .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
                     .style("font-size", "20px");
           // Line generator
-          const line = d3.line()
+
+          
+            const line = d3.line()
               .x(d => x(d.x))
               .y(d => y(d.y))
               .curve(d3.curveBumpX);
@@ -207,33 +225,38 @@
               .y0(y(55))
               .y1(d => y(d.y))
               .curve(d3.curveBumpX);
+        
+            const areaPath = g.selectAll(".area-path").data([data]);
 
-          // Update the area
-          const areaPath = g.selectAll(".area-path").data([data]);
-          areaPath.enter()
-              .append("path")
-              .attr("class", "area-path")
-              .attr("fill", "url(#area-gradient)")
-              .merge(areaPath)
-              .transition()
-              .duration(1000)
-              .attr("d", area);
+            // Enter + update area
+            areaPath.enter()
+                .append("path")
+                .attr("class", "area-path")
+                .attr("fill", "url(#area-gradient)")
+                .attr("opacity", "0.7")
+                // The merge here combines the enter selection (new elements) with the existing elements (update selection)
+                .merge(areaPath)
+                .transition()
+                .duration(1000)
+                .attr("d", area);
 
-          // Update the line
-          const linePath = g.selectAll(".line-path").data([data]);
-          linePath.enter()
-              .append("path")
-              .attr("class", "line-path")
-              .attr("fill", "none")
-              .attr("stroke", "white")
-              .attr("stroke-width", 2)
-              .merge(linePath)
-              .transition()
-              .duration(1000)
-              .attr("d", line);
-          }
+            // Bind data to elements
+            const linePath = g.selectAll(".line-path").data([data]);
 
-      drawGraph(graphData, true);
+            // Enter + update line
+            linePath.enter()
+                .append("path")
+                .attr("class", "line-path")
+                .attr("fill", "none")
+                .attr("stroke", "#FF8934")
+                .attr("stroke-width", 2)
+                .merge(linePath) // Combine enter and update selections
+                .transition()
+                .duration(1000)
+                .attr("d", line);
+        }
+
+            
 
       window.addEventListener('resize', drawGraph(graphData, true));
 </script>

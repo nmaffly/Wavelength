@@ -39,7 +39,7 @@ body {
 }
 
 header {
-    margin: 20px;
+    margin: 10px;
     width: 98%;
     display: flex;
     flex-direction: row;
@@ -59,6 +59,93 @@ header img {
 
 header img:hover {
     cursor: pointer;
+}
+
+#home-nav:hover {
+    cursor: pointer;
+}
+
+#nav-button {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    background: none;
+    cursor: pointer;
+    border: none;
+    transition: .5s;
+}
+
+#nav-icon {
+    width: 30px;
+}
+
+.nav-icon-fade {
+    transition: opacity 3s ease;
+}
+
+@keyframes fade-in-animation {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.nav-button-spin {
+    animation: spin .5s ease;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(180deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+#nav-menu {
+    transition: .5s;
+    display: block;
+    position: absolute;
+    top: 15px;
+    right: -150px;
+    padding: 0px 20px;
+    width: 80px;
+    font-size: var(--font-size-h3);
+    background-color: var(--background-color);
+    z-index: 10000;
+}
+
+#nav-menu ul {
+    list-style: none; /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+/* Style the navigation menu list items */
+#nav-menu ul li {
+    text-align: center;
+    padding-bottom: 10px;
+    margin: 15px 0px;
+    border-bottom: 1px solid white;
+}
+
+/* Style the navigation menu links */
+#nav-menu ul li a {
+    text-decoration: none; /* Remove underline */
+    color: white;
+    transition: color 0.3s ease;
+}
+
+#nav-menu ul li a:hover {
+    color: var(--primary-orange);
+}
+
+#highlight-link {
+    color:var(--primary-orange)  !important;
 }
 
 h1 {
@@ -147,4 +234,12 @@ button:hover {
 
 #nav-bar h3 {
     padding-right: 80px;
+}
+
+@media (max-width: 500px) {
+    #nav-menu {
+        border: 1px solid white;
+        border-radius: 10px;
+    }
+
 }

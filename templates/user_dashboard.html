@@ -13,14 +13,53 @@
 <body>
   <header>
       <h3 id="home-nav">wavelength</h3>
-      <img src="../static/icons/menu.png" alt="Navigation Bars">
-  </header>
-  <script>
-      // This code assumes you've given your <header> an id of "clickableHeader"
-      document.getElementById('home-nav').addEventListener('click', function() {
+      <button id="nav-button">
+        <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+    </button>
+    <div id="nav-menu">
+        <ul>
+            <li><a href="#home">home</a></li>
+            <li><a href="#about">about</a></li>
+            <li><a href="#resume">help</a></li>
+        </ul>
+    </div>
+    </header>
+<script>
+    document.getElementById('home-nav').addEventListener('click', function() {
           window.location.href = '/';
       });
-  </script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const navButton = document.getElementById("nav-button");
+        const navMenu = document.getElementById("nav-menu");
+        const navIcon = document.getElementById("nav-icon");
+
+        // Toggle the menu's visibility when the button is clicked
+        navButton.addEventListener("click", () => {
+            if (navIcon.src.endsWith("Menu2.png")) {
+                navIcon.src = "../static/icons/Menu_close.png";
+                navIcon.style.width = "20px";
+                navMenu.style.right = "25px";
+                navButton.style.right = "160px";
+                navButton.classList.add("nav-button-spin");
+
+                navButton.addEventListener("animationend", () => {
+                    navButton.classList.remove("nav-button-spin");
+                });
+
+            } else {
+                navIcon.src = "../static/icons/Menu2.png";
+                navIcon.style.width = "30px";
+                navButton.style.right = "20px";
+                navMenu.style.right = "-150px";
+                navIcon.classList.toggle("nav-icon-fade");
+                navIcon.addEventListener("transitionend", () => {
+                    navIcon.classList.remove("nav-icon-fade");
+                });
+            }
+        });
+    });
+
+</script>
     <!-- User's name -->
     <h1>{{ user_name }}</h1>
     
@@ -184,7 +223,7 @@
             .attr("transform", "translate(12,0) rotate(45)")
             .style("text-anchor", "start")
             .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-            .style("font-size", "14px");
+            .style("font-size", "16px");
 
           const defs = svg.append("defs");
           const gradient = defs.append("linearGradient")

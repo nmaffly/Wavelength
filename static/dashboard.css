@@ -126,10 +126,9 @@ body h1{
 
 @media (max-width: 500px) {
     #lineGraph {
-        width: 100%;
-        max-width: 1000px;
-        top: 150px;
-        height: 200px;
+        width: 110%;
+        top: 170px;
+        height: 150px;
     }
 
     #tops {

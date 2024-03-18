@@ -58,8 +58,8 @@
             }
         });
     });
-
 </script>
+
     <!-- User's name -->
     <h1>{{ user_name }}</h1>
     
@@ -73,40 +73,48 @@
     <svg id="lineGraph"></svg>
 
     <!-- Top Genres and Artists using the variables from your server -->
-    <div id="tops">
-        <div id="tops-section">
-            <h3 class="gradient-low">TOP GENRES</h3>
-            <ol id="top-genres-list">
-                <!-- List items will be inserted here by JavaScript -->
-            </ol>
+    <div id="tops-wrapper">
+        <div id="tops">
+            <div id="tops-section">
+                <h3 class="gradient-low">TOP GENRES</h3>
+                <ol id="top-genres-list">
+                    <!-- List items will be inserted here by JavaScript -->
+                </ol>
+            </div>
+            <div id="tops-section">
+                <h3 class="gradient-low">TOP ARTISTS</h3>
+                <ol id="top-artists-list">
+                    <!-- List items will be inserted here by JavaScript -->
+                </ol>
+            </div>
         </div>
-        <div id="tops-section">
-            <h3 class="gradient-low">TOP ARTISTS</h3>
-            <ol id="top-artists-list">
-                <!-- List items will be inserted here by JavaScript -->
-            </ol>
-        </div>
+        <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
     </div>
-    <button onclick="window.location='/comparison';">Comparison View</button>
-    <!-- Spotify Stats -->
-    <div id="spotify-stats">
-        <h2 class="gradient-high">Spotify Stats</h2>
-        <p> Median Popularity (popularity_r): {{ popularity_r }}</p>
-        <p> Median Tempo (tempo_r): {{ tempo_r }}</p>
-        <p> Median Loudness (loudness_r): {{ loudness_r }}</p>
-        <p> Median Acousticness (acousticness_r): {{ acousticness_r }}</p>
-        <p> Median Danceability (danceability_r): {{ danceability_r }}</p>
-        <p> Median Valence (valence_r): {{ valence_r }}</p>
-        <p> Median Energy (energy_r): {{ energy_r }}</p>
-        <p> Median Speechiness (speechiness_r): {{ speechiness_r }}</p>
-        <p> Variance (variance_r): {{ variance_r }}</p>
-    </div>
+
+    <script>
+        document.getElementById('tops-view-more').addEventListener('click', function() {
+            const tops = document.getElementById("tops");
+            const buttonImg = document.querySelector("#tops-view-more img");
+            
+            const currentHeight = tops.style.height;
+
+            if (!currentHeight || currentHeight === "170px") {
+                tops.style.height = "100%";
+                buttonImg.style.transform = "rotate(180deg)";
+            } else {
+                tops.style.height = "170px";
+                buttonImg.style.transform = "rotate(0deg)";
+            }
+        });
+    </script>
+
+    <button onclick="window.location='/comparison';" style="margin-top: 40px; padding: 10px;">Comparison View</button>
 
     <!-- Code export section -->
     <div id="code">
         <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ share_token }}</b></span></h2>
         <button id="copyButton" onclick="copyButton()"><img src="../static/icons/export.png" alt="export"></button>
-        <div id="alertContainer" style="display: none;">Code copied. Get to sharing!</div>
+        <div id="alertContainer" style="display: none;">Code copied. Have fun sharing!</div>
     </div>
     <script>
         function copyButton() {
@@ -170,7 +178,7 @@
 
             // Update the "TOP ARTISTS" list
             // Update the "TOP ARTISTS" list
-            currentArtistsData.slice(0, 5).forEach(function(artist) {
+            currentArtistsData.slice(0, 10).forEach(function(artist) {
                 var li = document.createElement('li');
                 li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
                 document.getElementById('top-artists-list').appendChild(li);
@@ -178,7 +186,7 @@
 
 
             // Update the "TOP GENRES" list
-            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(function([genre, count]) {
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);

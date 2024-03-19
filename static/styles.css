@@ -217,7 +217,16 @@ button:hover {
     font-family: var(--font-family-mono);
     font-size: 16px;
     padding: 5px 10px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    
+}
+
+.view-button p {
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid red;
 }
 
 .view-button.active {
@@ -230,10 +239,13 @@ button:hover {
 #nav-bar {
     display: flex;
     flex-direction: row;
+    
 }
 
-#nav-bar h3 {
+#nav-bar a {
     padding-right: 80px;
+    text-decoration: none;
+    color: white;
 }
 
 @media (max-width: 500px) {

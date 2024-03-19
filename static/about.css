@@ -1,0 +1,62 @@
+body {
+    overflow: hidden;
+
+}
+#center-block {
+    margin-top: 8%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fade 1s 1;
+}
+
+#center-block h1 {
+    margin: 0px;
+}
+
+#body-text {
+    text-align: left;
+}
+
+
+#lineGraph {
+    margin-bottom: 10px;
+    width: 110%;
+    height: 20vh;
+    position: absolute;
+    bottom: 8%;
+    animation: fade 1s 1;
+}
+
+/* Add in a middle 50% to the below to fix? */
+
+@keyframes fade {
+    0% { opacity: 0}
+    25% { opacity: 0 }
+    100% { opacity: 1 }
+}
+
+@media (max-width: 900px) {
+    body {
+        overflow: hidden;
+    }
+
+    #center-block {
+        margin-top: 20%;
+        width: 85%;
+    }
+
+    #lineGraph {
+        height: 200px;
+        bottom: 80px;
+    }
+}
+
+@media (min-width: 1500px) {
+    #graphic {
+        transition: left 0.5s ease-out;
+        left: -20vw;
+    }
+}

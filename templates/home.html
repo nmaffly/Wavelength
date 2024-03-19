@@ -13,16 +13,10 @@
 <body>
     <header>
         <div id="nav-bar">
-            <h3 id="home-nav">wavelength</h3>
-            <h3>about</h3>
+            <h3  id="home-nav"><a href="/">wavelength</a></h3>
+            <h3><a href="/about">about</a></h3>
         </div>
     </header>
-    <script>
-        // This code assumes you've given your <header> an id of "clickableHeader"
-        document.getElementById('home-nav').addEventListener('click', function() {
-            window.location.href = '/';
-        });
-    </script>
     <div id="center-block">
         <h1>Who's on your <i>wavelength?</i></h1>
         <svg id="lineGraph"></svg>

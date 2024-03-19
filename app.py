@@ -5,10 +5,10 @@ from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 from extraction import get_artist_genres, get_genre_count, get_popularity, get_audio_features_tracks, get_variance
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
-from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, db
+from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, load_user_stats, db
 
 app = Flask(__name__)
 
@@ -87,9 +87,11 @@ def fetch_data():
 
     print("User acquired from database")
 
-    if user:
-        # If user exists, update tokens and most recent login
+    if user and (datetime.utcnow() - user.last_updated) < timedelta(weeks=1):
+        # If user exists and it's been less than a week, update tokens and most recent login
         # then pull stats from database into flask session
+
+        print("It's been less than 30 seconds. No data update")
 
         user.access_token = token_info['access_token']
         user.refresh_token = token_info['refresh_token']
@@ -126,8 +128,8 @@ def fetch_data():
     }
 
     else:
-        # otherwise if it's a new user extract spotify info, add to database and session
-
+        # otherwise extract spotify info, add to database and session
+        print("User doesn't exist, or it's been longer than 30 seconds, new data being pulled")
         # stored user data
         user_name = user_data['display_name']
         profile_pic = user_data['images'][1]['url']
@@ -162,139 +164,72 @@ def fetch_data():
         median_values_a.append(popularity_a)
         median_values_a.append(variance_a)
 
-        # setting up db entry for new user
-        user_share_token = generate_sharing_token()
-        user = User(
-            spotify_id=user_data['id'],
-            display_name=user_data.get('display_name', 'No Name'),
-            profile_pic=user_data['images'][0]['url'] if user_data['images'] else None,
-            access_token=token_info['access_token'],
-            refresh_token=token_info['refresh_token'],
-            share_token=user_share_token,
-            token_expires_at=datetime.fromtimestamp(token_info['expires_at'])
-        )
+        new_data = {
+                "recent_genres": genres_r,
+                "all_time_genres": genres_a,
+                "recent_artists": artists_r,
+                "all_time_artists": artists_a,
+                "recent_tracks": tracks_r,
+                "all_time_tracks": tracks_a
+        }
 
-        print("user instance made")
-        db.session.add(user)
-        try:
-            db.session.commit()
-            print("successfully commited to session")
-        except Exception as e:
-            # Handle database errors, such as connection issues or constraints violations
-            print(f"Unable to commit to session: {e}")
-            db.session.rollback()
-            return jsonify(error=str(e)), 500
-        
-        print("user instanced added to db session")
-
-        user_stats = UserStats(
-            user_id=user.id,
-            popularity_r=popularity_r,
-            popularity_a=popularity_a,
-            tempo_r=median_values_r[0],
-            tempo_a=median_values_a[0],
-            loudness_r=median_values_r[1],
-            loudness_a=median_values_a[1],
-            acousticness_r=median_values_r[2],
-            acousticness_a=median_values_a[2],
-            danceability_r=median_values_r[3],
-            danceability_a=median_values_a[3],
-            valence_r=median_values_r[4],
-            valence_a=median_values_a[4],
-            energy_r=median_values_r[5],
-            energy_a=median_values_a[5],
-            speechiness_r=median_values_r[6],
-            speechiness_a=median_values_a[6],
-            variance_r=variance_r,
-            variance_a=variance_a
+        if not user:
+            #if the user doesn't exist, create new user
+            # setting up db entry for new user
+            user_share_token = generate_sharing_token()
+            user = User(
+                spotify_id=user_data['id'],
+                display_name=user_data.get('display_name', 'No Name'),
+                profile_pic=user_data['images'][0]['url'] if user_data['images'] else None,
+                access_token=token_info['access_token'],
+                refresh_token=token_info['refresh_token'],
+                share_token=user_share_token,
+                token_expires_at=datetime.fromtimestamp(token_info['expires_at']),
+                last_updated=datetime.utcnow()
             )
-        
-        db.session.add(user_stats)
-        try:
-            db.session.commit()
-            print("successfully commited to session")
-        except Exception as e:
-            # Handle database errors, such as connection issues or constraints violations
-            print(f"Unable to commit to session: {e}")
-            db.session.rollback()
-            return jsonify(error=str(e)), 500
-        print("User stats made and added to db session")
 
-        for g, count in genres_r.items():
-            new_genre = RecentGenres(
-                user_stats_id=user_stats.id,
-                genre=g,
-                genre_count=count
-            )
-            db.session.add(new_genre)
-
-        print("genres_r loaded in")
-        
-        for g, count in genres_a.items():
-            new_genre = AllTimeGenres(
-                user_stats_id=user_stats.id,
-                genre=g,
-                genre_count=count
-            )
-            db. session.add(new_genre)
-
-        print("genres_a loaded in")
-
-        for a in artists_r:
-            new_artist = RecentArtists(
-                user_stats_id=user_stats.id,
-                artist=a
-            )
-            db.session.add(new_artist)
-        
-        for a in artists_a:
-            new_artist = AllTimeArtists(
-                user_stats_id=user_stats.id,
-                artist=a
-            )
-            db. session.add(new_artist)
-        
-        print("artists loaded in")
-
-        print(tracks_r)
-        for track in tracks_r:
-            new_track = RecentTracks(
-                user_stats_id=user_stats.id,
-                song=track
-            )
-            db.session.add(new_track)
-        
-        for track in tracks_a:
-            new_track = AllTimeTracks(
-                user_stats_id=user_stats.id,
-                song=track
-            )
-            db. session.add(new_track)
-
+            print("user instance made")
+            db.session.add(user)
+            try:
+                db.session.commit()
+            except Exception as e:
+                # Handle database errors, such as connection issues or constraints violations
+                print(f"Unable to commit to session: {e}")
+                db.session.rollback()
+                return jsonify(error=str(e)), 500
+            
+            print("user instanced added to db session")
+            
+            load_user_stats(user.id, median_values_r, median_values_a, new_data, update=False)
+        else:
+            # the user exists, update info in db
+            user.last_updated = datetime.utcnow()
+            load_user_stats(user.id, median_values_r, median_values_a, new_data, update=True)
+            
         session['processed_data'] = {
-        "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
-        "median_values_r": median_values_r,
-        "median_values_a": median_values_a,
-        "user_data": user_data,
-        "user_name": user_name,
-        "profile_pic": profile_pic,
-        "share_token": user_share_token,
-        "genre_r": genres_r,
-        "genre_a": genres_a,
-        "artists_a": artists_a,
-        "artists_r": artists_r,
-        "tracks_r": tracks_r,
-        "tracks_a": tracks_a,
-        "popularity_r": popularity_r,
-        "tempo_r": median_values_r[0],
-        "loudness_r": median_values_r[1],
-        "acousticness_r": median_values_r[2],
-        "danceability_r": median_values_r[3],
-        "valence_r": median_values_r[4],
-        "energy_r": median_values_r[5],
-        "speechiness_r": median_values_r[6],
-        "variance_r": variance_r,
-    }
+            "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
+            "median_values_r": median_values_r,
+            "median_values_a": median_values_a,
+            "user_data": user_data,
+            "user_name": user_name,
+            "profile_pic": profile_pic,
+            "share_token": user.share_token,
+            "genre_r": genres_r,
+            "genre_a": genres_a,
+            "artists_a": artists_a,
+            "artists_r": artists_r,
+            "tracks_r": tracks_r,
+            "tracks_a": tracks_a,
+            "popularity_r": popularity_r,
+            "tempo_r": median_values_r[0],
+            "loudness_r": median_values_r[1],
+            "acousticness_r": median_values_r[2],
+            "danceability_r": median_values_r[3],
+            "valence_r": median_values_r[4],
+            "energy_r": median_values_r[5],
+            "speechiness_r": median_values_r[6],
+            "variance_r": variance_r,
+        }
 
     try:
         db.session.commit()

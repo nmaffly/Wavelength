@@ -23,6 +23,7 @@ class User(db.Model):
     token_expires_at = db.Column(db.DateTime, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     most_recent_login = db.Column(db.DateTime, default=datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     share_token = db.Column(db.String(5), nullable=False)
     stats = db.relationship('UserStats', backref='user', lazy=True, cascade="all, delete-orphan")
 
@@ -90,6 +91,87 @@ class AllTimeTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     song = db.Column(db.String(100))
+
+def load_user_stats(user_id, median_values_r, median_values_a, new_data, update):
+    if update:
+        user_stats = UserStats.query.filter_by(user_id=user_id).first()
+
+        if not user_stats:
+            raise ValueError("UserStats not found")
+        
+        db.session.delete(user_stats)
+        db.session.commit()
+
+    user_stats = UserStats(
+                user_id=user_id,
+                popularity_r=median_values_r[7],
+                popularity_a=median_values_a[7],
+                tempo_r=median_values_r[0],
+                tempo_a=median_values_a[0],
+                loudness_r=median_values_r[1],
+                loudness_a=median_values_a[1],
+                acousticness_r=median_values_r[2],
+                acousticness_a=median_values_a[2],
+                danceability_r=median_values_r[3],
+                danceability_a=median_values_a[3],
+                valence_r=median_values_r[4],
+                valence_a=median_values_a[4],
+                energy_r=median_values_r[5],
+                energy_a=median_values_a[5],
+                speechiness_r=median_values_r[6],
+                speechiness_a=median_values_a[6],
+                variance_r=median_values_r[8],
+                variance_a=median_values_r[8]
+            )
+    db.session.add(user_stats)
+    db.session.commit()
+
+    for g, count in new_data["recent_genres"].items():
+        new_genre = RecentGenres(
+            user_stats_id=user_stats.id,
+            genre=g,
+            genre_count=count
+        )
+        db.session.add(new_genre)
+    
+    for g, count in new_data["all_time_genres"].items():
+        new_genre = AllTimeGenres(
+            user_stats_id=user_stats.id,
+            genre=g,
+            genre_count=count
+        )
+        db. session.add(new_genre)
+
+    for a in new_data["recent_artists"]:
+        new_artist = RecentArtists(
+            user_stats_id=user_stats.id,
+            artist=a
+        )
+        db.session.add(new_artist)
+
+    for a in new_data["all_time_artists"]:
+        new_artist = AllTimeArtists(
+            user_stats_id=user_stats.id,
+            artist=a
+        )
+        db. session.add(new_artist)
+
+    for track in new_data["recent_tracks"]:
+        new_track = RecentTracks(
+            user_stats_id=user_stats.id,
+            song=track
+        )
+        db.session.add(new_track)
+
+    for track in new_data["all_time_tracks"]:
+        new_track = AllTimeTracks(
+            user_stats_id=user_stats.id,
+            song=track
+        )
+        db. session.add(new_track)
+
+    db.session.commit()
+
 
 def get_db_genres(user_id, time_range):
     # param user_id: user.id 

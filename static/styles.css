@@ -28,14 +28,52 @@
 body {
     margin: 10px;
     padding: 10px;
-    background-color: var(--background-color);
     color: var(--primary-white);
     font-family: var(--font-family-poppins);
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100%;
+    background: linear-gradient(to bottom, var(--background-color), #202020);
+}
+
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+
+h2 {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+h3 {
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    font-style: italic; /* H3 is italic */
+}
+
+p {
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-normal);
+}
+
+button {
+    background-color: var(--primary-pink);
+    color: var(--background-color);
+    border: none;
+    font-family: var(--font-family-poppins);
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-semi-bold);
+    border-radius: 10px;
 }
 
 header {
@@ -75,14 +113,6 @@ header img:hover {
     transition: .5s;
 }
 
-#nav-icon {
-    width: 30px;
-}
-
-.nav-icon-fade {
-    transition: opacity 3s ease;
-}
-
 @keyframes fade-in-animation {
     from {
         opacity: 0;
@@ -105,6 +135,13 @@ header img:hover {
     }
 }
 
+#nav-icon {
+    width: 30px;
+}
+
+.nav-icon-fade {
+    transition: opacity 3s ease;
+}
 
 #nav-menu {
     transition: .5s;
@@ -113,9 +150,8 @@ header img:hover {
     top: 15px;
     right: -150px;
     padding: 0px 20px;
-    width: 80px;
+    width: 100px;
     font-size: var(--font-size-h3);
-    background-color: var(--background-color);
     z-index: 10000;
 }
 
@@ -146,42 +182,6 @@ header img:hover {
 
 #highlight-link {
     color:var(--primary-orange)  !important;
-}
-
-h1 {
-    font-size: var(--font-size-h1);
-    font-weight: var(--font-weight-bold);
-    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-}
-
-
-h2 {
-    font-size: var(--font-size-h2);
-    font-weight: var(--font-weight-bold);
-}
-
-h3 {
-    font-size: var(--font-size-h3);
-    font-weight: var(--font-weight-bold);
-    font-style: italic; /* H3 is italic */
-}
-
-p {
-    font-size: var(--font-size-p);
-    font-weight: var(--font-weight-normal);
-}
-
-button {
-    background-color: var(--primary-pink);
-    color: var(--background-color);
-    border: none;
-    font-family: var(--font-family-poppins);
-    font-size: var(--font-size-p);
-    font-weight: var(--font-weight-semi-bold);
-    border-radius: 10px;
 }
 
 ol {

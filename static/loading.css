@@ -2,6 +2,7 @@ body {
     overflow: hidden;
     opacity: 1;
     transition: opacity 1s ease;
+    height: 100vh;
 }
 #center-block {
     margin-top: 8%;

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wavelength App</title>
+    <link rel="icon" href="../static/icons/logo.png" type="image/png">
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/playlists.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <header>
+      <h3 id="home-nav">wavelength</h3>
+      <button id="nav-button">
+        <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+    </button>
+    <div id="nav-menu">
+        <ul>
+            <li><a href="/">home</a></li>
+            <li><a href="/select_playlist">playlist</a></li>
+            <li><a href="/comparison">compare</a></li>
+            <li><a href="/about">about</a></li>
+            <li><a href="#help">help</a></li>
+        </ul>
+    </div>
+    </header>
+<script>
+    document.getElementById('home-nav').addEventListener('click', function() {
+          window.location.href = '/';
+      });
+    document.addEventListener("DOMContentLoaded", function() {
+        const navButton = document.getElementById("nav-button");
+        const navMenu = document.getElementById("nav-menu");
+        const navIcon = document.getElementById("nav-icon");
+
+        // Toggle the menu's visibility when the button is clicked
+        navButton.addEventListener("click", () => {
+            if (navIcon.src.endsWith("Menu2.png")) {
+                navIcon.src = "../static/icons/Menu_close.png";
+                navIcon.style.width = "20px";
+                navMenu.style.right = "25px";
+                navButton.style.right = "160px";
+                navButton.classList.add("nav-button-spin");
+
+                navButton.addEventListener("animationend", () => {
+                    navButton.classList.remove("nav-button-spin");
+                });
+
+            } else {
+                navIcon.src = "../static/icons/Menu2.png";
+                navIcon.style.width = "30px";
+                navButton.style.right = "20px";
+                navMenu.style.right = "-150px";
+                navIcon.classList.toggle("nav-icon-fade");
+                navIcon.addEventListener("transitionend", () => {
+                    navIcon.classList.remove("nav-icon-fade");
+                });
+            }
+        });
+    });
+</script>
+    <h2>Select a Playlist</h2>
+    <p>And we'll show you how much it aligns with you.</p>
+
+    <div class="scrollable-div" id="playlist-wrapper">
+        {% for i in range(10) %}
+        <div class="playlist-widget">
+            <div id="image-placeholder"></div>
+            <div id="playlist-text">
+                <h3>Playlist Title</h3>
+                <p>Num Songs</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+    <div id="spotify-logo"></div>
+
+    <script>
+
+      window.onload = function() {
+
+      };
+      
+</script>
+</body>
+</html>

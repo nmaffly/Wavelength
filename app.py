@@ -87,7 +87,7 @@ def fetch_data():
 
     print("User acquired from database")
 
-    if user and (datetime.utcnow() - user.last_updated) < timedelta(weeks=1):
+    if user: #I changed this just to work on things
         # If user exists and it's been less than a week, update tokens and most recent login
         # then pull stats from database into flask session
 
@@ -262,6 +262,10 @@ def comparison():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+@app.route('/select_playlist')
+def select_playlist():
+    return render_template('select_playlist.html')
 
 @app.route('/error')
 def error_page():

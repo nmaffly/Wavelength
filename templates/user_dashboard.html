@@ -12,8 +12,15 @@
 </head>
 <body>
   <header>
-      <h3 id="home-nav">wavelength</h3>
-      <button id="nav-button">
+    <h3><a href="/">wavelength</a></h3>
+    <div id="nav-items">
+        <p><a href="/select_playlist">playlist</a></p>
+        <p><a href="/comparison">compare</a></p>
+        <p><a href="/about">about</a></p>
+        <p><a href="#help">help</a></p>
+    </div>
+    
+    <!-- <button id="nav-button">
         <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
     </button>
     <div id="nav-menu">
@@ -24,12 +31,9 @@
             <li><a href="/about">about</a></li>
             <li><a href="#help">help</a></li>
         </ul>
-    </div>
+    </div> -->
     </header>
-<script>
-    document.getElementById('home-nav').addEventListener('click', function() {
-          window.location.href = '/';
-      });
+<!-- <script>
     document.addEventListener("DOMContentLoaded", function() {
         const navButton = document.getElementById("nav-button");
         const navMenu = document.getElementById("nav-menu");
@@ -60,7 +64,7 @@
             }
         });
     });
-</script>
+</script> -->
 
     <!-- User's name -->
     <h1>{{ user_name }}</h1>
@@ -70,42 +74,51 @@
         <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
         <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
     </div>
+    <!-- <div id="graph-top-wrapper"> -->
+        <svg id="lineGraph"></svg>
 
-    <!-- Line graph SVG -->
-    <svg id="lineGraph"></svg>
-
-    <!-- Top Genres and Artists using the variables from your server -->
-    <div id="tops-wrapper">
-        <div id="tops">
-            <div id="tops-section">
-                <h3 class="gradient-low">TOP GENRES</h3>
-                <ol id="top-genres-list">
-                    <!-- List items will be inserted here by JavaScript -->
-                </ol>
+        <!-- Top Genres and Artists using the variables from your server -->
+        <div id="tops-wrapper">
+            <div id="tops">
+                <div id="tops-section">
+                    <h3 class="gradient-low">TOP GENRES</h3>
+                    <ol id="top-genres-list">
+                        <!-- List items will be inserted here by JavaScript -->
+                    </ol>
+                </div>
+                <div id="tops-section">
+                    <h3 class="gradient-low">TOP ARTISTS</h3>
+                    <ol id="top-artists-list">
+                        <!-- List items will be inserted here by JavaScript -->
+                    </ol>
+                </div>
             </div>
-            <div id="tops-section">
-                <h3 class="gradient-low">TOP ARTISTS</h3>
-                <ol id="top-artists-list">
-                    <!-- List items will be inserted here by JavaScript -->
-                </ol>
-            </div>
+            <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
-        <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
-    </div>
+    <!-- </div>  -->
+    <!-- Line graph SVG -->
+
 
     <script>
+        var tops = true;
         document.getElementById('tops-view-more').addEventListener('click', function() {
-            const tops = document.getElementById("tops");
             const buttonImg = document.querySelector("#tops-view-more img");
-            
-            const currentHeight = tops.style.height;
+            const button = document.getElementById('oneMonthBtn')
 
-            if (!currentHeight || currentHeight === "170px") {
-                tops.style.height = "100%";
+            const isActive = button.classList.contains('active');
+
+            if (tops == true) {
+                tops = false;
                 buttonImg.style.transform = "rotate(180deg)";
             } else {
-                tops.style.height = "170px";
+                tops = true;
                 buttonImg.style.transform = "rotate(0deg)";
+            }
+            if (isActive == true) {
+                switchView('oneMonth')
+            }
+            else {
+                switchView('allTime')
             }
         });
     </script>
@@ -154,6 +167,7 @@
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
           switchView('oneMonth');
           drawGraph(graphData, true, true);
+          document.body.classList.add('fade-in');
       };
       
       function switchView(view) {
@@ -165,6 +179,7 @@
             if (view === 'oneMonth') {
                 document.getElementById('oneMonthBtn').classList.add('active');
                 drawGraph(graphData, true, false);
+                
             } else {
                 document.getElementById('allTimeBtn').classList.add('active');
                 drawGraph(graphData, false, false);
@@ -175,10 +190,12 @@
             // Determine which data set to use based on the view
             var currentArtistsData = view === 'oneMonth' ? artistData_r : artistData_a;
             var currentGenresData = view === 'oneMonth' ? genreData_r : genreData_a;
+            var num = 5;
 
-            // Update the "TOP ARTISTS" list
-            // Update the "TOP ARTISTS" list
-            currentArtistsData.slice(0, 10).forEach(function(artist) {
+            if (tops == false) {
+                num = 10;
+            }
+            currentArtistsData.slice(0, num).forEach(function(artist) {
                 var li = document.createElement('li');
                 li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
                 document.getElementById('top-artists-list').appendChild(li);
@@ -186,7 +203,7 @@
 
 
             // Update the "TOP GENRES" list
-            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count]) {
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);
@@ -228,10 +245,10 @@
                 .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
             )
             .selectAll("text")
-            .attr("transform", "translate(12,0) rotate(45)")
+            .attr("transform", "translate(20,0) rotate(45)")
             .style("text-anchor", "start")
             .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-            .style("font-size", "16px");
+            .style("font-size", "20px");
 
           const defs = svg.append("defs");
           const gradient = defs.append("linearGradient")
@@ -281,7 +298,6 @@
                 .attr("class", "area-path")
                 .attr("fill", "url(#area-gradient)")
                 .attr("opacity", "0.7")
-                // The merge here combines the enter selection (new elements) with the existing elements (update selection)
                 .merge(areaPath)
                 .transition()
                 .duration(1000)

@@ -1,3 +1,12 @@
+body {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.fade-in {
+    opacity: 1 !important;
+}
+
 body h1{
     margin: 10px;
 }
@@ -10,18 +19,25 @@ body h1{
     justify-content: space-between;
 }
 
+#graph-top-wrapper {
+    display: flex;
+    flex-direction:row;
+    border: 3px solid red;
+    width: 100%;
+}
+
 #lineGraph {
     margin-bottom: 10px;
     width: 70%;
-    max-width: 1000px;
+    max-width: 700px;
     height: 200px;
     position: absolute;
-    top: 180px;
+    top: 170px;
     padding: 40px 0px;
 }
 
 #tops-wrapper {
-    margin-top: 300px;
+    margin-top: 270px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -30,13 +46,13 @@ body h1{
 #tops {
     display: flex;
     justify-content: space-between;
-    width: 350px;
-    height: 170px;
+    width: 400px;
+    height: 100%;
     overflow: hidden;
 }
 
 #tops-section {
-    width: 175px;
+    width: 200px;
 }
 
 #tops h3 {
@@ -57,7 +73,7 @@ body h1{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 5px;
+    margin-top: 10px;
     border: 1px solid white;
     border-radius: 15px;
     width: 100%;
@@ -160,14 +176,11 @@ body h1{
     #lineGraph {
         width: 110%;
         top: 170px;
-        height: 150px;
+        height: 160px;
     }
-
     #tops {
-        margin-top: 220px;
         width: 300px;
     }
-    
     #view-more {
         margin-top: 50px;
     }

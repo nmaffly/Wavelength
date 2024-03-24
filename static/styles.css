@@ -85,6 +85,11 @@ header {
     align-items: center;
 }
 
+header a {
+    color: white;
+    text-decoration: none;
+}
+
 header h3 {
     margin: 0px;
 }
@@ -103,6 +108,21 @@ header img:hover {
     cursor: pointer;
 }
 
+#nav-items {
+    margin-left: 60px;
+    display: flex;
+    width: 320px;
+    justify-content: space-between;
+}
+
+#nav-items p {
+    margin: 0px;
+}
+
+#nav-items a:hover {
+    color: var(--primary-orange);
+}
+
 #nav-button {
     position: absolute;
     top: 30px;
@@ -111,6 +131,7 @@ header img:hover {
     cursor: pointer;
     border: none;
     transition: .5s;
+    display: hidden
 }
 
 @keyframes fade-in-animation {
@@ -145,7 +166,7 @@ header img:hover {
 
 #nav-menu {
     transition: .5s;
-    display: block;
+    display: hidden;
     position: absolute;
     top: 15px;
     right: -150px;
@@ -252,6 +273,14 @@ button:hover {
     #nav-menu {
         border: 1px solid white;
         border-radius: 10px;
+    }
+
+    #nav-button {
+        display: block;
+    }
+
+    #nav-items {
+        display: hidden;
     }
 
 }

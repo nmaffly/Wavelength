@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>the wavelength app</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link rel="stylesheet" href="/static/comparison.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='comparison.css') }}">
     <script src="https://d3js.org/d3.v6.min.js"></script>
 </head>
 <body>
     <header>
         <h3 id="home-nav">wavelength</h3>
         <button id="nav-button">
-          <img src="/static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+          <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
       </button>
       <div id="nav-menu">
           <ul>
@@ -23,34 +23,7 @@
       </div>
       </header>
   <script>
-    let user1DataAllTime = JSON.parse('{{ user1_graph_data_all_time|tojson|safe }}');
-    let user1DataRecent = JSON.parse('{{ user1_graph_data_recent|tojson|safe }}');
-    let user2DataAllTime = JSON.parse('{{ user2_graph_data_all_time|tojson|safe }}');
-    let user2DataRecent = JSON.parse('{{ user2_graph_data_recent|tojson|safe }}');
-    let currentView = 'oneMonth';
-
-
-    function switchView(view) {
-        currentView = view; // Update current view
-        document.getElementById('oneMonthBtn').classList.remove('active');
-        document.getElementById('allTimeBtn').classList.remove('active');
-
-        let user1Data, user2Data;
-        if (view === 'oneMonth') {
-            document.getElementById('oneMonthBtn').classList.add('active');
-            user1Data = user1DataRecent;
-            user2Data = user2DataRecent;
-        } else {
-            document.getElementById('allTimeBtn').classList.add('active');
-            user1Data = user1DataAllTime;
-            user2Data = user2DataAllTime;
-        }
-
-        drawGraph(user1Data, user2Data); // Pass the correct datasets to the function
-    }
-
-    
-    document.getElementById('home-nav').addEventListener('click', function() {
+      document.getElementById('home-nav').addEventListener('click', function() {
             window.location.href = '/';
         });
       document.addEventListener("DOMContentLoaded", function() {
@@ -84,7 +57,7 @@
           });
       });
   </script>
-    <h1>{{ user1_name }} & {{ user2_name }}</h1>
+    <h1>Jadyn & Andre</h1>
     <div id="button-timeframe">
         <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
         <script>
@@ -92,20 +65,37 @@
                 document.getElementById('oneMonthBtn').classList.add('active');
                 // Optionally, you can also trigger the switch view to "oneMonth" automatically
                 switchView('oneMonth');
-                
             };
         </script>
-
+        <script>
+            function switchView(view) {
+                // Remove 'active' class from both buttons
+                document.getElementById('oneMonthBtn').classList.remove('active');
+                document.getElementById('allTimeBtn').classList.remove('active');
+    
+                // Add 'active' class to the selected button
+                if (view === 'oneMonth') {
+                    document.getElementById('oneMonthBtn').classList.add('active');
+                } else {
+                    document.getElementById('allTimeBtn').classList.add('active');
+                }
+    
+                // Implement the logic to switch views here
+                // For example, you could adjust what's displayed on your site based on the view
+                console.log(`Switched to ${view} view`);
+                }
+    
+        </script>
         <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
     </div>
     <div id="user-ids">
         <div class="user-ids-div" id="user">
             <div class="circle" id="user-circle"></div>
-            <p class="graph-p">{{user1_name}}</p>
+            <p class="graph-p">Jadyn</p>
         </div>
         <div class="user-ids-div" id="friend">
             <div class="circle" id="friend-circle"></div>
-            <p class="graph-p">{{user2_name}}</p>
+            <p class="graph-p">Andre</p>
         </div>
     </div>
 
@@ -124,27 +114,14 @@
         </h1>
         <p id="match-text"><i>You're on the same Wavelength!</i></p>
     </div>
-    
-    <script> 
-        function compareDatasets(data1, data2) {
-        let match = 0;
-        data1.forEach((entry1) => {
-            const entry2 = data2.find((e) => e.x === entry1.x);
-            const factor = .14 * (100- Math.abs(entry1.y - entry2.y));
-            match += factor;
-        });
-        console.log("Match %:", match);
-    }
-    </script>
-
     <script>
       function drawGraph() {
 
-          const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+          const customTickNames = ["Tempo", "Happiness", "Danceability", "Energy", "Acousticness", "Instrumentalness", "Popularity"];
 
           const svgElement = document.getElementById('lineGraph');
           const bbox = svgElement.getBoundingClientRect();
-          const width = bbox.width;
+          const width = bbox.width-40;
           const height = bbox.height;
           const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
 
@@ -160,20 +137,9 @@
                 g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
             }
           
-
-
-        // Function to convert data object to array format
-        function convertToGraphArray(dataObject) {
-            return Object.entries(dataObject).map(([key, value], index) => ({ x: index, y: value }));
-        }
-
-        // Use the function to convert both user graph data objects to arrays
-        const data = convertToGraphArray(user1DataAllTime);
-        const data2 = convertToGraphArray(user2DataAllTime);
-        const data_recent = convertToGraphArray(user1DataRecent);
-        const data2_recent = convertToGraphArray(user2DataRecent);
-
-
+      
+        const data = {{ user1_graph_data | tojson | safe }};
+        const data2 = {{ user2_graph_data | tojson | safe }};
 
         compareDatasets(data, data2);
       
@@ -297,18 +263,23 @@
             .duration(1000)
             .attr("d", line2);
 
-     }
+          }
     
 
+      drawGraph();
 
+      window.addEventListener('resize', drawGraph());
 
-     window.addEventListener('resize', () => {
-        if (currentView === 'oneMonth') {
-            drawGraph(user1DataRecent, user2DataRecent);
-        } else {
-            drawGraph(user1DataAllTime, user2DataAllTime);
-        }
-    });
+      function compareDatasets(data1, data2) {
+        let match = 0;
+        data1.forEach((entry1) => {
+            const entry2 = data2.find((e) => e.x === entry1.x);
+            const factor = .14 * (100- Math.abs(entry1.y - entry2.y));
+            match += factor;
+        });
+        console.log("Match %:", match);
+    }
+
 
   </script>
 </body>

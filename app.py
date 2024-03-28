@@ -300,7 +300,6 @@ def playlist_fetch():
             'medianValues': audio_features,
             'songs': songs
         }
-        print(playlist_details)
         
         return jsonify({'message': 'Playlist details fetched successfully', 'playlistDetails': playlist_details})
     else:

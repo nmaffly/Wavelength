@@ -1,303 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>the wavelength app</title>
-    <link rel="stylesheet" href="../static/styles.css">
-    <link rel="stylesheet" href="../static/comparison.css">
-    <script src="https://d3js.org/d3.v6.min.js"></script>
-</head>
-<body>
-    <header>
-        <h3 id="home-nav">wavelength</h3>
-        <button id="nav-button">
-          <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
-      </button>
-      <div id="nav-menu">
-          <ul>
-              <li><a href="#home">home</a></li>
-              <li><a href="#about">about</a></li>
-              <li><a href="#resume">help</a></li>
-          </ul>
-      </div>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>the wavelength app</title>
+      <link rel="stylesheet" href="/static/styles.css">
+      <link rel="stylesheet" href="/static/comparison.css">
+      <script src="https://d3js.org/d3.v6.min.js"></script>
+   </head>
+   <body>
+      <header>
+         <h3 id="home-nav">wavelength</h3>
+         <button id="nav-button">
+         <img src="/static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+         </button>
+         <div id="nav-menu">
+            <ul>
+               <li><a href="#home">home</a></li>
+               <li><a href="#about">about</a></li>
+               <li><a href="#resume">help</a></li>
+            </ul>
+         </div>
       </header>
-  <script>
-      document.getElementById('home-nav').addEventListener('click', function() {
-            window.location.href = '/';
-        });
-      document.addEventListener("DOMContentLoaded", function() {
-          const navButton = document.getElementById("nav-button");
-          const navMenu = document.getElementById("nav-menu");
-          const navIcon = document.getElementById("nav-icon");
-  
-          // Toggle the menu's visibility when the button is clicked
-          navButton.addEventListener("click", () => {
-              if (navIcon.src.endsWith("Menu2.png")) {
-                  navIcon.src = "../static/icons/Menu_close.png";
-                  navIcon.style.width = "20px";
-                  navMenu.style.right = "25px";
-                  navButton.style.right = "160px";
-                  navButton.classList.add("nav-button-spin");
-  
-                  navButton.addEventListener("animationend", () => {
-                      navButton.classList.remove("nav-button-spin");
-                  });
-  
-              } else {
-                  navIcon.src = "../static/icons/Menu2.png";
-                  navIcon.style.width = "30px";
-                  navButton.style.right = "20px";
-                  navMenu.style.right = "-150px";
-                  navIcon.classList.toggle("nav-icon-fade");
-                  navIcon.addEventListener("transitionend", () => {
-                      navIcon.classList.remove("nav-icon-fade");
-                  });
-              }
-          });
-      });
-  </script>
-    <h1>Jadyn & Andre</h1>
-    <div id="button-timeframe">
-        <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
-        <script>
+      <script>
+         let user1DataAllTime = JSON.parse('{{ user1_graph_data_all_time|tojson|safe }}');
+         let user1DataRecent = JSON.parse('{{ user1_graph_data_recent|tojson|safe }}');
+         let user2DataAllTime = JSON.parse('{{ user2_graph_data_all_time|tojson|safe }}');
+         let user2DataRecent = JSON.parse('{{ user2_graph_data_recent|tojson|safe }}');
+         let currentView = 'oneMonth';
+         
+         
+         function switchView(view) {
+           currentView = view;
+           document.getElementById('oneMonthBtn').classList.remove('active');
+           document.getElementById('allTimeBtn').classList.remove('active');
+         
+           let user1Data = view === 'oneMonth' ? user1DataRecent : user1DataAllTime;
+           let user2Data = view === 'oneMonth' ? user2DataRecent : user2DataAllTime;
+         
+           document.getElementById(view + 'Btn').classList.add('active');
+         
+           drawGraph(user1Data, user2Data); // Pass the correct datasets to drawGraph
+         }
+         
+         
+         document.getElementById('home-nav').addEventListener('click', function() {
+                 window.location.href = '/';
+             });
+           document.addEventListener("DOMContentLoaded", function() {
+               const navButton = document.getElementById("nav-button");
+               const navMenu = document.getElementById("nav-menu");
+               const navIcon = document.getElementById("nav-icon");
+         
+               // Toggle the menu's visibility when the button is clicked
+               navButton.addEventListener("click", () => {
+                   if (navIcon.src.endsWith("Menu2.png")) {
+                       navIcon.src = "../static/icons/Menu_close.png";
+                       navIcon.style.width = "20px";
+                       navMenu.style.right = "25px";
+                       navButton.style.right = "160px";
+                       navButton.classList.add("nav-button-spin");
+         
+                       navButton.addEventListener("animationend", () => {
+                           navButton.classList.remove("nav-button-spin");
+                       });
+         
+                   } else {
+                       navIcon.src = "../static/icons/Menu2.png";
+                       navIcon.style.width = "30px";
+                       navButton.style.right = "20px";
+                       navMenu.style.right = "-150px";
+                       navIcon.classList.toggle("nav-icon-fade");
+                       navIcon.addEventListener("transitionend", () => {
+                           navIcon.classList.remove("nav-icon-fade");
+                       });
+                   }
+               });
+           });
+      </script>
+      <h1>{{ user1_name }} & {{ user2_name }}</h1>
+      <div id="button-timeframe">
+         <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
+         <script>
             window.onload = function() {
                 document.getElementById('oneMonthBtn').classList.add('active');
                 // Optionally, you can also trigger the switch view to "oneMonth" automatically
                 switchView('oneMonth');
+                
             };
-        </script>
-        <script>
-            function switchView(view) {
-                // Remove 'active' class from both buttons
-                document.getElementById('oneMonthBtn').classList.remove('active');
-                document.getElementById('allTimeBtn').classList.remove('active');
-    
-                // Add 'active' class to the selected button
-                if (view === 'oneMonth') {
-                    document.getElementById('oneMonthBtn').classList.add('active');
-                } else {
-                    document.getElementById('allTimeBtn').classList.add('active');
-                }
-    
-                // Implement the logic to switch views here
-                // For example, you could adjust what's displayed on your site based on the view
-                console.log(`Switched to ${view} view`);
-                }
-    
-        </script>
-        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
-    </div>
-    <div id="user-ids">
-        <div class="user-ids-div" id="user">
-            <div class="circle" id="user-circle"></div>
-            <p class="graph-p">Jadyn</p>
-        </div>
-        <div class="user-ids-div" id="friend">
-            <div class="circle" id="friend-circle"></div>
-            <p class="graph-p">Andre</p>
-        </div>
-    </div>
-
-    <svg id="lineGraph"></svg>
-
-    <div id="tops">
-      <div>
-        <h3 class="gradient-low">SHARED GENRES:</h3>
-        <p>Indie Pop, POV: Indie, Permanent Wave, Indie Rock</p>
+         </script>
+         <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
       </div>
-    </div>
-    <div id="match">
-        <p id="match-title">Similarity:</p>
-        <h1 id="percent">
-            92%
-        </h1>
+      <div id="user-ids">
+         <div class="user-ids-div" id="user">
+            <div class="circle" id="user-circle"></div>
+            <p class="graph-p">{{user1_name}}</p>
+         </div>
+         <div class="user-ids-div" id="friend">
+            <div class="circle" id="friend-circle"></div>
+            <p class="graph-p">{{user2_name}}</p>
+         </div>
+      </div>
+      <svg id="lineGraph"></svg>
+      <div id="tops">
+         <div>
+            <h3 class="gradient-low">SHARED GENRES:</h3>
+            <p>Indie Pop, POV: Indie, Permanent Wave, Indie Rock</p>
+         </div>
+      </div>
+      <div id="match">
+         <p id="match-title">Similarity:</p>
+         <h1 id="percent">
+            <span id="match-value"></span>%
+         </h1>
         <p id="match-text"><i>You're on the same Wavelength!</i></p>
-    </div>
-    <script>
-      function drawGraph() {
+      </div>
+      <script>
+        function compareDatasets(data1, data2) {
+            let match = 0;
+            data1.forEach((entry1) => {
+                const entry2 = data2.find((e) => e.x === entry1.x);
+                if (entry2) { // Ensure entry2 exists before attempting to access its properties
+                    const factor = .14 * (100 - Math.abs(entry1.y - entry2.y));
+                    match += factor;
+                }
+            });
+            // Update the innerText of the element with ID 'match-value'
+            document.getElementById('match-value').innerText = match.toFixed(2); // Use toFixed(2) to format to 2 decimal places
+        }
 
-          const customTickNames = ["Tempo", "Happiness", "Danceability", "Energy", "Acousticness", "Instrumentalness", "Popularity"];
+        function convertToGraphArray(dataObject) {
+                 return Object.entries(dataObject).map(([key, value], index) => ({ x: index, y: value }));
+        }
 
-          const svgElement = document.getElementById('lineGraph');
-          const bbox = svgElement.getBoundingClientRect();
-          const width = bbox.width-40;
-          const height = bbox.height;
-          const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
-
-          // Clear any previous graph
-          svg.selectAll("*").remove();
-
-          const margin = {top: 10, right: 0, bottom: 10, left: 0},
-              graphWidth = width - margin.left - margin.right,
-              graphHeight = height - margin.top - margin.bottom;
-          
-          let g = svg.select("g");
-            if (g.empty()) {
-                g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+        const user1Compare = convertToGraphArray(user1DataRecent);
+        const user2Compare = convertToGraphArray(user2DataRecent);
+        // Example initial call, replace with your actual initial dataset
+        compareDatasets(user1Compare, user2Compare);
+    </script>
+      <script>
+         function drawGraph(user1Data, user2Data) {
+             const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+             const svgElement = document.getElementById('lineGraph');
+             const bbox = svgElement.getBoundingClientRect();
+             const width = bbox.width - 90;
+             const height = bbox.height;
+             const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+         
+             svg.selectAll("*").remove();
+         
+             const margin = {top: 10, right: 0, bottom: 10, left: 0},
+                   graphWidth = width - margin.left - margin.right,
+                   graphHeight = height - margin.top - margin.bottom;
+         
+             let g = svg.select("g");
+             if (g.empty()) {
+                 g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+             }
+         
+             function convertToGraphArray(dataObject) {
+                 return Object.entries(dataObject).map(([key, value], index) => ({ x: index, y: value }));
+             }
+         
+             // Use the function to convert user graph data objects to arrays
+             const data = convertToGraphArray(user1Data);
+             const data2 = convertToGraphArray(user2Data);
+             
+                 // Scales
+                 const x = d3.scaleLinear().domain([0, 6]).range([0, graphWidth]);
+                 const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
+         
+                 svg.append("g")
+                   .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
+                   .call(d3.axisBottom(x)
+                       .tickValues(data.map((d, i) => d.x)) // Set tick values based on data indices
+                       .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
+                   )
+                   .selectAll("text")
+                   .attr("transform", "translate(12,0) rotate(45)")
+                   .style("text-anchor", "start")
+                   .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                   .style("font-size", "18px");
+         
+                 
+                 const defs = svg.append("defs");
+                 const gradient = defs.append("linearGradient")
+                     .attr("id", "area-gradient")
+                     .attr("gradientUnits", "userSpaceOnUse")
+                     .attr("x1", 0).attr("y1", y(0))
+                     .attr("x2", 0).attr("y2", y(100));
+                 gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, .4)");
+                 gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
+         
+                 const gradient2 = defs.append("linearGradient")
+                       .attr("id", "area-gradient2")
+                       .attr("gradientUnits", "userSpaceOnUse")
+                       .attr("x1", 0).attr("y1", y(0))
+                       .attr("x2", 0).attr("y2", y(100));
+                   gradient2.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 255, 255, .4)");
+                   gradient2.append("stop").attr("offset", "100%").attr("stop-color", "#F8C540");
+         
+                 // Add the y-axis
+                 const yAxis = d3.axisLeft(y)
+                             .tickValues([0, 25, 50, 75, 100])
+                             .tickFormat(d => d + "%")
+                             .tickSize(0) // Remove the tick marks
+                             .tickPadding(10); // Adjust space between ticks and labels if needed
+         
+                 const yAxisGroup = svg.append("g").call(yAxis);
+         
+                 // Apply styles to the y-axis for a dotted line
+                 yAxisGroup.selectAll("path")
+                           .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
+         
+                 // Apply custom font settings to all axis text (x and y)
+                 yAxisGroup.selectAll("text")
+                           .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                           .style("font-size", "20px");
+                 // Line generator
+                 const line = d3.line()
+                     .x(d => x(d.x))
+                     .y(d => y(d.y))
+                     .curve(d3.curveBumpX);
+         
+                 const line2 = d3.line()
+                       .x(d => x(d.x))
+                       .y(d => y(d.y))
+                       .curve(d3.curveBumpX); // You can use the same or a different curve
+         
+         
+                 const area = d3.area()
+                     .x(d => x(d.x))
+                     .y0(y(55))
+                     .y1(d => y(d.y))
+                     .curve(d3.curveBumpX);
+         
+                 // Update the area
+                 const areaPath = g.selectAll(".area-path").data([data]);
+                 areaPath.enter()
+                     .append("path")
+                     .attr("class", "area-path")
+                     .attr("fill", "url(#area-gradient)")
+                     .attr("opacity", "0.6")
+                     .merge(areaPath)
+                     .transition()
+                     .duration(1000)
+                     .attr("d", area);
+         
+                   const areaPath2 = g.selectAll(".area-path-2").data([data2]);
+                   areaPath2.enter()
+                       .append("path")
+                       .attr("class", "area-path-2")
+                       .attr("fill", "url(#area-gradient2)")
+                       .attr("opacity", "0.6") // Ensure this path also has opacity if desired
+                       .merge(areaPath2) // Correctly merge the selections
+                       .transition()
+                       .duration(1000)
+                       .attr("d", area);
+         
+                 // Update the line
+                 const linePath = g.selectAll(".line-path").data([data]);
+                 linePath.enter()
+                     .append("path")
+                     .attr("class", "line-path")
+                     .attr("fill", "none")
+                     .attr("stroke", "#FF8934")
+                     .attr("stroke-width", 2)
+                     .merge(linePath)
+                     .transition()
+                     .duration(1000)
+                     .attr("d", line);
+                   // Update the line for the second data set
+         
+               const linePath2 = g.selectAll(".line-path-2").data([data2]);
+               linePath2.enter()
+                   .append("path")
+                   .attr("class", "line-path-2") // Use a different class for styling if needed
+                   .attr("fill", "none")
+                   .attr("stroke", "#F8C540") // Use a different stroke color to distinguish the lines
+                   .attr("stroke-width", 2)
+                   .merge(linePath2)
+                   .transition()
+                   .duration(1000)
+                   .attr("d", line2);
+         
             }
-          
-      
-        const data = [
-            {x: 0, y: 62},
-            {x: 1, y: 44},
-            {x: 2, y: 54},
-            {x: 3, y: 54},
-            {x: 4, y: 37},
-            {x: 5, y: 8},
-            {x: 6, y: 60},
-          ];
-
-          const data2 = [
-            {x: 0, y: 65},
-            {x: 1, y: 60},
-            {x: 2, y: 67},
-            {x: 3, y: 70},
-            {x: 4, y: 13},
-            {x: 5, y: 3},
-            {x: 6, y: 74},
-        ];
-
-        compareDatasets(data, data2);
-      
-          // Scales
-          const x = d3.scaleLinear().domain([0, 6]).range([0, graphWidth]);
-          const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
-
-          svg.append("g")
-            .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
-            .call(d3.axisBottom(x)
-                .tickValues(data.map((d, i) => d.x)) // Set tick values based on data indices
-                .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
-            )
-            .selectAll("text")
-            .attr("transform", "translate(12,0) rotate(45)")
-            .style("text-anchor", "start")
-            .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-            .style("font-size", "18px");
-
-          
-          const defs = svg.append("defs");
-          const gradient = defs.append("linearGradient")
-              .attr("id", "area-gradient")
-              .attr("gradientUnits", "userSpaceOnUse")
-              .attr("x1", 0).attr("y1", y(0))
-              .attr("x2", 0).attr("y2", y(100));
-          gradient.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 137, 52, .4)");
-          gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
-
-          const gradient2 = defs.append("linearGradient")
-                .attr("id", "area-gradient2")
-                .attr("gradientUnits", "userSpaceOnUse")
-                .attr("x1", 0).attr("y1", y(0))
-                .attr("x2", 0).attr("y2", y(100));
-            gradient2.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 255, 255, .4)");
-            gradient2.append("stop").attr("offset", "100%").attr("stop-color", "#F8C540");
-
-          
-        
-          // Add the y-axis
-          const yAxis = d3.axisLeft(y)
-                      .tickValues([0, 25, 50, 75, 100])
-                      .tickFormat(d => d + "%")
-                      .tickSize(0) // Remove the tick marks
-                      .tickPadding(10); // Adjust space between ticks and labels if needed
-
-          const yAxisGroup = svg.append("g").call(yAxis);
-
-          // Apply styles to the y-axis for a dotted line
-          yAxisGroup.selectAll("path")
-                    .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
-
-          // Apply custom font settings to all axis text (x and y)
-          yAxisGroup.selectAll("text")
-                    .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-                    .style("font-size", "20px");
-          // Line generator
-          const line = d3.line()
-              .x(d => x(d.x))
-              .y(d => y(d.y))
-              .curve(d3.curveBumpX);
-
-          const line2 = d3.line()
-                .x(d => x(d.x))
-                .y(d => y(d.y))
-                .curve(d3.curveBumpX); // You can use the same or a different curve
-
-
-          const area = d3.area()
-              .x(d => x(d.x))
-              .y0(y(55))
-              .y1(d => y(d.y))
-              .curve(d3.curveBumpX);
-
-          // Update the area
-          const areaPath = g.selectAll(".area-path").data([data]);
-          areaPath.enter()
-              .append("path")
-              .attr("class", "area-path")
-              .attr("fill", "url(#area-gradient)")
-              .attr("opacity", "0.6")
-              .merge(areaPath)
-              .transition()
-              .duration(1000)
-              .attr("d", area);
-
-            const areaPath2 = g.selectAll(".area-path-2").data([data2]);
-            areaPath2.enter()
-                .append("path")
-                .attr("class", "area-path-2")
-                .attr("fill", "url(#area-gradient2)")
-                .attr("opacity", "0.6") // Ensure this path also has opacity if desired
-                .merge(areaPath2) // Correctly merge the selections
-                .transition()
-                .duration(1000)
-                .attr("d", area);
-
-
-          // Update the line
-          const linePath = g.selectAll(".line-path").data([data]);
-          linePath.enter()
-              .append("path")
-              .attr("class", "line-path")
-              .attr("fill", "none")
-              .attr("stroke", "#FF8934")
-              .attr("stroke-width", 2)
-              .merge(linePath)
-              .transition()
-              .duration(1000)
-              .attr("d", line);
-            // Update the line for the second data set
-        const linePath2 = g.selectAll(".line-path-2").data([data2]);
-        linePath2.enter()
-            .append("path")
-            .attr("class", "line-path-2") // Use a different class for styling if needed
-            .attr("fill", "none")
-            .attr("stroke", "#F8C540") // Use a different stroke color to distinguish the lines
-            .attr("stroke-width", 2)
-            .merge(linePath2)
-            .transition()
-            .duration(1000)
-            .attr("d", line2);
-
-          }
-    
-
-      drawGraph();
-
-      window.addEventListener('resize', drawGraph());
-
-      function compareDatasets(data1, data2) {
-        let match = 0;
-        data1.forEach((entry1) => {
-            const entry2 = data2.find((e) => e.x === entry1.x);
-            const factor = .14 * (100- Math.abs(entry1.y - entry2.y));
-            match += factor;
-        });
-        console.log("Match %:", match);
-    }
-
-
-  </script>
-</body>
+           
+         
+         
+         
+            window.addEventListener('resize', () => {
+           let user1Data = currentView === 'oneMonth' ? user1DataRecent : user1DataAllTime;
+           let user2Data = currentView === 'oneMonth' ? user2DataRecent : user2DataAllTime;
+           drawGraph(user1Data, user2Data);
+           });
+         
+           document.addEventListener("DOMContentLoaded", function() {
+               switchView('oneMonth'); // Initialize the graph with 'oneMonth' view
+           });
+         
+      </script>
+   </body>
 </html>

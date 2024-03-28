@@ -302,8 +302,96 @@ def display():
     return render_template('user_dashboard.html', **processed_data)
 
 @app.route('/comparison')
-def comparison():
-    return render_template('comparison.html')
+def comparison_form():
+    return render_template('compare_form.html')
+
+@app.route('/compare/<user1_share_token>/<user2_share_token>')
+def compare_users(user1_share_token, user2_share_token):
+    # Compare two users based on their share tokens.
+    
+    # Fetch users by share token
+    user1 = User.query.filter_by(share_token=user1_share_token).first()
+    user2 = User.query.filter_by(share_token=user2_share_token).first()
+
+    if not user1 or not user2:
+        return jsonify({"error": "One or both users not found"}), 404
+
+    # Fetch genres and artists using the users' database IDs
+    user1_genres = set(get_db_genres(user1.id, 'a'))  # Assuming 'a' for all-time
+    user2_genres = set(get_db_genres(user2.id, 'a'))
+
+    user1_artists = set(get_db_artists(user1.id, 'a'))
+    user2_artists = set(get_db_artists(user2.id, 'a'))
+
+    # Find the intersection
+    common_genres = user1_genres.intersection(user2_genres)
+    common_artists = user1_artists.intersection(user2_artists)
+
+    return render_template('comparison.html', common_genres=common_genres, common_artists=common_artists, user1_token=user1_share_token, user2_token=user2_share_token)
+
+@app.route('/compare_form')
+def compare_form():
+    # Render the form for comparing two Spotify users by share tokens.
+    return render_template('compare_form.html')
+
+def get_graph_data(user_id):
+    user_stats = UserStats.query.filter_by(user_id=user_id).first()
+    if not user_stats:
+        return None
+    graph_data_all_time = {
+        'acousticness': user_stats.acousticness_a,
+        'danceability': user_stats.danceability_a,
+        'energy': user_stats.energy_a,
+        'loudness': user_stats.loudness_a,
+        'speechiness': user_stats.speechiness_a,
+        'popularity': user_stats.popularity_a,
+        'speechiness': user_stats.speechiness_a,
+        'tempo': user_stats.tempo_a,
+        'valence': user_stats.valence_a
+    }
+    graph_data_recent = {
+        'acousticness': user_stats.acousticness_r,
+        'danceability': user_stats.danceability_r,
+        'energy': user_stats.energy_r,
+        'loudness': user_stats.loudness_r,
+        'speechiness': user_stats.speechiness_r,
+        'popularity': user_stats.popularity_r,
+        'speechiness': user_stats.speechiness_r,
+        'tempo': user_stats.tempo_r,
+        'valence': user_stats.valence_r
+    }
+    return graph_data_all_time, graph_data_recent
+
+@app.route('/comparison/<user1_share_token>/<user2_share_token>')
+def comparison(user1_share_token, user2_share_token):
+    user1 = User.query.filter_by(share_token=user1_share_token).first()
+    user2 = User.query.filter_by(share_token=user2_share_token).first()
+    if not user1 or not user2:
+        return jsonify({"error": "One or both users not found"}), 404
+    user1_graph_data_all_time, user1_graph_data_recent = get_graph_data(user1.id)
+    user2_graph_data_all_time, user2_graph_data_recent = get_graph_data(user2.id)
+    print(f"User 1 all time: {user1_graph_data_all_time}")
+    print(f"User 1 recent: {user1_graph_data_recent}")
+    print(f"User 2 all time: {user2_graph_data_all_time}")
+    print(f"User 2 recent: {user2_graph_data_recent}")
+
+    if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
+        return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
+    return render_template('comparison.html', 
+                           user1_graph_data_all_time=user1_graph_data_all_time, 
+                           user1_graph_data_recent=user1_graph_data_recent, 
+                           user2_graph_data_all_time=user2_graph_data_all_time, 
+                           user2_graph_data_recent=user2_graph_data_recent, 
+                           user1_name=user1.display_name, 
+                           user2_name=user2.display_name)
+
+
+@app.route('/compare_users_redirect', methods=['POST'])
+def compare_users_redirect():
+    # Handle the form submission and redirect to the comparison using share tokens.
+    user1_share_token = request.form['user1ShareToken']
+    user2_share_token = request.form['user2ShareToken']
+    return redirect(url_for('comparison', user1_share_token=user1_share_token, user2_share_token=user2_share_token))
 
 @app.route('/about')
 def about():

@@ -293,22 +293,24 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_a,
         'danceability': user_stats.danceability_a,
         'energy': user_stats.energy_a,
-        'valence': user_stats.valence_a,
+        'loudness': user_stats.loudness_a,
         'speechiness': user_stats.speechiness_a,
         'popularity': user_stats.popularity_a,
-        'variance': user_stats.variance_a
+        'speechiness': user_stats.speechiness_a,
+        'tempo': user_stats.tempo_a,
+        'valence': user_stats.valence_a
     }
     graph_data_recent = {
         'acousticness': user_stats.acousticness_r,
         'danceability': user_stats.danceability_r,
         'energy': user_stats.energy_r,
-        'valence': user_stats.valence_r,
+        'loudness': user_stats.loudness_r,
         'speechiness': user_stats.speechiness_r,
         'popularity': user_stats.popularity_r,
-        'variance': user_stats.variance_r
+        'speechiness': user_stats.speechiness_r,
+        'tempo': user_stats.tempo_r,
+        'valence': user_stats.valence_r
     }
-    print(graph_data_all_time)
-    print(graph_data_recent)
     return graph_data_all_time, graph_data_recent
 
 @app.route('/comparison/<user1_share_token>/<user2_share_token>')
@@ -319,10 +321,10 @@ def comparison(user1_share_token, user2_share_token):
         return jsonify({"error": "One or both users not found"}), 404
     user1_graph_data_all_time, user1_graph_data_recent = get_graph_data(user1.id)
     user2_graph_data_all_time, user2_graph_data_recent = get_graph_data(user2.id)
-    print(user1_graph_data_all_time)
-    print(user1_graph_data_recent)
-    print(user2_graph_data_all_time)
-    print(user2_graph_data_recent)
+    print(f"User 1 all time: {user1_graph_data_all_time}")
+    print(f"User 1 recent: {user1_graph_data_recent}")
+    print(f"User 2 all time: {user2_graph_data_all_time}")
+    print(f"User 2 recent: {user2_graph_data_recent}")
 
     if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
         return jsonify({"error": "Could not fetch graph data for one or both users"}), 500

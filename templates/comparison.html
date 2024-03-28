@@ -144,7 +144,7 @@
 
           const svgElement = document.getElementById('lineGraph');
           const bbox = svgElement.getBoundingClientRect();
-          const width = bbox.width;
+          const width = bbox.width-90;
           const height = bbox.height;
           const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
 
@@ -161,7 +161,6 @@
             }
           
 
-
         // Function to convert data object to array format
         function convertToGraphArray(dataObject) {
             return Object.entries(dataObject).map(([key, value], index) => ({ x: index, y: value }));
@@ -173,7 +172,10 @@
         const data_recent = convertToGraphArray(user1DataRecent);
         const data2_recent = convertToGraphArray(user2DataRecent);
 
-
+        console.log(data);
+        console.log(data2);
+        console.log(data_recent);
+        console.log(data2_recent);
 
         compareDatasets(data, data2);
       
@@ -211,8 +213,6 @@
             gradient2.append("stop").attr("offset", "20%").attr("stop-color", "rgba(255, 255, 255, .4)");
             gradient2.append("stop").attr("offset", "100%").attr("stop-color", "#F8C540");
 
-          
-        
           // Add the y-axis
           const yAxis = d3.axisLeft(y)
                       .tickValues([0, 25, 50, 75, 100])

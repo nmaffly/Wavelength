@@ -3,7 +3,7 @@ body {
     height: 100vh;
 }
 #center-block {
-    margin-top: 15%;
+    margin-top: 20vh;
     width: 300px;
     display: flex;
     flex-direction: column;
@@ -100,10 +100,6 @@ body {
         overflow: hidden;
     }
 
-    #center-block {
-        margin-top: 8%;
-    }
-
     #graphic {
         animation: fadein-lower 1s 1;
         bottom: -50px;
@@ -127,7 +123,7 @@ body {
 }
 
 @media (min-height: 400px) {
-    #center-block {
+/*     #center-block {
         margin-top: 8%;
-    }
+    } */
 }

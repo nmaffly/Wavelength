@@ -41,6 +41,11 @@ body h1{
     display: flex;
     flex-direction: column;
     align-items: center;
+    border-style: solid;
+    border-color: grey;
+    border-width: 2px;
+    padding: 25px;
+    border-radius: 20px;
 }
   
 #tops {
@@ -48,7 +53,6 @@ body h1{
     justify-content: space-between;
     width: 400px;
     height: 100%;
-    overflow: hidden;
 }
 
 #tops-section {
@@ -58,7 +62,6 @@ body h1{
 #tops h3 {
     font-size: 20px;
     margin: 0px;
-    margin-top: 10px;
 }
 
 #tops ol {
@@ -174,14 +177,17 @@ body h1{
 
 @media (max-width: 500px) {
     #lineGraph {
-        width: 110%;
+        width: 100%;
         top: 170px;
-        height: 160px;
+        height: 180px;
     }
     #tops {
-        width: 300px;
+        width: 280px;
     }
     #view-more {
         margin-top: 50px;
+    }
+    #nav-items {
+        display: none;
     }
 }

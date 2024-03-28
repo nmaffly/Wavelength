@@ -20,7 +20,7 @@
         <p><a href="#help">help</a></p>
     </div>
     
-    <!-- <button id="nav-button">
+    <button id="nav-button">
         <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
     </button>
     <div id="nav-menu">
@@ -31,23 +31,24 @@
             <li><a href="/about">about</a></li>
             <li><a href="#help">help</a></li>
         </ul>
-    </div> -->
+    </div>
     </header>
-<!-- <script>
+<script>
     document.addEventListener("DOMContentLoaded", function() {
         const navButton = document.getElementById("nav-button");
         const navMenu = document.getElementById("nav-menu");
         const navIcon = document.getElementById("nav-icon");
+        const bodyElement = document.body;
 
         // Toggle the menu's visibility when the button is clicked
         navButton.addEventListener("click", () => {
             if (navIcon.src.endsWith("Menu2.png")) {
                 navIcon.src = "../static/icons/Menu_close.png";
                 navIcon.style.width = "20px";
-                navMenu.style.right = "25px";
-                navButton.style.right = "160px";
+                navMenu.style.display = "flex";
+                navButton.style.top = "255px";
                 navButton.classList.add("nav-button-spin");
-
+                bodyElement.style.opacity = "0.8";
                 navButton.addEventListener("animationend", () => {
                     navButton.classList.remove("nav-button-spin");
                 });
@@ -55,16 +56,18 @@
             } else {
                 navIcon.src = "../static/icons/Menu2.png";
                 navIcon.style.width = "30px";
-                navButton.style.right = "20px";
-                navMenu.style.right = "-150px";
+                navButton.style.top = "30px";
+                navMenu.style.display = "none";
                 navIcon.classList.toggle("nav-icon-fade");
+                navButton.classList.add("nav-button-spin-reverse");
+                bodyElement.style.opacity = "1";
                 navIcon.addEventListener("transitionend", () => {
-                    navIcon.classList.remove("nav-icon-fade");
+                    navIcon.classList.remove("nav-button-spin-reverse");
                 });
             }
         });
     });
-</script> -->
+</script>
 
     <!-- User's name -->
     <h1>{{ user_name }}</h1>
@@ -161,12 +164,14 @@
       var artistData_a = {{ artists_a|tojson|safe }};
       var genreData_r = {{ genre_r|tojson|safe }};
       var genreData_a = {{ genre_a|tojson|safe }};
+      let graphComponents = initializeGraph(); // Store returned components for later use
+      console.log(graphComponents);
       window.onload = function() {
           console.log(graphData);
           document.getElementById('oneMonthBtn').classList.add('active');
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
           switchView('oneMonth');
-          drawGraph(graphData, true, true);
+          updateGraph(graphComponents, graphData, true);
           document.body.classList.add('fade-in');
       };
       
@@ -178,11 +183,11 @@
             // Add 'active' class to the selected button
             if (view === 'oneMonth') {
                 document.getElementById('oneMonthBtn').classList.add('active');
-                drawGraph(graphData, true, false);
+                updateGraph(graphComponents, graphData, true);
                 
             } else {
                 document.getElementById('allTimeBtn').classList.add('active');
-                drawGraph(graphData, false, false);
+                updateGraph(graphComponents, graphData, false);
             }
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
@@ -209,9 +214,131 @@
                 document.getElementById('top-genres-list').appendChild(li);
             });
           }
-      
 
-      function drawGraph(graphData, truth, draw) {
+          function initializeGraph() {
+            const svgElement = document.getElementById('lineGraph');
+            const bbox = svgElement.getBoundingClientRect();
+            const width = bbox.width - 40;
+            const height = bbox.height;
+            const margin = {top: 10, right: 0, bottom: 10, left: 0}, // Adjusted for axis label
+                graphWidth = width - margin.left - margin.right,
+                graphHeight = height - margin.top - margin.bottom;
+
+            const svg = d3.select(svgElement)
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
+            const y = d3.scaleLinear().domain([0, 100]).range([graphHeight, 20]);
+
+            // Define the gradient
+            const defs = svg.append("defs");
+            const gradient = defs.append("linearGradient")
+                .attr("id", "area-gradient")
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", 0).attr("y1", y(0))
+                .attr("x2", 0).attr("y2", y(100));
+            gradient.append("stop").attr("offset", "40%").attr("stop-color", "rgba(255, 137, 52, .4)");
+            gradient.append("stop").attr("offset", "80%").attr("stop-color", "#FF8934");
+
+            // Add the y-axis
+            const yAxis = d3.axisLeft(y)
+                      .tickValues([0, 25, 50, 75, 100])
+                      .tickSize(0) // Remove the tick marks
+                      .tickPadding(10); // Adjust space between ticks and labels if needed
+
+            const yAxisGroup = svg.append("g").call(yAxis);
+
+            // Apply styles to the y-axis for a dotted line
+            yAxisGroup.selectAll("path")
+                        .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
+
+            // Apply custom font settings to all axis text (x and y)
+            yAxisGroup.selectAll("text")
+                        .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                        .style("font-size", "20px");
+
+            yAxisGroup.append("text")
+                    .attr("text-anchor", "middle") // Center the text (horizontally)
+                    .attr("transform", "rotate(-90)") // Rotate the text to go along the y axis
+                    .attr("y", -margin.left) // Position the text based on the left margin. Adjust as needed.
+                    .attr("x", - (height / 2)) // Center the text vertically along the axis
+                    .attr("dy", "1em") // Adjust the position a little bit down for better readability
+                    .style("font-family", "'Overpass Mono', monospace") // Optional: Match the axis font style
+                    .style("font-size", "20px") // Optional: Match the axis font size
+                    .text("median attribute"); // Set the label text
+
+            // Store components for updating
+            return { svg: g, x, y, graphWidth, graphHeight, margin };
+        }
+
+        function updateGraph(components, graphData, truth) {
+            const { svg, x, y, graphWidth, graphHeight, margin } = components;
+            console.log("SVG = ", svg);
+            const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
+            const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
+
+            // Update the x-axis for custom tick names
+            const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+            svg.append("g")
+                .attr("transform", `translate(0,${y(50)})`)
+                .call(d3.axisBottom(x)
+                    .tickValues(data.map((d, i) => d.x))
+                    .tickFormat((d, i) => customTickNames[i]))
+                .selectAll("text")
+                .attr("transform", "translate(20,0) rotate(45)")
+                .style("text-anchor", "start")
+                .style("font-family", "'Overpass Mono', monospace")
+                .style("font-size", "20px");
+
+            const line = d3.line()
+                .x(d => x(d.x))
+                .y(d => y(d.y))
+                .curve(d3.curveBumpX);
+
+            const area = d3.area()
+                .x(d => x(d.x))
+                .y0(y(50))
+                .y1(d => y(d.y))
+                .curve(d3.curveBumpX);
+
+            // Update or enter the area path
+                // Update or enter the area path
+            const areaPath = svg.selectAll(".area-path").data([data]);
+            areaPath.enter()
+                .append("path")
+                .attr("class", "area-path")
+                .attr("fill", "url(#area-gradient)")
+                .merge(areaPath)
+                .transition()
+                .duration(700)
+                .attr("d", area)
+                .attr("opacity", "0.7");
+
+            // Update or enter the line path
+            const linePath = svg.selectAll(".line-path").data([data]);
+            linePath.enter()
+                .append("path")
+                .attr("class", "line-path")
+                .attr("stroke", "#FF8934")
+                .attr("stroke-width", 2)
+                .attr("fill", "none")
+                .merge(linePath)
+                .transition()
+                .duration(700)
+                .attr("d", line);
+
+            // Remove any old elements that are not present in the new data
+            areaPath.exit().remove();
+            linePath.exit().remove();
+        }
+
+
+
+      /* function drawGraph(graphData, truth, draw) {
           const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
           const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
           const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
@@ -276,6 +403,16 @@
           yAxisGroup.selectAll("text")
                     .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
                     .style("font-size", "20px");
+
+          yAxisGroup.append("text")
+                .attr("text-anchor", "middle") // Center the text (horizontally)
+                .attr("transform", "rotate(-90)") // Rotate the text to go along the y axis
+                .attr("y", -margin.left) // Position the text based on the left margin. Adjust as needed.
+                .attr("x", - (height / 2)) // Center the text vertically along the axis
+                .attr("dy", "1em") // Adjust the position a little bit down for better readability
+                .style("font-family", "'Overpass Mono', monospace") // Optional: Match the axis font style
+                .style("font-size", "20px") // Optional: Match the axis font size
+                .text("median attribute"); // Set the label text
           // Line generator
 
           
@@ -321,7 +458,7 @@
 
             
 
-      window.addEventListener('resize', drawGraph(graphData, true));
+      window.addEventListener('resize', drawGraph(graphData, true)); */
 </script>
 </body>
 </html>

@@ -108,6 +108,27 @@ header img:hover {
     cursor: pointer;
 }
 
+#nav-bar {
+    display: flex;
+    flex-direction: row;
+    
+}
+
+#nav-bar a {
+    padding-left: 80px;
+    text-decoration: none;
+    color: white;
+    transition: color .25s ease;
+}
+
+#nav-bar a:hover {
+    color: var(--primary-orange);
+}
+
+#nav-bar p {
+    margin: 0px;
+}
+
 #nav-items {
     margin-left: 60px;
     display: flex;
@@ -131,7 +152,8 @@ header img:hover {
     cursor: pointer;
     border: none;
     transition: .5s;
-    display: hidden
+    display: none;
+    z-index: 9001;
 }
 
 @keyframes fade-in-animation {
@@ -147,12 +169,25 @@ header img:hover {
     animation: spin .5s ease;
 }
 
+.nav-button-spin-reverse {
+    animation: spin-reverse .5s ease;
+}
+
 @keyframes spin {
     from {
         transform: rotate(180deg);
     }
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes spin-reverse {
+    from {
+        transform: rotate(180deg);
+    }
+    to {
+        transform: rotate(0deg);
     }
 }
 
@@ -166,20 +201,22 @@ header img:hover {
 
 #nav-menu {
     transition: .5s;
-    display: hidden;
+    display: none;
     position: absolute;
-    top: 15px;
-    right: -150px;
-    padding: 0px 20px;
-    width: 100px;
+    top: 0px;
+    left: 0px;
+    width: 100%;
     font-size: var(--font-size-h3);
-    z-index: 10000;
+    z-index: 9000;
+    padding-top: 10px;
+    padding-bottom: 30px;
 }
 
 #nav-menu ul {
     list-style: none; /* Remove bullet points */
     padding: 0;
     margin: 0;
+    width: 100%;
 }
 
 /* Style the navigation menu list items */
@@ -187,7 +224,6 @@ header img:hover {
     text-align: center;
     padding-bottom: 10px;
     margin: 15px 0px;
-    border-bottom: 1px solid white;
 }
 
 /* Style the navigation menu links */
@@ -257,22 +293,14 @@ button:hover {
 
 }
 
-#nav-bar {
-    display: flex;
-    flex-direction: row;
-    
-}
 
-#nav-bar a {
-    padding-right: 80px;
-    text-decoration: none;
-    color: white;
-}
 
 @media (max-width: 500px) {
     #nav-menu {
-        border: 1px solid white;
-        border-radius: 10px;
+        align-items: center;
+        background: var(--background-color);
+        border-bottom: 1px solid white;
+        border-radius: 5px;
     }
 
     #nav-button {

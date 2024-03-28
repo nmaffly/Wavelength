@@ -45,7 +45,10 @@ def index():
 @app.route('/login')
 def login():
     cleanup()
-    auth_url = sp_oauth.get_authorize_url()
+    auth_url = sp_oauth.get_authorize_url() #I'm trying to think abt how we can get around the max user issue and I think it might require giving
+                                            #people unique IDs associated with whoever's account they're using (ie. Sean's, Nathan's, etc.) and then
+                                            #having them plug that in before they sign in so that we can change the env variables and connect them
+                                            #to the right account. Otherwise we will be stuck at 25. Might be too problematic, we'll have to test
     return redirect(auth_url)
 
 @app.route('/callback')

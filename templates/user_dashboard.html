@@ -77,29 +77,22 @@
         <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
         <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
     </div>
-    <!-- <div id="graph-top-wrapper"> -->
         <svg id="lineGraph"></svg>
-
-        <!-- Top Genres and Artists using the variables from your server -->
         <div id="tops-wrapper">
             <div id="tops">
                 <div id="tops-section">
                     <h3 class="gradient-low">TOP GENRES</h3>
                     <ol id="top-genres-list">
-                        <!-- List items will be inserted here by JavaScript -->
                     </ol>
                 </div>
                 <div id="tops-section">
                     <h3 class="gradient-low">TOP ARTISTS</h3>
                     <ol id="top-artists-list">
-                        <!-- List items will be inserted here by JavaScript -->
                     </ol>
                 </div>
             </div>
             <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
-    <!-- </div>  -->
-    <!-- Line graph SVG -->
 
 
     <script>
@@ -164,29 +157,24 @@
       var artistData_a = {{ artists_a|tojson|safe }};
       var genreData_r = {{ genre_r|tojson|safe }};
       var genreData_a = {{ genre_a|tojson|safe }};
+      initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
       let graphComponents = initializeGraph(); // Store returned components for later use
-      console.log(graphComponents);
       window.onload = function() {
-          console.log(graphData);
           document.getElementById('oneMonthBtn').classList.add('active');
           // Optionally, you can also trigger the switch view to "oneMonth" automatically
-          switchView('oneMonth');
-          updateGraph(graphComponents, graphData, true);
+          initializeScreen(graphComponents, initializedData);
           document.body.classList.add('fade-in');
       };
       
       function switchView(view) {
-            // Remove 'active' class from both buttons
-            document.getElementById('oneMonthBtn').classList.remove('active');
-            document.getElementById('allTimeBtn').classList.remove('active');
-
-            // Add 'active' class to the selected button
             if (view === 'oneMonth') {
                 document.getElementById('oneMonthBtn').classList.add('active');
+                document.getElementById('allTimeBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData, true);
                 
             } else {
                 document.getElementById('allTimeBtn').classList.add('active');
+                document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData, false);
             }
             document.getElementById('top-genres-list').innerHTML = '';
@@ -277,7 +265,6 @@
 
         function updateGraph(components, graphData, truth) {
             const { svg, x, y, graphWidth, graphHeight, margin } = components;
-            console.log("SVG = ", svg);
             const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
             const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
 
@@ -334,6 +321,88 @@
             // Remove any old elements that are not present in the new data
             areaPath.exit().remove();
             linePath.exit().remove();
+        }
+
+        function initializeScreen(components, medianValues) {
+            document.getElementById('oneMonthBtn').classList.add('active');
+            document.getElementById('allTimeBtn').classList.remove('active');
+            document.getElementById('top-genres-list').innerHTML = '';
+            document.getElementById('top-artists-list').innerHTML = '';
+
+            var currentArtistsData = artistData_r;
+            var currentGenresData = genreData_r;
+
+            currentArtistsData.slice(0, 5).forEach(function(artist) {
+                var li = document.createElement('li');
+                li.textContent = artist;
+                document.getElementById('top-artists-list').appendChild(li);
+            });
+
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(function([genre, count]) {
+                var li = document.createElement('li');
+                li.textContent = genre;
+                document.getElementById('top-genres-list').appendChild(li);
+            });
+            const { svg, x, y, graphWidth, graphHeight, margin } = components;
+            const data = medianValues.slice(0, 8).map((value, index) => ({x: index, y: value}));
+
+            // Update the x-axis for custom tick names
+            const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+            svg.append("g")
+                .attr("transform", `translate(0,${y(50)})`)
+                .call(d3.axisBottom(x)
+                    .tickValues(data.map((d, i) => d.x))
+                    .tickFormat((d, i) => customTickNames[i]))
+                .selectAll("text")
+                .attr("transform", "translate(20,0) rotate(45)")
+                .style("text-anchor", "start")
+                .style("font-family", "'Overpass Mono', monospace")
+                .style("font-size", "20px");
+
+            const line = d3.line()
+                .x(d => x(d.x))
+                .y(d => y(d.y))
+                .curve(d3.curveBumpX);
+
+            const area = d3.area()
+                .x(d => x(d.x))
+                .y0(y(50))
+                .y1(d => y(d.y))
+                .curve(d3.curveBumpX);
+
+            // Update or enter the area path
+                // Update or enter the area path
+            const areaPath = svg.selectAll(".area-path").data([data]);
+            areaPath.enter()
+                .append("path")
+                .attr("class", "area-path")
+                .attr("fill", "url(#area-gradient)")
+                .merge(areaPath)
+                .transition()
+                .duration(1000)
+                .attr("d", area)
+                .attr("opacity", "0.7");
+
+            // Update or enter the line path
+            const linePath = svg.selectAll(".line-path").data([data]);
+            linePath.enter()
+                .append("path")
+                .attr("class", "line-path")
+                .attr("stroke", "#FF8934")
+                .attr("stroke-width", 2)
+                .attr("fill", "none")
+                .merge(linePath)
+                .transition()
+                .duration(1000)
+                .attr("d", line);
+
+            // Remove any old elements that are not present in the new data
+            areaPath.exit().remove();
+            linePath.exit().remove();
+            setTimeout(function() {
+                updateGraph(graphComponents, graphData, true);
+                console.log('Logged');
+            }, 500); // 1000 milliseconds = 1 second
         }
 
 

@@ -8,6 +8,10 @@ body h2 {
     margin-bottom: 10px;
 }
 
+h2 {
+    color: white;
+}
+
 body p {
     margin: 0px;
     margin-bottom: 30px;
@@ -23,6 +27,22 @@ body p {
     padding: 30px;
     border-radius: 20px;
     width: 400px;
+}
+
+#wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+#lineGraph {
+    margin-bottom: 10px;
+    width: 70%;
+    max-width: 700px;
+    height: 200px;
+    padding: 40px 0px;
 }
 
 #code-input {
@@ -52,4 +72,47 @@ body p {
     padding: 25px;
     border-radius: 20px;
     max-width: 500px;
+}
+  
+#tops {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    height: 100%;
+}
+
+#tops-section {
+    width: 200px;
+}
+
+#tops h3 {
+    font-size: 20px;
+    margin: 0px;
+}
+
+#tops ol {
+    margin: 0px;
+    padding-left: 25px;
+}
+
+#tops-view-more {
+    align-self: center;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    border: 1px solid white;
+    border-radius: 15px;
+    width: 100%;
+}
+
+#tops-view-more:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+#tops-view-more img {
+    width: 15px;
 }

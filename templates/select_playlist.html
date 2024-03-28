@@ -11,80 +11,114 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-  <header>
-      <h3 id="home-nav">wavelength</h3>
-      <button id="nav-button">
-        <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
-    </button>
-    <div id="nav-menu">
-        <ul>
-            <li><a href="/">home</a></li>
-            <li><a href="/select_playlist">playlist</a></li>
-            <li><a href="/comparison">compare</a></li>
-            <li><a href="/about">about</a></li>
-            <li><a href="#help">help</a></li>
-        </ul>
-    </div>
-    </header>
-<script>
-    document.getElementById('home-nav').addEventListener('click', function() {
-          window.location.href = '/';
-      });
-    document.addEventListener("DOMContentLoaded", function() {
-        const navButton = document.getElementById("nav-button");
-        const navMenu = document.getElementById("nav-menu");
-        const navIcon = document.getElementById("nav-icon");
-
-        // Toggle the menu's visibility when the button is clicked
-        navButton.addEventListener("click", () => {
-            if (navIcon.src.endsWith("Menu2.png")) {
-                navIcon.src = "../static/icons/Menu_close.png";
-                navIcon.style.width = "20px";
-                navMenu.style.right = "25px";
-                navButton.style.right = "160px";
-                navButton.classList.add("nav-button-spin");
-
-                navButton.addEventListener("animationend", () => {
-                    navButton.classList.remove("nav-button-spin");
-                });
-
-            } else {
-                navIcon.src = "../static/icons/Menu2.png";
-                navIcon.style.width = "30px";
-                navButton.style.right = "20px";
-                navMenu.style.right = "-150px";
-                navIcon.classList.toggle("nav-icon-fade");
-                navIcon.addEventListener("transitionend", () => {
-                    navIcon.classList.remove("nav-icon-fade");
-                });
-            }
-        });
-    });
-</script>
-    <h2>Select a Playlist</h2>
-    <p>And we'll show you how much it aligns with you.</p>
-
-    <div class="scrollable-div" id="playlist-wrapper">
-        {% for i in range(10) %}
-        <div class="playlist-widget">
-            <div id="image-placeholder"></div>
-            <div id="playlist-text">
-                <h3>Playlist Title</h3>
-                <p>Num Songs</p>
-            </div>
+    <header>
+        <h3><a href="/">wavelength</a></h3>
+        <div id="nav-items">
+            <p><a href="/select_playlist">playlist</a></p>
+            <p><a href="/comparison">compare</a></p>
+            <p><a href="/about">about</a></p>
+            <p><a href="#help">help</a></p>
         </div>
-        {% endfor %}
+        
+        <button id="nav-button">
+            <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+        </button>
+        <div id="nav-menu">
+            <ul>
+                <li><a href="/">home</a></li>
+                <li><a href="/select_playlist">playlist</a></li>
+                <li><a href="/comparison">compare</a></li>
+                <li><a href="/about">about</a></li>
+                <li><a href="#help">help</a></li>
+            </ul>
+        </div>
+        </header>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const navButton = document.getElementById("nav-button");
+            const navMenu = document.getElementById("nav-menu");
+            const navIcon = document.getElementById("nav-icon");
+            const bodyElement = document.body;
+    
+            // Toggle the menu's visibility when the button is clicked
+            navButton.addEventListener("click", () => {
+                if (navIcon.src.endsWith("Menu2.png")) {
+                    navIcon.src = "../static/icons/Menu_close.png";
+                    navIcon.style.width = "20px";
+                    navMenu.style.display = "flex";
+                    navButton.style.top = "255px";
+                    navButton.classList.add("nav-button-spin");
+                    bodyElement.style.opacity = "0.8";
+                    navButton.addEventListener("animationend", () => {
+                        navButton.classList.remove("nav-button-spin");
+                    });
+    
+                } else {
+                    navIcon.src = "../static/icons/Menu2.png";
+                    navIcon.style.width = "30px";
+                    navButton.style.top = "30px";
+                    navMenu.style.display = "none";
+                    navIcon.classList.toggle("nav-icon-fade");
+                    navButton.classList.add("nav-button-spin-reverse");
+                    bodyElement.style.opacity = "1";
+                    navIcon.addEventListener("transitionend", () => {
+                        navIcon.classList.remove("nav-button-spin-reverse");
+                    });
+                }
+            });
+        });
+    </script>
+    <div id="center-block">
+        <h2>Playlist Visualization</h2>
+        <p>Paste a public Spotify playlist below and we'll show you its <span class="highlight"><i><b>Wavelength!</b></i></span></p>
+        <input type="text" id="code-input" placeholder="Paste your public playlist URL here">
+        <button id="submit-button">Visualize</button>
     </div>
 
-
+    <div id="loaded">
+        <svg id="lineGraph"></svg>
+    </div>
+    
     <div id="spotify-logo"></div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('submit-button').addEventListener('click', function() {
+                // Get the playlist URL from the input field
+                var playlistUrl = document.getElementById('code-input').value.trim();
+    
+                // Check if the input field is not empty
+                if (playlistUrl) {
+                    // Prepare the data to send
+                    var data = {
+                        'playlistURL': playlistUrl
+                    };
+    
+                    // Send the data to your Flask backend
+                    fetch('/playlist_fetch', {
+                        method: 'POST', // or 'PUT'
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Store the playlist details in localStorage or sessionStorage
+                        localStorage.setItem('playlistDetails', JSON.stringify(data.playlistDetails));
 
-      window.onload = function() {
-
-      };
-      
-</script>
+                        // Redirect to the new page
+                        window.location.href = '/view_playlist';
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+                } else {
+                    alert('Please paste a Spotify playlist URL.');
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>

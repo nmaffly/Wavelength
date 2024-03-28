@@ -130,14 +130,17 @@ header img:hover {
 }
 
 #nav-items {
-    margin-left: 60px;
     display: flex;
-    width: 320px;
-    justify-content: space-between;
+    width: 100%;
+    justify-content: flex-end;
 }
 
 #nav-items p {
-    margin: 0px;
+    margin: 0px 20px;
+}
+
+#nav-items a {
+    transition: color .25s ease;
 }
 
 #nav-items a:hover {
@@ -277,7 +280,7 @@ button:hover {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+    transition: background-color .5s ease;
 }
 
 .view-button p {
@@ -293,8 +296,6 @@ button:hover {
 
 }
 
-
-
 @media (max-width: 500px) {
     #nav-menu {
         align-items: center;
@@ -305,6 +306,7 @@ button:hover {
 
     #nav-button {
         display: block;
+
     }
 
     #nav-items {

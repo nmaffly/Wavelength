@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wavelength App</title>
+    <link rel="icon" href="../static/icons/logo.png" type="image/png">
+    <link rel="stylesheet" href="../static/styles.css">
+    <link rel="stylesheet" href="../static/view_playlist.css">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <header>
+        <h3><a href="/">wavelength</a></h3>
+        <div id="nav-items">
+            <p><a href="/select_playlist">playlist</a></p>
+            <p><a href="/comparison">compare</a></p>
+            <p><a href="/about">about</a></p>
+            <p><a href="#help">help</a></p>
+        </div>
+        
+        <button id="nav-button">
+            <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+        </button>
+        <div id="nav-menu">
+            <ul>
+                <li><a href="/">home</a></li>
+                <li><a href="/select_playlist">playlist</a></li>
+                <li><a href="/comparison">compare</a></li>
+                <li><a href="/about">about</a></li>
+                <li><a href="#help">help</a></li>
+            </ul>
+        </div>
+        </header>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const navButton = document.getElementById("nav-button");
+            const navMenu = document.getElementById("nav-menu");
+            const navIcon = document.getElementById("nav-icon");
+            const bodyElement = document.body;
+    
+            // Toggle the menu's visibility when the button is clicked
+            navButton.addEventListener("click", () => {
+                if (navIcon.src.endsWith("Menu2.png")) {
+                    navIcon.src = "../static/icons/Menu_close.png";
+                    navIcon.style.width = "20px";
+                    navMenu.style.display = "flex";
+                    navButton.style.top = "255px";
+                    navButton.classList.add("nav-button-spin");
+                    bodyElement.style.opacity = "0.8";
+                    navButton.addEventListener("animationend", () => {
+                        navButton.classList.remove("nav-button-spin");
+                    });
+    
+                } else {
+                    navIcon.src = "../static/icons/Menu2.png";
+                    navIcon.style.width = "30px";
+                    navButton.style.top = "30px";
+                    navMenu.style.display = "none";
+                    navIcon.classList.toggle("nav-icon-fade");
+                    navButton.classList.add("nav-button-spin-reverse");
+                    bodyElement.style.opacity = "1";
+                    navIcon.addEventListener("transitionend", () => {
+                        navIcon.classList.remove("nav-button-spin-reverse");
+                    });
+                }
+            });
+        });
+    </script>
+
+    <h2 id="playlistName">Playlist Name</h2>
+
+    <div id="wrapper">
+        <svg id="lineGraph"></svg>
+        <div id="tops-wrapper">
+            <div id="tops">
+                <div id="tops-section">
+                    <h3 class="gradient-low">TOP GENRES</h3>
+                    <ol id="top-genres-list">
+                    </ol>
+                </div>
+                <div id="tops-section">
+                    <h3 class="gradient-low">TOP ARTISTS</h3>
+                    <ol id="top-artists-list">
+                    </ol>
+                </div>
+            </div>
+            <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
+        </div>
+    </div>
+    
+    <div id="spotify-logo"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const playlistDetails = JSON.parse(localStorage.getItem('playlistDetails'));
+            drawGraph(playlistDetails.medianValues);
+            if (playlistDetails && playlistDetails.playlistTitle) {
+                // Select the <h2> element by its ID and update its content
+                document.getElementById('playlistName').textContent = playlistDetails.playlistTitle;
+            }
+        });
+
+        function drawGraph(medianValues) {
+          const data = medianValues.slice(0, 7).map((value, index) => ({x: index, y: value}));
+          console.log(medianValues);
+          const customTickNames = ["Tempo", "Loudness", "Acousticness", "Danceability", "Happiness", "Energy", "Speechiness"];
+          const svgElement = document.getElementById('lineGraph');
+          const bbox = svgElement.getBoundingClientRect();
+          const width = bbox.width-40;
+          const height = bbox.height;
+          const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+
+          // Clear any previous graph
+          svg.selectAll("*").remove();
+
+          const margin = {top: 10, right: 0, bottom: 10, left: 0},
+              graphWidth = width - margin.left - margin.right,
+              graphHeight = height - margin.top - margin.bottom;
+          
+          let g = svg.select("g");
+            if (g.empty()) {
+                g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+            }
+      
+          // Scales
+          const x = d3.scaleLinear().domain([0, 6]).range([0, graphWidth]);
+          const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
+
+          svg.append("g")
+            .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
+            .call(d3.axisBottom(x)
+                .tickValues(data.map((d, i) => d.x)) // Set tick values based on data indices
+                .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
+            )
+            .selectAll("text")
+            .attr("transform", "translate(20,0) rotate(45)")
+            .style("text-anchor", "start")
+            .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+            .style("font-size", "20px");
+
+          const defs = svg.append("defs");
+          const gradient = defs.append("linearGradient")
+              .attr("id", "area-gradient")
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", 0).attr("y1", y(0))
+              .attr("x2", 0).attr("y2", y(100));
+          gradient.append("stop").attr("offset", "40%").attr("stop-color", "rgba(255, 137, 52, .4)");
+          gradient.append("stop").attr("offset", "80%").attr("stop-color", "#FF8934");
+          
+        
+          // Add the y-axis
+          const yAxis = d3.axisLeft(y)
+                      .tickValues([0, 25, 50, 75, 100])
+                      .tickSize(0) // Remove the tick marks
+                      .tickPadding(10); // Adjust space between ticks and labels if needed
+
+          const yAxisGroup = svg.append("g").call(yAxis);
+
+          // Apply styles to the y-axis for a dotted line
+          yAxisGroup.selectAll("path")
+                    .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
+
+          // Apply custom font settings to all axis text (x and y)
+          yAxisGroup.selectAll("text")
+                    .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
+                    .style("font-size", "20px");
+
+          yAxisGroup.append("text")
+                .attr("text-anchor", "middle") // Center the text (horizontally)
+                .attr("transform", "rotate(-90)") // Rotate the text to go along the y axis
+                .attr("y", -margin.left) // Position the text based on the left margin. Adjust as needed.
+                .attr("x", - (height / 2)) // Center the text vertically along the axis
+                .attr("dy", "1em") // Adjust the position a little bit down for better readability
+                .style("font-family", "'Overpass Mono', monospace") // Optional: Match the axis font style
+                .style("font-size", "20px") // Optional: Match the axis font size
+                .text("median attribute"); // Set the label text
+          // Line generator
+
+          
+            const line = d3.line()
+              .x(d => x(d.x))
+              .y(d => y(d.y))
+              .curve(d3.curveBumpX);
+
+          const area = d3.area()
+              .x(d => x(d.x))
+              .y0(y(55))
+              .y1(d => y(d.y))
+              .curve(d3.curveBumpX);
+        
+            const areaPath = g.selectAll(".area-path").data([data]);
+
+            // Enter + update area
+            areaPath.enter()
+                .append("path")
+                .attr("class", "area-path")
+                .attr("fill", "url(#area-gradient)")
+                .attr("opacity", "0.7")
+                .merge(areaPath)
+                .transition()
+                .duration(1000)
+                .attr("d", area);
+
+            // Bind data to elements
+            const linePath = g.selectAll(".line-path").data([data]);
+
+            // Enter + update line
+            linePath.enter()
+                .append("path")
+                .attr("class", "line-path")
+                .attr("fill", "none")
+                .attr("stroke", "#FF8934")
+                .attr("stroke-width", 2)
+                .merge(linePath) // Combine enter and update selections
+                .transition()
+                .duration(1000)
+                .attr("d", line);
+        }
+    </script>
+    
+</body>
+</html>

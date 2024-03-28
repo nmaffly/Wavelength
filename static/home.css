@@ -2,6 +2,23 @@ body {
     overflow: hidden;
     height: 100vh;
 }
+
+header {
+    justify-content: flex-start;
+}
+
+#nav-items {
+    width: 100%;
+    justify-content: flex-start;
+    transition: display .5s ease;
+    margin: 0px;
+}
+
+#nav-items p {
+    margin: 0px;
+    margin-left: 50px;
+}
+
 #center-block {
     margin-top: 20vh;
     width: 300px;
@@ -95,9 +112,17 @@ body {
     100% { top: -1250px }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 950px) {
     body {
         overflow: hidden;
+    }
+
+    #nav-button {
+        display: block;
+    }
+
+    #nav-items {
+        display: none;
     }
 
     #graphic {
@@ -105,7 +130,7 @@ body {
         bottom: -50px;
         left: auto;
         transform: rotate(0deg);
-        height: 30%;
+        height: 25%;
         width: 110%;
     }
 
@@ -122,8 +147,8 @@ body {
     }
 }
 
-@media (min-height: 400px) {
-/*     #center-block {
-        margin-top: 8%;
-    } */
+@media (max-width: 500px) {
+    #lineGraph {
+        width: 110%;
+    }
 }

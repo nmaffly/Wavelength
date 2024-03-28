@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
 from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, load_user_stats, db
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 
@@ -37,6 +38,7 @@ SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 SCOPE = 'user-library-read user-top-read user-read-currently-playing'
 
 sp_oauth = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=SCOPE)
+sp = spotipy.Spotify(auth_manager=sp_oauth)
 
 @app.route('/')
 def index():
@@ -138,11 +140,11 @@ def fetch_data():
         profile_pic = user_data['images'][1]['url']
 
         # extracted recent data 
-        top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
+        top_artists_r = spotify.current_user_top_artists(limit=20, time_range='short_term')['items']
         top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
         
         # extracted all time data
-        top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
+        top_artists_a = spotify.current_user_top_artists(limit=20, time_range='long_term')['items']
         top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
         # Recent stats
@@ -269,6 +271,44 @@ def about():
 @app.route('/select_playlist')
 def select_playlist():
     return render_template('select_playlist.html')
+
+
+@app.route('/playlist_fetch', methods=['POST'])
+def playlist_fetch():
+    data = request.get_json()
+    
+    spotifyURL = data.get('playlistURL')
+    
+    if spotifyURL:
+        parsed_url = urlparse(spotifyURL)
+
+        path_parts = parsed_url.path.split('/')
+        spotifyID = path_parts[-1] 
+
+        playlist = sp.playlist(spotifyID)
+
+        playlist_title = playlist.get('name')
+        playlist_cover_photo = playlist['images'][0]['url'] if playlist.get('images') else None
+        songs = [{'title': track['track']['name'], 
+                'artist': track['track']['artists'][0]['name'], 
+                'id': track['track']['id']} for track in playlist['tracks']['items']]
+        
+        audio_features = get_audio_features_tracks(songs, sp) #need to set a max limit on this so that we don't bombard the API, or at least some form of cool down
+        playlist_details = {
+            'playlistTitle': playlist_title,
+            'playlistCoverPhoto': playlist_cover_photo,
+            'medianValues': audio_features,
+            'songs': songs
+        }
+        print(playlist_details)
+        
+        return jsonify({'message': 'Playlist details fetched successfully', 'playlistDetails': playlist_details})
+    else:
+        return jsonify({'error': 'No playlist URL provided'}), 400
+    
+@app.route('/view_playlist')
+def view_playlist():
+    return render_template('view_playlist.html')
 
 @app.route('/error')
 def error_page():

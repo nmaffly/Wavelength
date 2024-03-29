@@ -108,21 +108,30 @@ def fetch_data():
     
         # pull spotify data from db and put into flask session
         median_values_r = get_db_median_values(user.id, 'r')
+        median_values_m = get_db_median_values(user.id, 'm')
         median_values_a = get_db_median_values(user.id, 'a')
 
         session['processed_data'] = {
-        "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
+        "graph_json": {
+            "median_values_r": median_values_r, 
+            "median_values_m": median_values_m, 
+            "median_values_a": median_values_a
+        },
         "median_values_r": median_values_r,
+        "median_values_m": median_values_m, 
         "median_values_a": median_values_a,
         "user_data": user_data,
         "user_name": user.display_name,
         "profile_pic": user.profile_pic,
         "share_token": user.share_token,
         "genre_r": get_db_genres(user.id, 'r'),
+        "genre_m": get_db_genres(user.id, 'm'),
         "genre_a": get_db_genres(user.id, 'a'),
         "artists_a": get_db_artists(user.id, 'a'),
+        "artists_m": get_db_artists(user.id, 'm'),
         "artists_r": get_db_artists(user.id, 'r'),
         "tracks_r": get_db_tracks(user.id,'r'),
+        "tracks_m": get_db_tracks(user.id, 'm'),
         "tracks_a": get_db_tracks(user.id,'a'),
         "popularity_r": median_values_r["popularity"],
         "tempo_r": median_values_r["tempo"],
@@ -145,12 +154,16 @@ def fetch_data():
         # extracted recent data 
         top_artists_r = spotify.current_user_top_artists(limit=20, time_range='short_term')['items']
         top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
+
+        # extracted all time data
+        top_artists_m = spotify.current_user_top_artists(limit=20, time_range='medium_term')['items']
+        top_tracks_m = spotify.current_user_top_tracks(limit=50, time_range='medium_term')['items']
         
         # extracted all time data
         top_artists_a = spotify.current_user_top_artists(limit=20, time_range='long_term')['items']
         top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
-        # Recent stats
+        # Recent (1 month) stats
         artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre
         artists_r = list(artist_genres_r.keys())
         genres_r = get_genre_count(artist_genres_r)
@@ -161,7 +174,18 @@ def fetch_data():
         median_values_r.append(popularity_r)
         median_values_r.append(variance_r)
 
-        #All Time stats
+        # Medium term (6 months) stats
+        artist_genres_m = get_artist_genres(top_artists_m) # dictionary with top 10 artists and associated genre
+        artists_m = list(artist_genres_m.keys())
+        genres_m = get_genre_count(artist_genres_m)
+        tracks_m = [track['name'] for track in top_tracks_m]
+        popularity_m = get_popularity(top_artists_m)
+        median_values_m = get_audio_features_tracks(top_tracks_m, spotify)
+        variance_m = get_variance()
+        median_values_m.append(popularity_m)
+        median_values_m.append(variance_m)
+
+        # All Time stats
         artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
         artists_a = list(artist_genres_a.keys())
         genres_a = get_genre_count(artist_genres_a)
@@ -174,10 +198,13 @@ def fetch_data():
 
         new_data = {
                 "recent_genres": genres_r,
+                "medium_genres": genres_m,
                 "all_time_genres": genres_a,
                 "recent_artists": artists_r,
+                "medium_artists": artists_m,
                 "all_time_artists": artists_a,
                 "recent_tracks": tracks_r,
+                "medium_tracks": tracks_m,
                 "all_time_tracks": tracks_a
         }
 
@@ -193,7 +220,9 @@ def fetch_data():
                 refresh_token=token_info['refresh_token'],
                 share_token=user_share_token,
                 token_expires_at=datetime.fromtimestamp(token_info['expires_at']),
-                last_updated=datetime.utcnow()
+                last_updated=datetime.utcnow(),
+                most_recent_login = datetime.utcnow(),
+                created_at=datetime.utcnow()
             )
 
             print("user instance made")
@@ -208,25 +237,34 @@ def fetch_data():
             
             print("user instanced added to db session")
             
-            load_user_stats(user.id, median_values_r, median_values_a, new_data, update=False)
+            load_user_stats(user.id, median_values_r,median_values_m, median_values_a, new_data, update=False)
         else:
             # the user exists, update info in db
             user.last_updated = datetime.utcnow()
-            load_user_stats(user.id, median_values_r, median_values_a, new_data, update=True)
+            user.most_recent_login = datetime.utcnow()
+            load_user_stats(user.id, median_values_r, median_values_m, median_values_a, new_data, update=True)
             
         session['processed_data'] = {
-            "graph_json": {"median_values_r": median_values_r, "median_values_a": median_values_a},
+            "graph_json": {
+                "median_values_r": median_values_r,
+                "median_values_m": median_values_m, 
+                "median_values_a": median_values_a
+            },
             "median_values_r": median_values_r,
+            "median_values_m": median_values_m,
             "median_values_a": median_values_a,
             "user_data": user_data,
             "user_name": user_name,
             "profile_pic": profile_pic,
             "share_token": user.share_token,
             "genre_r": genres_r,
+            "genre_m": genres_m,
             "genre_a": genres_a,
             "artists_a": artists_a,
+            "artists_m": artists_m,
             "artists_r": artists_r,
             "tracks_r": tracks_r,
+            "tracks_m": tracks_m,
             "tracks_a": tracks_a,
             "popularity_r": popularity_r,
             "tempo_r": median_values_r[0],

@@ -70,8 +70,6 @@ class UserStats(db.Model):
     variance_m = db.Column(db.Float)
     variance_a = db.Column(db.Float)
 
-
-
 class RecentGenres(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
@@ -95,31 +93,57 @@ class RecentArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
+    img_url = db.Column(db.String(100))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
+
 
 class MediumArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
+    img_url = db.Column(db.String(100))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
 
 class AllTimeArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     artist = db.Column(db.String(100))
+    img_url = db.Column(db.String(100))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
 
 class RecentTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     song = db.Column(db.String(100))
+    track_id = db.Column(db.String(100))
+    album_art_img_url = db.Column(db.String(100))
+    preview_url = db.Column(db.String(200))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
+
 
 class MediumTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     song = db.Column(db.String(100))
+    track_id = db.Column(db.String(100))
+    album_art_img_url = db.Column(db.String(100))
+    preview_url = db.Column(db.String(200))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
 
 class AllTimeTracks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)
     song = db.Column(db.String(100))
+    track_id = db.Column(db.String(100))
+    album_art_img_url = db.Column(db.String(100))
+    preview_url = db.Column(db.String(200))
+    spotify_url = db.Column(db.String(100))
+    href = db.Column(db.String(100))
 
 def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, new_data, update):
     if update:
@@ -133,33 +157,33 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
 
     user_stats = UserStats(
         user_id=user_id,
-        popularity_r=median_values_r[7],
-        popularity_m=median_values_m[7], 
-        popularity_a=median_values_a[7],
-        tempo_r=median_values_r[0],
-        tempo_m=median_values_m[0],
-        tempo_a=median_values_a[0],
-        loudness_r=median_values_r[1],
-        loudness_m=median_values_m[1],
-        loudness_a=median_values_a[1],
-        acousticness_r=median_values_r[2],
-        acousticness_m=median_values_m[2],
-        acousticness_a=median_values_a[2],
-        danceability_r=median_values_r[3],
-        danceability_m=median_values_m[3],
-        danceability_a=median_values_a[3],
-        valence_r=median_values_r[4],
-        valence_m=median_values_m[4],
-        valence_a=median_values_a[4],
-        energy_r=median_values_r[5],
-        energy_m=median_values_m[5],
-        energy_a=median_values_a[5],
-        speechiness_r=median_values_r[6],
-        speechiness_m=median_values_m[6],
-        speechiness_a=median_values_a[6],
-        variance_r=median_values_r[8],
-        variance_m=median_values_m[8], 
-        variance_a=median_values_a[8]
+        popularity_r=median_values_r['popularity'],
+        popularity_m=median_values_m['popularity'], 
+        popularity_a=median_values_a['popularity'],
+        tempo_r=median_values_r['tempo'],
+        tempo_m=median_values_m['tempo'],
+        tempo_a=median_values_a['tempo'],
+        loudness_r=median_values_r['loudness'],
+        loudness_m=median_values_m['loudness'],
+        loudness_a=median_values_a['loudness'],
+        acousticness_r=median_values_r['acousticness'],
+        acousticness_m=median_values_m['acousticness'],
+        acousticness_a=median_values_a['acousticness'],
+        danceability_r=median_values_r['danceability'],
+        danceability_m=median_values_m['danceability'],
+        danceability_a=median_values_a['danceability'],
+        valence_r=median_values_r['valence'],
+        valence_m=median_values_m['valence'],
+        valence_a=median_values_a['valence'],
+        energy_r=median_values_r['energy'],
+        energy_m=median_values_m['energy'],
+        energy_a=median_values_a['energy'],
+        speechiness_r=median_values_r['speechiness'],
+        speechiness_m=median_values_m['speechiness'],
+        speechiness_a=median_values_a['speechiness'],
+        variance_r=median_values_r['variance'],
+        variance_m=median_values_m['variance'], 
+        variance_a=median_values_a['variance']
     )
 
     db.session.add(user_stats)
@@ -189,47 +213,71 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         )
         db. session.add(new_genre)
 
-    for a in new_data["recent_artists"]:
+    for artist_name, info in new_data["recent_artists"].items():
         new_artist = RecentArtists(
             user_stats_id=user_stats.id,
-            artist=a
+            artist=artist_name,
+            img_url=info['img_url'],
+            spotify_url=info['spotify_url'],
+            href=info['href']
         )
         db.session.add(new_artist)
 
-    for a in new_data["medium_artists"]:
+    for artist_name, info in new_data["medium_artists"].items():
         new_artist = MediumArtists(
             user_stats_id=user_stats.id,
-            artist=a
+            artist=artist_name,
+            img_url=info['img_url'],
+            spotify_url=info['spotify_url'],
+            href=info['href']
         )
         db.session.add(new_artist)
 
-    for a in new_data["all_time_artists"]:
+    for artist_name, info in new_data["all_time_artists"].items():
         new_artist = AllTimeArtists(
             user_stats_id=user_stats.id,
-            artist=a
+            artist=artist_name,
+            img_url=info['img_url'],
+            spotify_url=info['spotify_url'],
+            href=info['href']
         )
         db. session.add(new_artist)
 
-    for track in new_data["recent_tracks"]:
+    for track_name, info in new_data["recent_tracks"].items():
         new_track = RecentTracks(
             user_stats_id=user_stats.id,
-            song=track
+            song=track_name,
+            track_id = info['track_id'],
+            album_art_img_url = info['album_art_img_url'],
+            preview_url = info['preview_url'],
+            spotify_url = info['spotify_url'],
+            href = info['href'],
         )
         db.session.add(new_track)
 
-    for track in new_data["medium_tracks"]:
+    for track_name, info in new_data["medium_tracks"].items():
         new_track = MediumTracks(
             user_stats_id=user_stats.id,
-            song=track
+            song=track_name,
+            track_id = info['track_id'],
+            album_art_img_url = info['album_art_img_url'],
+            preview_url = info['preview_url'],
+            spotify_url = info['spotify_url'],
+            href = info['href'],
         )
         db.session.add(new_track)
 
-    for track in new_data["all_time_tracks"]:
+    for track_name, info in new_data["all_time_tracks"].items():
         new_track = AllTimeTracks(
             user_stats_id=user_stats.id,
-            song=track
+            song=track_name,
+            track_id = info['track_id'],
+            album_art_img_url = info['album_art_img_url'],
+            preview_url = info['preview_url'],
+            spotify_url = info['spotify_url'],
+            href = info['href'],
         )
-        db. session.add(new_track)
+        db.session.add(new_track)
 
     db.session.commit()
 

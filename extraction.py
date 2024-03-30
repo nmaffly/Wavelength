@@ -131,7 +131,6 @@ def get_audio_features_tracks(top_tracks, spotify):
 
     # Normalizing process, others normalized before
     median_tempo = ((median_tempo_pre - 120)*2.5) + 50
-    print(median_loudness_pre)
     median_loudness = abs((abs(median_loudness_pre) - 10) * 33)
     if median_loudness > 100:
         median_loudness = 100

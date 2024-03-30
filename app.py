@@ -456,6 +456,7 @@ def playlist_fetch():
         playlist_details = {
             'playlistTitle': playlist_title,
             'playlistCoverPhoto': playlist_cover_photo,
+            'playlistURL': spotifyURL,
             'medianValues': audio_features,
             'songs': songs,
             'artists': artists_info,

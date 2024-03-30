@@ -70,12 +70,12 @@
 </script>
 
     <!-- User's name -->
-    <h1>{{ user_name }}</h1>
+    <h1 class="text-gradient">{{ user_name }}</h1>
     
     <!-- Timeframe Buttons -->
     <div id="button-timeframe">
         <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
-        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">All Time</button>
+        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">1 Year</button>
     </div>
         <svg id="lineGraph"></svg>
         <div id="tops-wrapper">
@@ -119,6 +119,14 @@
         });
     </script>
 
+    <div id="spotify-logo">
+        <div id="spotify-logo">
+            <a href="https://www.spotify.com" target="_blank">
+                <img src="../static/icons/Spotify_Logo.png" alt="Spotify">
+            </a>
+        </div>
+    </div>
+
     <!-- Code export section -->
     <div id="code">
         <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ share_token }}</b></span></h2>
@@ -143,8 +151,7 @@
             setTimeout(function() { alertContainer.style.display = 'none'; }, 3000); // Hide alert after 3 seconds
         }
     </script>
-
-    <div id="spotify-logo"></div>
+        
 
     <div id="view-more">
       <h2 class="gradient-high">Who's on your wavelength?</h2>

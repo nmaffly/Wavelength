@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Spotify Users</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="static/home.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Compare Spotify Users</h1>
+            <form action="{{ url_for('compare_users_redirect') }}" method="post">
+            <label for="user1ShareToken">User 1 Share Token:</label>
+            <input type="text" id="user1ShareToken" name="user1ShareToken" required>
+            <label for="user2ShareToken">User 2 Share Token:</label>
+            <input type="text" id="user2ShareToken" name="user2ShareToken" required>
+            <button type="submit">Compare</button>
+        </form>
+    </div>
+</body>
+</html>

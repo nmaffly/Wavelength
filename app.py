@@ -95,7 +95,7 @@ def fetch_data():
     if not user.last_updated:
         user.last_updated = user.created_at
 
-    if user and (datetime.utcnow() - user.last_updated) < timedelta(weeks=1): #I changed this just to work on things
+    if user and (datetime.utcnow() - user.last_updated) < timedelta(weeks=1):
         # If user exists and it's been less than a week, update tokens and most recent login
         # then pull stats from database into flask session
 

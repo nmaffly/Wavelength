@@ -214,20 +214,27 @@ header img:hover {
 #nav-menu {
     transition: .5s;
     display: none;
-    position: absolute;
+    position: fixed;
+    flex-direction: column;
+    justify-content: space-between;
     top: 0px;
-    left: 0px;
-    width: 100%;
+    right: -10px;
+    width: 85%;
+    height:100vh;
     font-size: var(--font-size-h3);
     z-index: 9000;
     padding-top: 10px;
     padding-bottom: 30px;
+    box-shadow: -30px 0 40px 0 rgba(0, 0, 0, 0.5);
+    border-radius: 50px;
+    background: linear-gradient(to left, #000000, #101010);
+
 }
 
 #nav-menu ul {
     list-style: none; /* Remove bullet points */
     padding: 0;
-    margin: 0;
+    margin-top: 40px;
     width: 100%;
 }
 
@@ -235,7 +242,7 @@ header img:hover {
 #nav-menu ul li {
     text-align: center;
     padding-bottom: 10px;
-    margin: 15px 0px;
+    margin: 30px 0px;
 }
 
 /* Style the navigation menu links */
@@ -247,6 +254,19 @@ header img:hover {
 
 #nav-menu ul li a:hover {
     color: var(--primary-orange);
+}
+
+#nav-menu img {
+    width: 30px;
+    height: 30px;
+    margin: 20px;
+    margin-bottom: 40px;
+}
+
+#icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #highlight-link {
@@ -294,8 +314,6 @@ button:hover {
 
 .view-button p {
     margin: 0px;
-    padding: 0px;
-    border: 1px solid red;
 }
 
 .view-button.active {
@@ -320,7 +338,6 @@ button:hover {
 @media (max-width: 500px) {
     #nav-menu {
         align-items: center;
-        background: var(--background-color);
         border-bottom: 1px solid white;
         border-radius: 5px;
     }
@@ -329,9 +346,7 @@ button:hover {
         display: block;
 
     }
-
     #nav-items {
-        display: hidden;
+        display: none;
     }
-
 }

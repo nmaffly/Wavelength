@@ -407,7 +407,7 @@ def split_list_into_chunks(lst, chunk_size):
         yield lst[i:i + chunk_size]
 
 @app.route('/playlist_fetch', methods=['POST'])
-def playlist_fetch():
+def playlist_fetch(): #check to make sure it's not a Spotify playlist
     data = request.get_json()
     spotifyURL = data.get('playlistURL')
     

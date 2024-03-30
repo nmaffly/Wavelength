@@ -31,6 +31,11 @@
             <li><a href="/about">about</a></li>
             <li><a href="#help">help</a></li>
         </ul>
+        <div id="icons">
+            <img src="../static/icons/instagram.png" alt="Instagram">
+            <img src="../static/icons/facebook.png" alt="Facebook">
+            <img src="../static/icons/x.png" alt="X (Twitter)">
+        </div>
     </div>
     </header>
 <script>
@@ -46,9 +51,7 @@
                 navIcon.src = "../static/icons/Menu_close.png";
                 navIcon.style.width = "20px";
                 navMenu.style.display = "flex";
-                navButton.style.top = "255px";
                 navButton.classList.add("nav-button-spin");
-                bodyElement.style.opacity = "0.8";
                 navButton.addEventListener("animationend", () => {
                     navButton.classList.remove("nav-button-spin");
                 });
@@ -56,11 +59,9 @@
             } else {
                 navIcon.src = "../static/icons/Menu2.png";
                 navIcon.style.width = "30px";
-                navButton.style.top = "30px";
                 navMenu.style.display = "none";
                 navIcon.classList.toggle("nav-icon-fade");
                 navButton.classList.add("nav-button-spin-reverse");
-                bodyElement.style.opacity = "1";
                 navIcon.addEventListener("transitionend", () => {
                     navIcon.classList.remove("nav-button-spin-reverse");
                 });

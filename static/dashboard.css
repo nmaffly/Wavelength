@@ -177,7 +177,7 @@ body h1{
 
 @media (max-width: 500px) {
     #lineGraph {
-        width: 100%;
+        width: 95%;
         top: 170px;
         height: 180px;
     }
@@ -186,8 +186,5 @@ body h1{
     }
     #view-more {
         margin-top: 50px;
-    }
-    #nav-items {
-        display: none;
     }
 }

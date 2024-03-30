@@ -23,6 +23,7 @@ body p {
     padding: 30px;
     border-radius: 20px;
     width: 400px;
+    opacity: 1;
 }
 
 #code-input {
@@ -52,4 +53,44 @@ body p {
     padding: 25px;
     border-radius: 20px;
     max-width: 500px;
+}
+
+#loading {
+    position: absolute;
+    display: none;
+    margin-top: 15%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+}
+
+#loading h2 {
+    text-align: center;
+    margin: 0px;
+}
+
+#lineGraph {
+    width: 550px;
+    height: 210px;
+}
+
+.fade-out {
+    animation: fadeOut 1s 1;
+    animation-fill-mode: forwards;
+}
+
+.fade-in {
+    animation: fadeIn 1s 1;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; } /* Fade to completely transparent */
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; } /* Fa0e to completely transparent */
 }

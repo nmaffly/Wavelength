@@ -14,7 +14,7 @@
   <header>
     <h3><a href="/">wavelength</a></h3>
     <div id="nav-items">
-        <p><a href="/select_playlist">playlist</a></p>
+        <p><a href="/input_playlist">playlist</a></p>
         <p><a href="/comparison">compare</a></p>
         <p><a href="/about">about</a></p>
         <p><a href="#help">help</a></p>
@@ -26,7 +26,7 @@
     <div id="nav-menu">
         <ul>
             <li><a href="/">home</a></li>
-            <li><a href="/select_playlist">playlist</a></li>
+            <li><a href="/input_playlist">playlist</a></li>
             <li><a href="/comparison">compare</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="#help">help</a></li>
@@ -234,9 +234,13 @@
 
             // Add the y-axis
             const yAxis = d3.axisLeft(y)
-                      .tickValues([0, 25, 50, 75, 100])
-                      .tickSize(0) // Remove the tick marks
-                      .tickPadding(10); // Adjust space between ticks and labels if needed
+                .tickValues([0, 50, 100]) // Include the midpoint value
+                .tickFormat(function(d) {
+                    // Return "Low", "Baseline", or "High" based on the tick value
+                    return d === 0 ? "Low" : d === 50 ? "Baseline" : "High";
+                })
+                .tickSize(0) // Remove the tick marks
+                .tickPadding(10); // Adjust space between ticks and labels if needed
 
             const yAxisGroup = svg.append("g").call(yAxis);
 

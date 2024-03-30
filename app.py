@@ -3,7 +3,7 @@ import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
-from extraction import get_artist_genres, get_genre_count, get_popularity, get_audio_features_tracks, get_variance
+from extraction import get_artist_genres, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
@@ -271,37 +271,69 @@ def comparison():
 def about():
     return render_template('about.html')
 
-@app.route('/select_playlist')
-def select_playlist():
-    return render_template('select_playlist.html')
+@app.route('/input_playlist')
+def input_playlist():
+    return render_template('input_playlist.html')
 
+def split_list_into_chunks(lst, chunk_size):
+    """Yield successive chunk_size chunks from lst."""
+    for i in range(0, len(lst), chunk_size):
+        yield lst[i:i + chunk_size]
 
 @app.route('/playlist_fetch', methods=['POST'])
 def playlist_fetch():
     data = request.get_json()
-    
     spotifyURL = data.get('playlistURL')
     
     if spotifyURL:
         parsed_url = urlparse(spotifyURL)
-
         path_parts = parsed_url.path.split('/')
         spotifyID = path_parts[-1] 
-
         playlist = sp.playlist(spotifyID)
 
         playlist_title = playlist.get('name')
         playlist_cover_photo = playlist['images'][0]['url'] if playlist.get('images') else None
-        songs = [{'title': track['track']['name'], 
+
+        # Extract songs and artists
+        songs = []
+        artist_ids = set()
+        for track in playlist['tracks']['items']:
+            song = {
+                'title': track['track']['name'], 
                 'artist': track['track']['artists'][0]['name'], 
-                'id': track['track']['id']} for track in playlist['tracks']['items']]
+                'id': track['track']['id']
+            }
+            songs.append(song)
+            # Add all artist IDs for each track to ensure uniqueness
+            for artist in track['track']['artists']:
+                artist_ids.add(artist['id'])
+
+        artist_ids_list = list(artist_ids)  # Convert set to list for chunking
+        artist_chunks = list(split_list_into_chunks(artist_ids_list, 50))  # Split into chunks of 50
+
+        artists_info = []
+        genres_pre = []
+        for chunk in artist_chunks:
+            artists_batch = sp.artists(chunk)
+            genres_pre.append(get_artist_genres_batch(artists_batch))
+            for artist in artists_batch['artists']:
+                artists_info.append({
+                    'name': artist['name'],
+                    'id': artist['id'],
+                    'genres': artist['genres'],
+                    'popularity': artist['popularity'],
+                    'image': artist['images'][0]['url'] if artist['images'] else None
+                })
+        genres_final = get_genre_count_batch(genres_pre)
+        audio_features = get_audio_features_tracks(songs, sp)
         
-        audio_features = get_audio_features_tracks(songs, sp) #need to set a max limit on this so that we don't bombard the API, or at least some form of cool down
         playlist_details = {
             'playlistTitle': playlist_title,
             'playlistCoverPhoto': playlist_cover_photo,
             'medianValues': audio_features,
-            'songs': songs
+            'songs': songs,
+            'artists': artists_info,
+            'genres': genres_final
         }
         
         return jsonify({'message': 'Playlist details fetched successfully', 'playlistDetails': playlist_details})

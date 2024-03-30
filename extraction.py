@@ -9,6 +9,14 @@ def get_artist_genres(top_artists):
 
     return artists
 
+def get_artist_genres_batch(response):
+    # response is the dictionary returned from sp.artists(chunk)
+    artists = {}
+    # Access the list of artists with response['artists']
+    for item in response['artists']:
+        artists[item['name']] = item['genres']
+    return artists
+
 def get_genre_count(genres):
     # returns dictionary of genres and their respective count (calculated based on artists), sorted by count
     # dictionary: (key, value) --> (genre, count)
@@ -25,6 +33,24 @@ def get_genre_count(genres):
     all_genres = {k: v for k, v in sorted(all_genres.items(), key=lambda item: item[1], reverse=True)}
     
     return all_genres
+
+def get_genre_count_batch(genres_list):
+    # genres_list is a list of dictionaries
+    # Each dictionary maps artist names to their genres
+    all_genres = {}
+    for genres_dict in genres_list:  # Iterate over each dictionary in the list
+        for artist, genres in genres_dict.items():  # Now iterating over each artist-genres pair in the dictionary
+            for genre in genres:  # Iterate over genres of the current artist
+                if genre in all_genres:
+                    all_genres[genre] += 1
+                else:
+                    all_genres[genre] = 1
+
+    # Sorting genres by count in descending order
+    all_genres = {k: v for k, v in sorted(all_genres.items(), key=lambda item: item[1], reverse=True)}
+
+    return all_genres
+
 
 def get_popularity(top_artists):
     # returns median popularity score for top 10 artists
@@ -95,16 +121,17 @@ def get_audio_features_tracks(top_tracks, spotify):
         energy_scores.append(energy)
         speechiness_scores.append(speechiness)
 
-    median_tempo_pre = round(find_median(tempo_scores),ndigits=2)
-    median_loudness_pre = round(find_median(loudness_scores),ndigits=2)
-    median_acousticness = round(find_median(acousticness_scores), ndigits=2) * 100
-    median_danceability = round(find_median(danceability_scores), ndigits=2)* 100
-    median_valence = round(find_median(valence_scores), ndigits=2)* 100
-    median_energy = round(find_median(energy_scores), ndigits=2)* 100
-    median_speechiness = round(find_median(speechiness_scores), ndigits=2)* 100
+    median_tempo_pre = round(round(find_median(tempo_scores),ndigits=4), ndigits=2)
+    median_loudness_pre = round(round(find_median(loudness_scores),ndigits=4), ndigits=2)
+    median_acousticness = round(round(find_median(acousticness_scores), ndigits=4) * 100, ndigits=2)
+    median_danceability = round(round(find_median(danceability_scores), ndigits=4)* 100, ndigits=2)
+    median_valence = round(round(find_median(valence_scores), ndigits=4)* 100, ndigits=2)
+    median_energy = round(round(find_median(energy_scores), ndigits=4)* 100, ndigits=2)
+    median_speechiness = round(round(find_median(speechiness_scores), ndigits=4)* 1000, ndigits=2)
 
     # Normalizing process, others normalized before
-    median_tempo = median_tempo_pre / 2
+    median_tempo = ((median_tempo_pre - 120)*2.5) + 50
+    print(median_loudness_pre)
     median_loudness = abs((abs(median_loudness_pre) - 10) * 33)
     if median_loudness > 100:
         median_loudness = 100

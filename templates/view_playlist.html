@@ -14,7 +14,7 @@
     <header>
         <h3><a href="/">wavelength</a></h3>
         <div id="nav-items">
-            <p><a href="/select_playlist">playlist</a></p>
+            <p><a href="/input_playlist">playlist</a></p>
             <p><a href="/comparison">compare</a></p>
             <p><a href="/about">about</a></p>
             <p><a href="#help">help</a></p>
@@ -26,7 +26,7 @@
         <div id="nav-menu">
             <ul>
                 <li><a href="/">home</a></li>
-                <li><a href="/select_playlist">playlist</a></li>
+                <li><a href="/input_playlist">playlist</a></li>
                 <li><a href="/comparison">compare</a></li>
                 <li><a href="/about">about</a></li>
                 <li><a href="#help">help</a></li>
@@ -39,6 +39,7 @@
             const navMenu = document.getElementById("nav-menu");
             const navIcon = document.getElementById("nav-icon");
             const bodyElement = document.body;
+            bodyElement.style.opacity = 1;
     
             // Toggle the menu's visibility when the button is clicked
             navButton.addEventListener("click", () => {
@@ -68,12 +69,15 @@
             });
         });
     </script>
-
-    <h2 id="playlistName">Playlist Name</h2>
+    <div class="widget-border" id="title-wrapper">
+        <img class="border-radius-img" id="playlist-cover" src="" alt="">
+        <h2 id="playlistName">Playlist Name</h2>
+    </div>
+    
 
     <div id="wrapper">
         <svg id="lineGraph"></svg>
-        <div id="tops-wrapper">
+        <div class="widget-border" id="tops-wrapper">
             <div id="tops">
                 <div id="tops-section">
                     <h3 class="gradient-low">TOP GENRES</h3>
@@ -89,18 +93,71 @@
             <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
     </div>
+    <script>
+        var tops = true;
+        document.getElementById('tops-view-more').addEventListener('click', function() {
+            const buttonImg = document.querySelector("#tops-view-more img");
+            if (tops == true) {
+                tops = false;
+                buttonImg.style.transform = "rotate(180deg)";
+            } else {
+                tops = true;
+                buttonImg.style.transform = "rotate(0deg)";
+            }
+            loadGenresArtists();
+        });
+    </script>
     
     <div id="spotify-logo"></div>
 
+    <div id="comparison" class="widget-border">
+        <h3 class="gradient-low">Your playlist is <span class="highlight" id="match-score">XX%</span> similar to this user's!</h3>
+        <div id="comparison-playlist">
+            <img class="border-radius-img" id="comparison-playlist-cover" src="" alt="">
+            <h3 id="comparison-playlistName">Playlist Name</h3>
+        </div>
+    </div>
+
     <script>
+        const playlistDetails = JSON.parse(localStorage.getItem('playlistDetails'));
         document.addEventListener('DOMContentLoaded', function() {
-            const playlistDetails = JSON.parse(localStorage.getItem('playlistDetails'));
+            
             drawGraph(playlistDetails.medianValues);
             if (playlistDetails && playlistDetails.playlistTitle) {
                 // Select the <h2> element by its ID and update its content
                 document.getElementById('playlistName').textContent = playlistDetails.playlistTitle;
+                document.getElementById('playlist-cover').src = playlistDetails.playlistCoverPhoto;
+                document.getElementById('playlist-cover').alt = `Cover photo of playlist ${playlistDetails.playlistTitle}`;
+                loadGenresArtists();
             }
         });
+        
+        const currentGenresData = playlistDetails.genres;
+        const currentArtistsData = playlistDetails.artists.map(artist => artist.name);
+
+
+        function loadGenresArtists() {
+            document.getElementById('top-genres-list').innerHTML = '';
+            document.getElementById('top-artists-list').innerHTML = '';
+            var num = 5;
+
+            if (tops == false) {
+                num = 10;
+            }
+            currentArtistsData.slice(0, num).forEach(function(artist) {
+                var li = document.createElement('li');
+                li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
+                document.getElementById('top-artists-list').appendChild(li);
+            });
+
+
+            // Update the "TOP GENRES" list
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
+                var li = document.createElement('li');
+                li.textContent = genre;
+                document.getElementById('top-genres-list').appendChild(li);
+            });
+        }
 
         function drawGraph(medianValues) {
           const data = medianValues.slice(0, 7).map((value, index) => ({x: index, y: value}));
@@ -152,9 +209,13 @@
         
           // Add the y-axis
           const yAxis = d3.axisLeft(y)
-                      .tickValues([0, 25, 50, 75, 100])
-                      .tickSize(0) // Remove the tick marks
-                      .tickPadding(10); // Adjust space between ticks and labels if needed
+                .tickValues([0, 50, 100]) // Include the midpoint value
+                .tickFormat(function(d) {
+                    // Return "Low", "Baseline", or "High" based on the tick value
+                    return d === 0 ? "Low" : d === 50 ? "Baseline" : "High";
+                })
+                .tickSize(0) // Remove the tick marks
+                .tickPadding(10); // Adjust space between ticks and labels if needed
 
           const yAxisGroup = svg.append("g").call(yAxis);
 

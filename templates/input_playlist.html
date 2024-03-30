@@ -6,7 +6,7 @@
     <title>The Wavelength App</title>
     <link rel="icon" href="../static/icons/logo.png" type="image/png">
     <link rel="stylesheet" href="../static/styles.css">
-    <link rel="stylesheet" href="../static/playlists.css">
+    <link rel="stylesheet" href="../static/input_playlist.css">
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -14,7 +14,7 @@
     <header>
         <h3><a href="/">wavelength</a></h3>
         <div id="nav-items">
-            <p><a href="/select_playlist">playlist</a></p>
+            <p><a href="/input_playlist">playlist</a></p>
             <p><a href="/comparison">compare</a></p>
             <p><a href="/about">about</a></p>
             <p><a href="#help">help</a></p>
@@ -26,7 +26,7 @@
         <div id="nav-menu">
             <ul>
                 <li><a href="/">home</a></li>
-                <li><a href="/select_playlist">playlist</a></li>
+                <li><a href="/input_playlist">playlist</a></li>
                 <li><a href="/comparison">compare</a></li>
                 <li><a href="/about">about</a></li>
                 <li><a href="#help">help</a></li>
@@ -75,8 +75,10 @@
         <button id="submit-button">Visualize</button>
     </div>
 
-    <div id="loaded">
+    <div id="loading">
+        <h2 class="text-gradient">Doing some heavy lifting... <br> Give us a second :)</h2>
         <svg id="lineGraph"></svg>
+        <h3>Beep boop & other processing noises</h3>
     </div>
     
     <div id="spotify-logo"></div>
@@ -86,7 +88,7 @@
             document.getElementById('submit-button').addEventListener('click', function() {
                 // Get the playlist URL from the input field
                 var playlistUrl = document.getElementById('code-input').value.trim();
-    
+                loading();
                 // Check if the input field is not empty
                 if (playlistUrl) {
                     // Prepare the data to send
@@ -108,8 +110,17 @@
                         localStorage.setItem('playlistDetails', JSON.stringify(data.playlistDetails));
 
                         // Redirect to the new page
-                        window.location.href = '/view_playlist';
+                        const loading = document.getElementById('loading');
+
+                        loading.classList.remove('fade-in');
+                        loading.classList.add('fade-out');
+
+                        // Listen for the animationend event
+                        loading.addEventListener('animationend', function() {
+                            window.location.href = '/view_playlist';
+                        }, { once: true }); // Use { once: true } to ensure the listener is removed after it fires
                     })
+
                     .catch((error) => {
                         console.error('Error:', error);
                     });
@@ -118,6 +129,94 @@
                 }
             });
         });
+        function loading() {
+            const centerBlock = document.getElementById('center-block');
+            const loading = document.getElementById('loading');
+            centerBlock.classList.add('fade-out');
+            loading.style.display = "flex";
+            drawGraph();
+            loading.classList.add('fade-in');
+        }
+        const datasets = [
+            [
+                {x: 0, y: 10}, {x: 1, y: 10}, {x: 2, y: -20}, {x: 2.5, y: 30},
+                {x: 3, y: 50}, {x: 4, y: 20}, {x: 5, y: -10}, 
+                {x: 6, y: 30}, {x: 7, y: 15}, {x: 8, y: 15}
+            ],
+            [
+                {x: 0, y: 25}, {x: 1, y: -20}, {x: 2, y: 10}, {x: 2.5, y: -30},
+                {x: 3, y: 15}, {x: 4, y: 60}, {x: 5, y: 0}, 
+                {x: 6, y: 45}, {x: 7, y: 10}, {x: 8, y: 20}
+            ],
+            [
+                {x: 0, y: 5}, {x: 1, y: 35}, {x: 2, y: 0}, {x: 2.5, y: 25},
+                {x: 3, y: 50}, {x: 4, y: 10}, {x: 5, y: -40}, 
+                {x: 6, y: 15}, {x: 7, y: 30}, {x: 8, y: 20}
+            ],
+            [
+                {x: 0, y: 10}, {x: 1, y: 20}, {x: 2, y: 30}, {x: 2.5, y: 5},
+                {x: 3, y: -20}, {x: 4, y: 45}, {x: 5, y: 15}, 
+                {x: 6, y: 60}, {x: 7, y: 25}, {x: 8, y: 30}
+            ]
+        ];
+
+
+    
+        let currentDatasetIndex = 0;
+    
+        function drawGraph() {
+            const svgElement = document.getElementById('lineGraph');
+            const width = svgElement.clientWidth;
+            const height = svgElement.clientHeight;
+            const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+    
+            const margin = {top: 20, right: 20, bottom: 20, left: 20},
+                graphWidth = width - margin.left - margin.right,
+                graphHeight = height - margin.top - margin.bottom;
+    
+            svg.selectAll("*").remove(); // Clear any previous graph
+    
+            const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+    
+            // Setup the scales
+            const xScale = d3.scaleLinear().domain([0, d3.max(datasets[0], d => d.x)]).range([0, graphWidth]);
+            let allYValues = datasets.flat().map(d => d.y); // Flatten all y values across datasets
+            const yScale = d3.scaleLinear().domain([d3.min(allYValues), d3.max(allYValues)]).range([graphHeight, 0]);
+    
+            // Line generator
+            const line = d3.line()
+                            .x(d => xScale(d.x))
+                            .y(d => yScale(d.y))
+                            .curve(d3.curveBasis);
+    
+            // Initialize path with first dataset
+            const path = g.append("path")
+                          .datum(datasets[0])
+                          .attr("fill", "none")
+                          .attr("stroke", "white")
+                          .attr("stroke-width", 2)
+                          .attr("d", line);
+    
+            function updateGraph(datasetIndex) {
+                // Calculate new Y scale based on the new dataset
+                yScale.domain([d3.min(allYValues), d3.max(allYValues)]).range([graphHeight, 0]);
+    
+                // Apply the new data and transition
+                path.datum(datasets[datasetIndex % datasets.length])
+                    .transition()
+                    .duration(2000)
+                    .attr("d", line);
+            }
+    
+            setTimeout(() => {
+                updateGraph(++currentDatasetIndex);
+            }, 0); // Set timeout to 0 to immediately invoke without delay
+
+            // Continue updating the graph at regular intervals
+            setInterval(() => {
+                updateGraph(++currentDatasetIndex);
+            }, 2000);
+        }
     </script>
     
 </body>

@@ -36,23 +36,22 @@ body {
     background: linear-gradient(to bottom, var(--background-color), #202020);
 }
 
-h1 {
-    font-size: var(--font-size-h1);
-    font-weight: var(--font-weight-bold);
+.text-gradient {
     background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
 }
 
+h1 {
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-bold);
+}
+
 
 h2 {
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-bold);
-    background: linear-gradient(160deg, #FFF 30.65%, var(--primary-orange) 80.42%);
-    -webkit-text-fill-color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
 }
 
 h3 {
@@ -294,6 +293,18 @@ button:hover {
     color: var(--background-color);
     border: 1px solid var(--primary-pink);
 
+}
+
+.widget-border {
+    border-style: solid;
+    border-color: grey;
+    border-width: 2px;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.border-radius-img {
+    border-radius: 10px;
 }
 
 @media (max-width: 500px) {

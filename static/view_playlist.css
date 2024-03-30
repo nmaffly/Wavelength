@@ -1,6 +1,7 @@
 body {
     background: linear-gradient(to bottom, var(--background-color), #2B2B2B);
-    height: 100vh;
+    opacity: 0;
+    transition: opacity 1s ease;
 }
 
 body h2 {
@@ -15,6 +16,26 @@ h2 {
 body p {
     margin: 0px;
     margin-bottom: 30px;
+}
+
+#title-wrapper {
+    margin-top: 40px;
+    display: flex;
+    background-color: #2B2B2B;
+    flex-direction: row;
+    justify-content: center;
+    border-radius: 20px;
+    max-width: 400px;
+}
+
+#playlist-cover {
+    width: 100px;
+    height: 100px;
+    margin-right: 10px;
+}
+
+#playlist-name {
+    color: white; /* fix */
 }
 
 #center-block {
@@ -66,11 +87,6 @@ body p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-style: solid;
-    border-color: grey;
-    border-width: 2px;
-    padding: 25px;
-    border-radius: 20px;
     max-width: 500px;
 }
   
@@ -115,4 +131,12 @@ body p {
 
 #tops-view-more img {
     width: 15px;
+}
+
+#comparison {
+    
+}
+
+#comparison h3 {
+    font-size: 20px;
 }

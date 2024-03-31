@@ -75,7 +75,10 @@ def get_audio_features_tracks(track_info, spotify):
     speechiness_scores = []
 
     for chunk in track_chunks:
+        chunk_as_string = ".".join(chunk)
+        print(len(chunk))
         audio_features_list = spotify.audio_features(chunk)
+        print("first chunk successfully extracted")
 
         for audio_features in audio_features_list:
             if audio_features:

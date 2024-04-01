@@ -3,7 +3,7 @@ import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
-from extraction import get_artist_genres, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
+from extraction import get_tracks_info, get_artists_info, get_artist_genres_batch, get_artist_genres_batch, get_artist_genres, get_genre_count, get_popularity, get_audio_features_tracks, get_variance
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
@@ -94,8 +94,14 @@ def fetch_data():
 
     if not user.last_updated:
         user.last_updated = user.created_at
+    
+    
+    update_time_range = timedelta(weeks=1)
 
-    if user and (datetime.utcnow() - user.last_updated) < timedelta(weeks=1):
+    # For immediate spotify updates (testing purposes), uncomment line below
+    update_time_range = timedelta(seconds=1)
+
+    if user and (datetime.utcnow() - user.last_updated) < update_time_range: #I changed this just to work on things
         # If user exists and it's been less than a week, update tokens and most recent login
         # then pull stats from database into flask session
 
@@ -164,45 +170,45 @@ def fetch_data():
         top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
         # Recent (1 month) stats
-        artist_genres_r = get_artist_genres(top_artists_r) # dictionary with top 10 artists and associated genre
-        artists_r = list(artist_genres_r.keys())
-        genres_r = get_genre_count(artist_genres_r)
-        tracks_r = [track['name'] for track in top_tracks_r]
+        artists_info_r = get_artists_info(top_artists_r) # dictionary with top artists and associated info
+        artists_r = list(artists_info_r.keys())
+        genres_r = get_genre_count(artists_info_r)
+        tracks_r = get_tracks_info(top_tracks_r)
         popularity_r = get_popularity(top_artists_r)
-        median_values_r = get_audio_features_tracks(top_tracks_r, spotify)
+        median_values_r = get_audio_features_tracks(tracks_r, spotify)
         variance_r = get_variance() 
-        median_values_r.append(popularity_r)
-        median_values_r.append(variance_r)
+        median_values_r['popularity'] = popularity_r
+        median_values_r['variance'] = variance_r
 
         # Medium term (6 months) stats
-        artist_genres_m = get_artist_genres(top_artists_m) # dictionary with top 10 artists and associated genre
-        artists_m = list(artist_genres_m.keys())
-        genres_m = get_genre_count(artist_genres_m)
-        tracks_m = [track['name'] for track in top_tracks_m]
+        artists_info_m = get_artists_info(top_artists_m) # dictionary with top artists and associated info
+        artists_m = list(artists_info_m.keys())
+        genres_m = get_genre_count(artists_info_m)
+        tracks_m = get_tracks_info(top_tracks_m)
         popularity_m = get_popularity(top_artists_m)
-        median_values_m = get_audio_features_tracks(top_tracks_m, spotify)
+        median_values_m = get_audio_features_tracks(tracks_m, spotify)
         variance_m = get_variance()
-        median_values_m.append(popularity_m)
-        median_values_m.append(variance_m)
+        median_values_m['popularity'] = popularity_m
+        median_values_m['variance'] = variance_m
 
         # All Time stats
-        artist_genres_a = get_artist_genres(top_artists_a) # dictionary with top 10 artists and associated genre
-        artists_a = list(artist_genres_a.keys())
-        genres_a = get_genre_count(artist_genres_a)
-        tracks_a = [track['name'] for track in top_tracks_a]
+        artists_info_a = get_artists_info(top_artists_a) # dictionary with top artists and associated info
+        artists_a = list(artists_info_a.keys())
+        genres_a = get_genre_count(artists_info_a)
+        tracks_a = get_tracks_info(top_tracks_a)
         popularity_a = get_popularity(top_artists_a)
-        median_values_a = get_audio_features_tracks(top_tracks_a, spotify)
+        median_values_a = get_audio_features_tracks(tracks_a, spotify)
         variance_a = get_variance()
-        median_values_a.append(popularity_a)
-        median_values_a.append(variance_a)
+        median_values_a['popularity'] = popularity_a
+        median_values_a['variance'] = variance_a
 
         new_data = {
                 "recent_genres": genres_r,
                 "medium_genres": genres_m,
                 "all_time_genres": genres_a,
-                "recent_artists": artists_r,
-                "medium_artists": artists_m,
-                "all_time_artists": artists_a,
+                "recent_artists": artists_info_r,
+                "medium_artists": artists_info_m,
+                "all_time_artists": artists_info_a,
                 "recent_tracks": tracks_r,
                 "medium_tracks": tracks_m,
                 "all_time_tracks": tracks_a
@@ -260,20 +266,20 @@ def fetch_data():
             "genre_r": genres_r,
             "genre_m": genres_m,
             "genre_a": genres_a,
-            "artists_a": artists_a,
-            "artists_m": artists_m,
-            "artists_r": artists_r,
+            "artists_a": artists_info_a,
+            "artists_m": artists_info_m,
+            "artists_r": artists_info_r,
             "tracks_r": tracks_r,
             "tracks_m": tracks_m,
             "tracks_a": tracks_a,
             "popularity_r": popularity_r,
-            "tempo_r": median_values_r[0],
-            "loudness_r": median_values_r[1],
-            "acousticness_r": median_values_r[2],
-            "danceability_r": median_values_r[3],
-            "valence_r": median_values_r[4],
-            "energy_r": median_values_r[5],
-            "speechiness_r": median_values_r[6],
+            "tempo_r": median_values_r['tempo'],
+            "loudness_r": median_values_r['loudness'],
+            "acousticness_r": median_values_r['acousticness'],
+            "danceability_r": median_values_r['danceability'],
+            "valence_r": median_values_r['valence'],
+            "energy_r": median_values_r['energy'],
+            "speechiness_r": median_values_r['speechiness'],
             "variance_r": variance_r,
         }
 

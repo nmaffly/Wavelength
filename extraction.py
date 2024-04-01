@@ -127,7 +127,10 @@ def get_audio_features_tracks(top_tracks, spotify):
     median_danceability = round(round(find_median(danceability_scores), ndigits=4)* 100, ndigits=2)
     median_valence = round(round(find_median(valence_scores), ndigits=4)* 100, ndigits=2)
     median_energy = round(round(find_median(energy_scores), ndigits=4)* 100, ndigits=2)
-    median_speechiness = round(round(find_median(speechiness_scores), ndigits=4)* 1000, ndigits=2)
+    median_speechiness = round(round(find_median(speechiness_scores), ndigits=4)* 1000, ndigits=2) #This is not always right
+    if median_speechiness > 100:
+        median_speechiness = 100
+    print(speechiness_scores)
 
     # Normalizing process, others normalized before
     median_tempo = ((median_tempo_pre - 120)*2.5) + 50

@@ -169,7 +169,6 @@
       let graphComponents = initializeGraph(); // Store returned components for later use
       window.onload = function() {
           document.getElementById('oneMonthBtn').classList.add('active');
-          // Optionally, you can also trigger the switch view to "oneMonth" automatically
           initializeScreen(graphComponents, initializedData);
           document.body.classList.add('fade-in');
       };
@@ -275,7 +274,7 @@
             return { svg: g, x, y, graphWidth, graphHeight, margin };
         }
 
-        function updateGraph(components, graphData, truth) {
+        function updateGraph(components, graphData, truth) { /* Current problem: when constantly updating, the bars and lettering get bold and weird */
             const { svg, x, y, graphWidth, graphHeight, margin } = components;
             const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
             const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));

@@ -128,6 +128,7 @@
                 // Select the <h2> element by its ID and update its content
                 document.getElementById('playlistName').textContent = playlistDetails.playlistTitle;
                 document.getElementById('playlist-cover').src = playlistDetails.playlistCoverPhoto;
+                console.log(playlistDetails.playlistCoverPhoto);
                 document.getElementById('playlist-cover').alt = `Cover photo of playlist ${playlistDetails.playlistTitle}`;
                 loadGenresArtists();
             }
@@ -145,14 +146,13 @@
             if (tops == false) {
                 num = 10;
             }
-            currentArtistsData.slice(0, num).forEach(function(artist) {
+            Object.entries(currentArtistsData).slice(0, num).forEach(function(entry, index) {
+                console.log(`Artist #${index}: ${entry[0]}`); // entry[0] is the artist's name
                 var li = document.createElement('li');
-                li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
+                li.textContent = entry[1]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);
             });
-
-
-            // Update the "TOP GENRES" list
+            
             Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
@@ -161,7 +161,10 @@
         }
 
         function drawGraph(medianValues) {
-          const data = medianValues.slice(0, 7).map((value, index) => ({x: index, y: value}));
+            console.log(medianValues);
+            const data = Object.values(medianValues) // Grab just the values from the object
+                .slice(0, 7) // Take the first 7 values
+                .map((value, index) => ({x: index, y: value}));
           console.log(medianValues);
           const customTickNames = ["Tempo", "Loudness", "Acousticness", "Danceability", "Happiness", "Energy", "Speechiness"];
           const svgElement = document.getElementById('lineGraph');

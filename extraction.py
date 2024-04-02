@@ -13,6 +13,21 @@ def get_tracks_info(top_tracks):
         }
     return tracks
 
+def get_tracks_info_batch(top_tracks):
+    # returns nested dictionary with top tracks and associated info
+    tracks = {}
+    for item in top_tracks:
+        track = item['track']  # Access the nested track object
+        tracks[track['name']] = {
+            'track_id': track['id'],
+            'album_art_img_url': track['album']['images'][0]['url'] if track['album']['images'] else None,
+            'preview_url': track.get('preview_url', None),
+            'spotify_url': track['external_urls']['spotify'],
+            'href': track['href']
+        }
+    return tracks
+
+
 def get_artists_info(top_artists):
     # returns nested dictionary with top 10 artists and associated info  
     # outer dictionary: (key, value) --> (artist, info dict)

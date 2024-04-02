@@ -3,7 +3,7 @@ import spotipy
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
-from extraction import get_tracks_info, get_artists_info, get_artist_genres_batch, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
+from extraction import get_tracks_info, get_tracks_info_batch, get_artists_info, get_artist_genres_batch, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
@@ -456,8 +456,9 @@ def playlist_fetch(): #check to make sure it's not a Spotify playlist
                     'popularity': artist['popularity'],
                     'image': artist['images'][0]['url'] if artist['images'] else None
                 })
+        
         genres_final = get_genre_count_batch(genres_pre)
-        song_data = get_tracks_info(playlist['tracks']['items'])
+        song_data = get_tracks_info_batch(playlist['tracks']['items'])
         audio_features = get_audio_features_tracks(song_data, sp)
         
         playlist_details = {

@@ -337,7 +337,7 @@ def get_db_artists(user_id, time_range):
     # param time_range: 'r' for recent artists, 'a' for all time artists, 'm' for medium term artists
 
     user_stats = UserStats.query.filter_by(user_id=user_id).first()
-
+    artists = {}
     if time_range == 'r':
         if user_stats:
             recent_artists = RecentArtists.query \
@@ -345,10 +345,13 @@ def get_db_artists(user_id, time_range):
                             .order_by(RecentArtists.id.asc()) \
                             .all()
         
-            artist_list = [artist.artist for artist in recent_artists]
-            return artist_list
-        else:
-            return []
+            for artist in recent_artists:
+                artists[artist.artist] = {
+                    'img_url': artist.img_url,
+                    'spotify_url': artist.spotify_url,
+                    'href': artist.href,
+                }
+            
     elif time_range == 'a':
         if user_stats:
             all_time_artists = AllTimeArtists.query \
@@ -356,10 +359,13 @@ def get_db_artists(user_id, time_range):
                             .order_by(AllTimeArtists.id.asc()) \
                             .all()
         
-            artist_list = [artist.artist for artist in all_time_artists]
-            return artist_list
-        else:
-            return []
+            for artist in all_time_artists:
+                artists[artist.artist] = {
+                    'img_url': artist.img_url,
+                    'spotify_url': artist.spotify_url,
+                    'href': artist.href,
+                }
+            
     elif time_range == 'm':
         if user_stats:
             medium_artists = MediumArtists.query \
@@ -367,14 +373,18 @@ def get_db_artists(user_id, time_range):
                             .order_by(MediumArtists.id.asc()) \
                             .all()
         
-            artist_list = [artist.artist for artist in medium_artists]
-            return artist_list
-        else:
-            return []
+            for artist in medium_artists:
+                artists[artist.artist] = {
+                    'img_url': artist.img_url,
+                    'spotify_url': artist.spotify_url,
+                    'href': artist.href,
+                }
+            
     else:
         # error handling
         raise ValueError("Incorrect time_range input. Expected 'r' for recent, 'm' for medium, or 'a' for all time artists.")
-    
+    return artists
+
 def get_db_tracks(user_id, time_range):
     # param user_id: user.id 
     # param time_range: 'r' for recent tracks, 'a' for all time tracks, 'm' for medium term tracks

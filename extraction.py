@@ -43,6 +43,21 @@ def get_genre_count(artists_info):
     
     return all_genres
 
+def get_genre_count_batch(artists_info):
+    # returns dictionary of genres and their respective count (calculated based on artists), sorted by count
+    # dictionary: (key, value) --> (genre, count)
+    all_genres = {}
+    for artist, info in artists_info:
+        for genre in info['genres']:
+            if genre in all_genres:
+                all_genres[genre] += 1  
+            else:
+                all_genres[genre] = 1
+    
+    all_genres = {k: v for k, v in sorted(all_genres.items(), key=lambda item: item[1], reverse=True)}
+    
+    return all_genres
+
 def get_artist_genres_batch(response):
     # response is the dictionary returned from sp.artists(chunk)
     artists = {}
@@ -50,6 +65,7 @@ def get_artist_genres_batch(response):
     for item in response['artists']:
         artists[item['name']] = item['genres']
     return artists
+
 
 def get_genre_count_batch(genres_list):
     # genres_list is a list of dictionaries

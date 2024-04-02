@@ -15,7 +15,7 @@ body h1{
     margin: 0px;
     z-index: 1000;
     display: flex;
-    width: 180px;
+    width: 280px;
     justify-content: space-between;
 }
 

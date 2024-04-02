@@ -75,8 +75,9 @@
     
     <!-- Timeframe Buttons -->
     <div id="button-timeframe">
-        <button id="oneMonthBtn" class="view-button" onclick="switchView('oneMonth')">1 Month</button>
-        <button id="allTimeBtn" class="view-button" onclick="switchView('allTime')">1 Year</button>
+        <button id="oneMonthBtn" class="view-button" onclick="timeframeView = 'oneMonth'; switchView()">1 Month</button>
+        <button id="sixMonthBtn" class="view-button" onclick="timeframeView = 'sixMonth'; switchView()">6 Month</button>
+        <button id="oneYearBtn" class="view-button" onclick="timeframeView = 'oneYear'; switchView()">1 Year</button>
     </div>
         <svg id="lineGraph"></svg>
         <div id="tops-wrapper">
@@ -98,11 +99,9 @@
 
     <script>
         var tops = true;
+        var timeframeView = "oneMonth";
         document.getElementById('tops-view-more').addEventListener('click', function() {
             const buttonImg = document.querySelector("#tops-view-more img");
-            const button = document.getElementById('oneMonthBtn')
-
-            const isActive = button.classList.contains('active');
 
             if (tops == true) {
                 tops = false;
@@ -111,12 +110,8 @@
                 tops = true;
                 buttonImg.style.transform = "rotate(0deg)";
             }
-            if (isActive == true) {
-                switchView('oneMonth')
-            }
-            else {
-                switchView('allTime')
-            }
+            console.log(timeframeView);
+            switchView();
         });
     </script>
 
@@ -160,11 +155,14 @@
 
     </div>
     <script>
-      var graphData = {{ graph_json|tojson|safe }};
-      var artistData_r = {{ artists_r|tojson|safe }};
-      var artistData_a = {{ artists_a|tojson|safe }};
-      var genreData_r = {{ genre_r|tojson|safe }};
-      var genreData_a = {{ genre_a|tojson|safe }};
+        var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
+        var artistData_r = {{ session['processed_data']['artists_r'] | tojson | safe }};
+        var artistData_a = {{ session['processed_data']['artists_a'] | tojson | safe }};
+        var genreData_r = {{ session['processed_data']['genre_r'] | tojson | safe }};
+        var genreData_a = {{ session['processed_data']['genre_a'] | tojson | safe }};
+        var artistData_m = {{ session['processed_data']['artists_m'] | tojson | safe }};
+        var genreData_m = {{ session['processed_data']['genre_m'] | tojson | safe }};
+
       initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
       let graphComponents = initializeGraph(); // Store returned components for later use
       window.onload = function() {
@@ -173,36 +171,62 @@
           document.body.classList.add('fade-in');
       };
       
-      function switchView(view) {
-            if (view === 'oneMonth') {
+      function switchView() {
+            if (timeframeView == 'oneMonth') {
                 document.getElementById('oneMonthBtn').classList.add('active');
-                document.getElementById('allTimeBtn').classList.remove('active');
-                updateGraph(graphComponents, graphData, true);
-                
-            } else {
-                document.getElementById('allTimeBtn').classList.add('active');
+                document.getElementById('oneYearBtn').classList.remove('active');
+                document.getElementById('sixMonthBtn').classList.remove('active');
+                updateGraph(graphComponents, graphData);
+            } 
+            else if (timeframeView == 'sixMonth') {
+                document.getElementById('sixMonthBtn').classList.add('active');
+                document.getElementById('oneYearBtn').classList.remove('active');
                 document.getElementById('oneMonthBtn').classList.remove('active');
-                updateGraph(graphComponents, graphData, false);
+                updateGraph(graphComponents, graphData);
+                
+            } 
+            else if (timeframeView == 'oneYear') {
+                document.getElementById('sixMonthBtn').classList.remove('active');
+                document.getElementById('oneYearBtn').classList.add('active');
+                document.getElementById('oneMonthBtn').classList.remove('active');
+                updateGraph(graphComponents, graphData);
             }
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
 
             // Determine which data set to use based on the view
-            var currentArtistsData = view === 'oneMonth' ? artistData_r : artistData_a;
-            var currentGenresData = view === 'oneMonth' ? genreData_r : genreData_a;
+            var currentArtistsData;
+            if (timeframeView === 'oneMonth') {
+                currentArtistsData = artistData_r;
+            } else if (timeframeView === 'sixMonth') {
+                currentArtistsData = artistData_m;
+            } else if (timeframeView === 'oneYear') {
+                currentArtistsData = artistData_a;
+            }
+            var currentGenresData;
+
+            if (timeframeView === 'oneMonth') {
+                currentGenresData = genreData_r;
+            } else if (timeframeView === 'sixMonth') {
+                currentGenresData = genreData_m;
+            } else if (timeframeView === 'oneYear') {
+                currentGenresData = genreData_a;
+            }
+
             var num = 5;
 
             if (tops == false) {
                 num = 10;
             }
-            currentArtistsData.slice(0, num).forEach(function(artist) {
+            Object.keys(currentArtistsData).slice(0, num).forEach(function(artistName) {
+                var artistInfo = currentArtistsData[artistName];  // Access the artist's information
+
+                // Create a list item for the artist
                 var li = document.createElement('li');
-                li.textContent = artist; // Assuming 'artist' is a string representing the artist's name
+                li.textContent = artistName;  // Use the artist's name for the list item's text
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
-
-            // Update the "TOP GENRES" list
             Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
@@ -274,9 +298,17 @@
             return { svg: g, x, y, graphWidth, graphHeight, margin };
         }
 
-        function updateGraph(components, graphData, truth) { /* Current problem: when constantly updating, the bars and lettering get bold and weird */
+        function updateGraph(components, graphData) { /* Current problem: when constantly updating, the bars and lettering get bold and weird */
             const { svg, x, y, graphWidth, graphHeight, margin } = components;
-            const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
+            let medianValue;
+            if (timeframeView === 'oneMonth') {
+                medianValue = graphData.median_values_r;
+            } else if (timeframeView === 'sixMonth') {
+                medianValue = graphData.median_values_m;
+            } else if (timeframeView === 'oneYear') {
+                medianValue = graphData.median_values_a;
+            }
+
             const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
 
             // Update the x-axis for custom tick names
@@ -336,16 +368,20 @@
 
         function initializeScreen(components, medianValues) {
             document.getElementById('oneMonthBtn').classList.add('active');
-            document.getElementById('allTimeBtn').classList.remove('active');
+            document.getElementById('oneYearBtn').classList.remove('active');
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
 
             var currentArtistsData = artistData_r;
+
             var currentGenresData = genreData_r;
 
-            currentArtistsData.slice(0, 5).forEach(function(artist) {
+            Object.keys(currentArtistsData).slice(0, 5).forEach(function(artistName) {
+                var artistInfo = currentArtistsData[artistName];  // Access the artist's information
+
+                // Create a list item for the artist
                 var li = document.createElement('li');
-                li.textContent = artist;
+                li.textContent = artistName;  // Use the artist's name for the list item's text
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
@@ -412,7 +448,6 @@
             linePath.exit().remove();
             setTimeout(function() {
                 updateGraph(graphComponents, graphData, true);
-                console.log('Logged');
             }, 500); // 1000 milliseconds = 1 second
         }
 

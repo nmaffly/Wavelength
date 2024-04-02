@@ -447,7 +447,8 @@ def playlist_fetch(): #check to make sure it's not a Spotify playlist
         genres_pre = []
         for chunk in artist_chunks:
             artists_batch = sp.artists(chunk)
-            genres_pre.append(get_artist_genres_batch(artists_batch))
+            genres_pre.append(get_artist_genres_batch(artists_batch)) #need to create a function to count the artists' appearance in the playlist
+                                                                    # and then sort by that method
             for artist in artists_batch['artists']:
                 artists_info.append({
                     'name': artist['name'],
@@ -470,7 +471,7 @@ def playlist_fetch(): #check to make sure it's not a Spotify playlist
             'artists': artists_info,
             'genres': genres_final
         }
-        
+        # Add playlist details to database, preferably by each variable in the dict
         return jsonify({'message': 'Playlist details fetched successfully', 'playlistDetails': playlist_details})
     else:
         return jsonify({'error': 'No playlist URL provided'}), 400

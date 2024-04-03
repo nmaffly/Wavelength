@@ -42,10 +42,6 @@ body h1{
     flex-direction: column;
     align-items: center;
     border-style: solid;
-    border-color: grey;
-    border-width: 2px;
-    padding: 25px;
-    border-radius: 20px;
 }
   
 #tops {

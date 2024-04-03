@@ -92,14 +92,14 @@ def fetch_data():
 
     print("User acquired from database")
 
-    if not user.last_updated:
+    if user == None:
         user.last_updated = user.created_at
     
     
     update_time_range = timedelta(weeks=1)
 
     # For immediate spotify updates (testing purposes), uncomment line below
-    update_time_range = timedelta(seconds=1)
+    #update_time_range = timedelta(seconds=1)
 
     if user and (datetime.utcnow() - user.last_updated) < update_time_range: #I changed this just to work on things
         # If user exists and it's been less than a week, update tokens and most recent login

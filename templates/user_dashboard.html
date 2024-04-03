@@ -80,7 +80,15 @@
         <button id="oneYearBtn" class="view-button" onclick="timeframeView = 'oneYear'; switchView()">1 Year</button>
     </div>
         <svg id="lineGraph"></svg>
-        <div id="tops-wrapper">
+        <div class="widget-border" style="display: none;" id="center-block">
+            <div id="anthem-wrapper">
+                <h2>Your Anthem</h2>
+                <img class="border-radius-img" id="playlist-cover" src="" alt="">
+                <h3 id="playlistName">Playlist Name</h3>
+                <p id="playlistArtists">Artist Name</p>
+            </div>
+        </div>
+        <div class="widget-border" id="tops-wrapper">
             <div id="tops">
                 <div id="tops-section">
                     <h3 class="gradient-low">TOP GENRES</h3>
@@ -218,12 +226,10 @@
             if (tops == false) {
                 num = 10;
             }
-            Object.keys(currentArtistsData).slice(0, num).forEach(function(artistName) {
-                var artistInfo = currentArtistsData[artistName];  // Access the artist's information
-
-                // Create a list item for the artist
+            Object.entries(currentArtistsData).slice(0, num).forEach(function(entry, index) {
+                console.log(`Artist #${index}: ${entry[0]}`); // entry[0] is the artist's name
                 var li = document.createElement('li');
-                li.textContent = artistName;  // Use the artist's name for the list item's text
+                li.textContent = entry[1]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
@@ -368,6 +374,7 @@
 
         function initializeScreen(components, medianValues) {
             document.getElementById('oneMonthBtn').classList.add('active');
+            document.getElementById('sixMonthBtn').classList.remove('active');
             document.getElementById('oneYearBtn').classList.remove('active');
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
@@ -376,12 +383,10 @@
 
             var currentGenresData = genreData_r;
 
-            Object.keys(currentArtistsData).slice(0, 5).forEach(function(artistName) {
-                var artistInfo = currentArtistsData[artistName];  // Access the artist's information
-
-                // Create a list item for the artist
+            Object.entries(currentArtistsData).slice(0, 5).forEach(function(entry, index) {
+                console.log(`Artist #${index}: ${entry[0]}`); // entry[0] is the artist's name
                 var li = document.createElement('li');
-                li.textContent = artistName;  // Use the artist's name for the list item's text
+                li.textContent = entry[1]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);
             });
 

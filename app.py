@@ -92,7 +92,7 @@ def fetch_data():
 
     print("User acquired from database")
 
-    if not user.last_updated:
+    if user and not user.last_updated:
         user.last_updated = user.created_at
     
     

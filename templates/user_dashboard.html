@@ -44,6 +44,7 @@
         const navMenu = document.getElementById("nav-menu");
         const navIcon = document.getElementById("nav-icon");
         const bodyElement = document.body;
+        document.body.classList.add('fade-in');
 
         // Toggle the menu's visibility when the button is clicked
         navButton.addEventListener("click", () => {
@@ -79,16 +80,25 @@
         <button id="sixMonthBtn" class="view-button" onclick="timeframeView = 'sixMonth'; switchView()">6 Month</button>
         <button id="oneYearBtn" class="view-button" onclick="timeframeView = 'oneYear'; switchView()">1 Year</button>
     </div>
-        <svg id="lineGraph"></svg>
-        <div class="widget-border" style="display: none;" id="center-block">
-            <div id="anthem-wrapper">
-                <h2>Your Anthem</h2>
+    <svg id="lineGraph"></svg>
+    
+    <div class="widget-border" id="center-block">
+        <div id="select-dot-wrapper">
+            <div class="select-dot dot-highlight" id="select-dot1"></div>
+            <div class="select-dot" id="select-dot2"></div>
+        </div>
+        <div id="anthem-wrapper" style="display: none;">
+            <h3 class="gradient-low">YOUR ANTHEM</h3>
+            <p><i>The song that most represents <span class="highlight">you.</span></i></p>
+            <div id="anthem-song">
                 <img class="border-radius-img" id="playlist-cover" src="" alt="">
-                <h3 id="playlistName">Playlist Name</h3>
-                <p id="playlistArtists">Artist Name</p>
+                <div id="anthem-song-info">
+                    <h3 id="songName">Song Name</h3>
+                    <p id="songArtist">Artist Name</p>
+                </div>
             </div>
         </div>
-        <div class="widget-border" id="tops-wrapper">
+        <div id="tops-wrapper">
             <div id="tops">
                 <div id="tops-section">
                     <h3 class="gradient-low">TOP GENRES</h3>
@@ -103,11 +113,13 @@
             </div>
             <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
-
+        <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
+    </div>
 
     <script>
         var tops = true;
         var timeframeView = "oneMonth";
+        var window = "tops";
         document.getElementById('tops-view-more').addEventListener('click', function() {
             const buttonImg = document.querySelector("#tops-view-more img");
 
@@ -118,10 +130,42 @@
                 tops = true;
                 buttonImg.style.transform = "rotate(0deg)";
             }
-            console.log(timeframeView);
             switchView();
         });
+        function setupDotNavigation() {
+            // Get all dot elements
+            const dots = document.querySelectorAll('.select-dot');
+            
+            // Function to toggle views
+            const toggleView = (activeDotId) => {
+                const topsWrapper = document.getElementById('tops-wrapper');
+                const anthemWrapper = document.getElementById('anthem-wrapper');
+                // Remove highlight from all dots
+                dots.forEach(dot => dot.classList.remove('dot-highlight'));
+                // Add highlight to the active dot
+                document.getElementById(activeDotId).classList.add('dot-highlight');
+
+                // Show/Hide divs based on the active dot
+                if (activeDotId === 'select-dot1') {
+                    topsWrapper.style.display = 'block';
+                    anthemWrapper.style.display = 'none';
+                } else if (activeDotId === 'select-dot2') {
+                    topsWrapper.style.display = 'none';
+                    anthemWrapper.style.display = 'flex';
+                } // Add conditions for other dots if needed
+            };
+
+            // Attach event listeners to dots
+            dots.forEach(dot => {
+                dot.addEventListener('click', () => toggleView(dot.id));
+            });
+        }
+
+        // Call setupDotNavigation function when the document is loaded
+        document.addEventListener('DOMContentLoaded', setupDotNavigation);
+
     </script>
+    
 
     <div id="spotify-logo">
         <div id="spotify-logo">
@@ -156,12 +200,60 @@
         }
     </script>
         
-
+    <a href="/new_profile">New Profile</a>
     <div id="view-more">
       <h2 class="gradient-high">Who's on your wavelength?</h2>
       <div id="img-holder"><img src="../static/icons/down.png" alt="Go down!"></div>
-
     </div>
+
+    <div id="user-matches-wrapper">
+    </div>
+
+    <script>
+        const users = [
+            {
+                imgSrc: "../static/icons/user1.jpg",
+                name: "Sean Vanderaa",
+                info: "23 | San Mateo, CA",
+                percent: "95%"
+            },
+            {
+                imgSrc: "../static/icons/user2.jpg",
+                name: "Ciel Wood",
+                info: "22 | Redding, CA",
+                percent: "80%"
+            },
+            {
+                imgSrc: "../static/icons/user3.jpg",
+                name: "Jadyn Sacoolas",
+                info: "22 | Santa Cruz, CA",
+                percent: "90%"
+            }
+        ];
+        document.addEventListener("DOMContentLoaded", function() {
+            const wrapper = document.getElementById('user-matches-wrapper');
+
+            users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.classList.add('matched-user');
+                userDiv.classList.add('widget-border');
+                
+                userDiv.innerHTML = `
+                    <img src="${user.imgSrc}" alt="">
+                    <div class="matched-user-info-wrapper">
+                        <h2 class="matched-user-name">${user.name}</h2>
+                        <p class="matched-user-info">${user.info}</p> 
+                    </div>
+                    <div class="matched-user-percent"><h2>${user.percent}</h2></div>
+                    
+                `;
+                
+                wrapper.appendChild(userDiv);
+            });
+        });
+
+    </script>
+    
     <script>
         var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
         var artistData_r = {{ session['processed_data']['artists_r'] | tojson | safe }};
@@ -227,7 +319,6 @@
                 num = 10;
             }
             Object.entries(currentArtistsData).slice(0, num).forEach(function(entry, index) {
-                console.log(`Artist #${index}: ${entry[0]}`); // entry[0] is the artist's name
                 var li = document.createElement('li');
                 li.textContent = entry[1]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);
@@ -384,7 +475,6 @@
             var currentGenresData = genreData_r;
 
             Object.entries(currentArtistsData).slice(0, 5).forEach(function(entry, index) {
-                console.log(`Artist #${index}: ${entry[0]}`); // entry[0] is the artist's name
                 var li = document.createElement('li');
                 li.textContent = entry[1]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);

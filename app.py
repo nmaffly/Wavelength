@@ -480,6 +480,10 @@ def playlist_fetch(): #check to make sure it's not a Spotify playlist
 def view_playlist():
     return render_template('view_playlist.html')
 
+@app.route('/new_profile')
+def new_profile():
+    return render_template('new_profile.html')
+
 @app.route('/error')
 def error_page():
     return render_template('error.html')

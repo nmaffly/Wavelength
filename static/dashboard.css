@@ -36,12 +36,80 @@ body h1{
     padding: 40px 0px;
 }
 
-#tops-wrapper {
+#center-block {
     margin-top: 270px;
+    padding-top: 10px;
+}
+
+#select-dot-wrapper {
+    height: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.select-dot {
+    height: 5px;
+    width: 5px;
+    background-color: white;
+    margin: 0px 5px;
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    transition: transform .1s ease;
+}
+
+.dot-highlight {
+    background-color: var(--primary-orange);
+}
+
+.select-dot:hover {
+    cursor: pointer;
+    transform: scale(1.25);
+}
+
+#anthem-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-style: solid;
+    width: 300px;
+}
+
+#anthem-wrapper h3 {
+    font-size: 20px;
+    margin: 0px;
+}
+
+#anthem-wrapper p {
+    margin: 0px;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+#anthem-song {
+    display: flex;
+    flex-direction: row;
+}
+
+#anthem-song:hover {
+    cursor: pointer;
+}
+
+#anthem-song-info h3, #anthem-song-info p {
+    margin: 0px;
+}
+
+#playlist-cover {
+    height: 100px;
+    width: 100px;
+    margin-right: 20px;
+}
+
+#tops-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
   
 #tops {
@@ -170,6 +238,70 @@ body h1{
     margin: 0px;
     font-size: 24px;
 }
+
+/* Styles for the user matches wrapper */
+#user-matches-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#user-matches-wrapper h2 {
+    font-size: 20px;
+}
+
+/* Styles for each matched user */
+.matched-user {
+    width: 110%;
+    height: 60px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.matched-user:hover {
+    background-color: grey;
+    cursor: pointer;
+}
+
+.matched-user-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+    width: 80%;
+    overflow: hidden;
+    max-width: 220px;
+}
+
+.matched-user img {
+    width: 50px; /* Adjust the image size as needed */
+    height: 50px; /* Adjust to maintain aspect ratio */
+    border-radius: 5px; /* Circular images */
+    object-fit: cover; /* Ensures images cover the area nicely */
+    margin-right: 10px;
+}
+
+.matched-user-name, .matched-user-percent {
+    margin: 0px;
+}
+
+.matched-user-percent {
+    color: var(--primary-orange);
+    display: flex;
+    align-items: flex-end;
+}
+
+.matched-user-info {
+    text-align: center;
+    margin: 0px;
+}
+
 
 @media (max-width: 500px) {
     #lineGraph {

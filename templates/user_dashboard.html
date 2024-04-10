@@ -113,7 +113,6 @@
             </div>
             <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
-        <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
     </div>
 
     <script>
@@ -262,7 +261,8 @@
         var genreData_a = {{ session['processed_data']['genre_a'] | tojson | safe }};
         var artistData_m = {{ session['processed_data']['artists_m'] | tojson | safe }};
         var genreData_m = {{ session['processed_data']['genre_m'] | tojson | safe }};
-
+        console.log(artistData_a);
+        console.log(genreData_a);
       initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
       let graphComponents = initializeGraph(); // Store returned components for later use
       window.onload = function() {
@@ -320,9 +320,11 @@
             }
             Object.entries(currentArtistsData).slice(0, num).forEach(function(entry, index) {
                 var li = document.createElement('li');
-                li.textContent = entry[1]; // Directly using the artist's name from the entry
+                console.log(entry);
+                li.textContent = entry[0]; // Using the artist's name as the text content
                 document.getElementById('top-artists-list').appendChild(li);
             });
+
 
             Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
                 var li = document.createElement('li');
@@ -476,7 +478,7 @@
 
             Object.entries(currentArtistsData).slice(0, 5).forEach(function(entry, index) {
                 var li = document.createElement('li');
-                li.textContent = entry[1]; // Directly using the artist's name from the entry
+                li.textContent = entry[0]; // Directly using the artist's name from the entry
                 document.getElementById('top-artists-list').appendChild(li);
             });
 

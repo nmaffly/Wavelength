@@ -92,7 +92,7 @@ def fetch_data():
 
     print("User acquired from database")
 
-    if user == None:
+    if user and not user.last_updated:
         user.last_updated = user.created_at
     
     
@@ -118,37 +118,39 @@ def fetch_data():
         median_values_a = get_db_median_values(user.id, 'a')
 
         session['processed_data'] = {
-        "graph_json": {
-            "median_values_r": median_values_r, 
+            "graph_json": {
+                "median_values_r": median_values_r, 
+                "median_values_m": median_values_m, 
+                "median_values_a": median_values_a
+            },
+            "median_values_r": median_values_r,
             "median_values_m": median_values_m, 
-            "median_values_a": median_values_a
-        },
-        "median_values_r": median_values_r,
-        "median_values_m": median_values_m, 
-        "median_values_a": median_values_a,
-        "user_data": user_data,
-        "user_name": user.display_name,
-        "profile_pic": user.profile_pic,
-        "share_token": user.share_token,
-        "genre_r": get_db_genres(user.id, 'r'),
-        "genre_m": get_db_genres(user.id, 'm'),
-        "genre_a": get_db_genres(user.id, 'a'),
-        "artists_a": get_db_artists(user.id, 'a'),
-        "artists_m": get_db_artists(user.id, 'm'),
-        "artists_r": get_db_artists(user.id, 'r'),
-        "tracks_r": get_db_tracks(user.id,'r'),
-        "tracks_m": get_db_tracks(user.id, 'm'),
-        "tracks_a": get_db_tracks(user.id,'a'),
-        "popularity_r": median_values_r["popularity"],
-        "tempo_r": median_values_r["tempo"],
-        "loudness_r": median_values_r["loudness"],
-        "acousticness_r": median_values_r["acousticness"],
-        "danceability_r": median_values_r["danceability"],
-        "valence_r": median_values_r["valence"],
-        "energy_r": median_values_r["energy"],
-        "speechiness_r": median_values_r["speechiness"],
-        "variance_r": median_values_r["variance"]
-    }
+            "median_values_a": median_values_a,
+            "user_data": user_data,
+            "user_name": user.display_name,
+            "profile_pic": user.profile_pic,
+            "share_token": user.share_token,
+            "genre_r": get_db_genres(user.id, 'r'),
+            "genre_m": get_db_genres(user.id, 'm'),
+            "genre_a": get_db_genres(user.id, 'a'),
+            "artists_a": get_db_artists(user.id, 'a'),
+            "artists_m": get_db_artists(user.id, 'm'),
+            "artists_r": get_db_artists(user.id, 'r'),
+            "tracks_r": get_db_tracks(user.id,'r'),
+            "tracks_m": get_db_tracks(user.id, 'm'),
+            "tracks_a": get_db_tracks(user.id,'a'),
+            "popularity_r": median_values_r["popularity"],
+            "tempo_r": median_values_r["tempo"],
+            "loudness_r": median_values_r["loudness"],
+            "acousticness_r": median_values_r["acousticness"],
+            "danceability_r": median_values_r["danceability"],
+            "valence_r": median_values_r["valence"],
+            "energy_r": median_values_r["energy"],
+            "speechiness_r": median_values_r["speechiness"],
+            "variance_r": median_values_r["variance"]
+        }
+
+        print(get_db_genres(user.id, 'r'))
 
     else:
         # otherwise extract spotify info, add to database and session
@@ -158,15 +160,15 @@ def fetch_data():
         profile_pic = user_data['images'][1]['url']
 
         # extracted recent data 
-        top_artists_r = spotify.current_user_top_artists(limit=20, time_range='short_term')['items']
+        top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
         top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
 
         # extracted all time data
-        top_artists_m = spotify.current_user_top_artists(limit=20, time_range='medium_term')['items']
+        top_artists_m = spotify.current_user_top_artists(limit=50, time_range='medium_term')['items']
         top_tracks_m = spotify.current_user_top_tracks(limit=50, time_range='medium_term')['items']
         
         # extracted all time data
-        top_artists_a = spotify.current_user_top_artists(limit=20, time_range='long_term')['items']
+        top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
         top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
         # Recent (1 month) stats

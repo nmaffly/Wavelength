@@ -261,17 +261,15 @@
         var genreData_a = {{ session['processed_data']['genre_a'] | tojson | safe }};
         var artistData_m = {{ session['processed_data']['artists_m'] | tojson | safe }};
         var genreData_m = {{ session['processed_data']['genre_m'] | tojson | safe }};
-        console.log(artistData_a);
-        console.log(genreData_a);
-      initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
-      let graphComponents = initializeGraph(); // Store returned components for later use
-      window.onload = function() {
-          document.getElementById('oneMonthBtn').classList.add('active');
-          initializeScreen(graphComponents, initializedData);
-          document.body.classList.add('fade-in');
-      };
+        initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
+        let graphComponents = initializeGraph(); // Store returned components for later use
+        window.onload = function() {
+            document.getElementById('oneMonthBtn').classList.add('active');
+            initializeScreen(graphComponents, initializedData);
+            document.body.classList.add('fade-in');
+        };
       
-      function switchView() {
+        function switchView() {
             if (timeframeView == 'oneMonth') {
                 document.getElementById('oneMonthBtn').classList.add('active');
                 document.getElementById('oneYearBtn').classList.remove('active');
@@ -331,9 +329,9 @@
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);
             });
-          }
+        }
 
-          function initializeGraph() {
+        function initializeGraph() {
             const svgElement = document.getElementById('lineGraph');
             const bbox = svgElement.getBoundingClientRect();
             const width = bbox.width - 40;
@@ -548,129 +546,6 @@
             }, 500); // 1000 milliseconds = 1 second
         }
 
-
-
-      /* function drawGraph(graphData, truth, draw) {
-          const medianValue = truth ? graphData.median_values_r : graphData.median_values_a;
-          const data = Object.values(medianValue).slice(0, 8).map((value, index) => ({x: index, y: value}));
-          const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
-
-          const svgElement = document.getElementById('lineGraph');
-          const bbox = svgElement.getBoundingClientRect();
-          const width = bbox.width-40;
-          const height = bbox.height;
-          const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
-
-          // Clear any previous graph
-          svg.selectAll("*").remove();
-
-          const margin = {top: 10, right: 0, bottom: 10, left: 0},
-              graphWidth = width - margin.left - margin.right,
-              graphHeight = height - margin.top - margin.bottom;
-          
-          let g = svg.select("g");
-            if (g.empty()) {
-                g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-            }
-      
-          // Scales
-          const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
-          const y = d3.scaleLinear().domain([0, 100]).range([graphHeight,20]);
-
-          svg.append("g")
-            .attr("transform", `translate(0,${y(50)})`) // Keeps the axis in the middle
-            .call(d3.axisBottom(x)
-                .tickValues(data.map((d, i) => d.x)) // Set tick values based on data indices
-                .tickFormat((d, i) => customTickNames[i]) // Use custom tick names
-            )
-            .selectAll("text")
-            .attr("transform", "translate(20,0) rotate(45)")
-            .style("text-anchor", "start")
-            .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-            .style("font-size", "20px");
-
-          const defs = svg.append("defs");
-          const gradient = defs.append("linearGradient")
-              .attr("id", "area-gradient")
-              .attr("gradientUnits", "userSpaceOnUse")
-              .attr("x1", 0).attr("y1", y(0))
-              .attr("x2", 0).attr("y2", y(100));
-          gradient.append("stop").attr("offset", "40%").attr("stop-color", "rgba(255, 137, 52, .4)");
-          gradient.append("stop").attr("offset", "80%").attr("stop-color", "#FF8934");
-          
-        
-          // Add the y-axis
-          const yAxis = d3.axisLeft(y)
-                      .tickValues([0, 25, 50, 75, 100])
-                      .tickSize(0) // Remove the tick marks
-                      .tickPadding(10); // Adjust space between ticks and labels if needed
-
-          const yAxisGroup = svg.append("g").call(yAxis);
-
-          // Apply styles to the y-axis for a dotted line
-          yAxisGroup.selectAll("path")
-                    .attr("stroke-dasharray", "15,10"); // Makes the y-axis line dotted
-
-          // Apply custom font settings to all axis text (x and y)
-          yAxisGroup.selectAll("text")
-                    .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-                    .style("font-size", "20px");
-
-          yAxisGroup.append("text")
-                .attr("text-anchor", "middle") // Center the text (horizontally)
-                .attr("transform", "rotate(-90)") // Rotate the text to go along the y axis
-                .attr("y", -margin.left) // Position the text based on the left margin. Adjust as needed.
-                .attr("x", - (height / 2)) // Center the text vertically along the axis
-                .attr("dy", "1em") // Adjust the position a little bit down for better readability
-                .style("font-family", "'Overpass Mono', monospace") // Optional: Match the axis font style
-                .style("font-size", "20px") // Optional: Match the axis font size
-                .text("median attribute"); // Set the label text
-          // Line generator
-
-          
-            const line = d3.line()
-              .x(d => x(d.x))
-              .y(d => y(d.y))
-              .curve(d3.curveBumpX);
-
-          const area = d3.area()
-              .x(d => x(d.x))
-              .y0(y(55))
-              .y1(d => y(d.y))
-              .curve(d3.curveBumpX);
-        
-            const areaPath = g.selectAll(".area-path").data([data]);
-
-            // Enter + update area
-            areaPath.enter()
-                .append("path")
-                .attr("class", "area-path")
-                .attr("fill", "url(#area-gradient)")
-                .attr("opacity", "0.7")
-                .merge(areaPath)
-                .transition()
-                .duration(1000)
-                .attr("d", area);
-
-            // Bind data to elements
-            const linePath = g.selectAll(".line-path").data([data]);
-
-            // Enter + update line
-            linePath.enter()
-                .append("path")
-                .attr("class", "line-path")
-                .attr("fill", "none")
-                .attr("stroke", "#FF8934")
-                .attr("stroke-width", 2)
-                .merge(linePath) // Combine enter and update selections
-                .transition()
-                .duration(1000)
-                .attr("d", line);
-        }
-
-            
-
-      window.addEventListener('resize', drawGraph(graphData, true)); */
 </script>
 </body>
 </html>

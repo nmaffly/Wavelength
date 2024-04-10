@@ -23,39 +23,39 @@
         }
     
         // Function to attempt redirection
-        function attemptRedirect() {
-            if (formSubmitted && ajaxCompleted) {
-                // If form has been submitted and AJAX call is complete, redirect
-                window.location.href = "/display";
-            }
-        }
+        // function attemptRedirect() {
+        //     if (formSubmitted && ajaxCompleted) {
+        //         // If form has been submitted and AJAX call is complete, redirect
+        //         window.location.href = "/display";
+        //     }
+        // }
     
-        $(document).ready(function() {
-            $.ajax({
-                url: '/fetch_data',
-                type: 'GET',
-                success: function(response) {
-                    if(response.success) {
-                        ajaxCompleted = true; // Mark AJAX as completed
-                        attemptRedirect(); // Attempt to redirect if form also submitted
-                    }
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
+        // $(document).ready(function() {
+        //     $.ajax({
+        //         url: '/fetch_data',
+        //         type: 'GET',
+        //         success: function(response) {
+        //             if(response.success) {
+        //                 ajaxCompleted = true; // Mark AJAX as completed
+        //                 attemptRedirect(); // Attempt to redirect if form also submitted
+        //             }
+        //         },
+        //         error: function(error) {
+        //             console.log(error);
+        //         }
+        //     });
     
-            // Listen for form submission
-            $('#profile-form').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-                formSubmitted = true; // Mark form as submitted
-                if (ajaxCompleted) {
+        //     // Listen for form submission
+        //     $('#profile-form').on('submit', function(e) {
+        //         e.preventDefault(); // Prevent default form submission
+        //         formSubmitted = true; // Mark form as submitted
+        //         if (ajaxCompleted) {
 
-                }
-                switch_view(); // Switch the view regardless of AJAX completion
-                attemptRedirect(); // Attempt to redirect if AJAX call also completed
-            });
-        });
+        //         }
+        //         switch_view(); // Switch the view regardless of AJAX completion
+        //         attemptRedirect(); // Attempt to redirect if AJAX call also completed
+        //     });
+        // });
     </script>
     
 </head>
@@ -81,7 +81,7 @@
     <div id="form-wrapper">
         <h2 class="gradient-high">Create your profile</h2>
         <p>While we figure out your music taste, let’s get down some basic info.</p>
-        <form id="profile-form">
+        <form id="profile-form" action="{{ url_for('submit_new_profile') }}" method="POST">
             <div class="form-field">
                 <label for="first-name">First Name</label>
                 <input type="text" id="first-name" name="first-name" required>

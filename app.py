@@ -8,7 +8,8 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
-from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, load_user_stats, db
+from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, db
+from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
 app = Flask(__name__)
@@ -484,7 +485,37 @@ def view_playlist():
 
 @app.route('/new_profile')
 def new_profile():
+    print('new_profile route reached')
     return render_template('new_profile.html')
+
+@app.route('/submit_new_profile', methods=['POST'])
+def submit_new_profile():
+    if request.method == 'POST':
+        print('submission of new profile route reached')
+        first_name = request.form.get('first-name')
+        last_name = request.form.get('last-name')
+        age = request.form.get('age')
+        hometown = request.form.get('hometown')
+
+        print('hello')
+
+        print(first_name)
+        print(hometown)
+        print(age)
+
+        user_data = session['processed_data']['user_data']
+
+        user = User.query.filter_by(spotify_id=user_data['id']).first()
+
+        user.first_name = first_name
+        user.last_name = last_name
+        user.age = age
+        user.hometown = hometown
+
+        db.session.commit()
+
+    return redirect(url_for('display'))
+
 
 @app.route('/error')
 def error_page():

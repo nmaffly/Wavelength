@@ -317,10 +317,10 @@
             if (tops == false) {
                 num = 10;
             }
-            Object.entries(currentArtistsData).slice(0, num).forEach(function(entry, index) {
+            currentArtistsData.slice(0, num).forEach(function(artist, index) {
                 var li = document.createElement('li');
-                console.log(entry);
-                li.textContent = entry[0]; // Using the artist's name as the text content
+                console.log(artist.name); // Log the artist's name
+                li.textContent = artist.name; // Using the artist's name as the text content
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
@@ -475,9 +475,10 @@
 
             var currentGenresData = genreData_r;
 
-            Object.entries(currentArtistsData).slice(0, 5).forEach(function(entry, index) {
+            currentArtistsData.slice(0, 5).forEach(function(artist, index) {
                 var li = document.createElement('li');
-                li.textContent = entry[0]; // Directly using the artist's name from the entry
+                console.log(artist.name); // Log the artist's name
+                li.textContent = artist.name; // Using the artist's name as the text content
                 document.getElementById('top-artists-list').appendChild(li);
             });
 

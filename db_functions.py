@@ -202,7 +202,7 @@ def get_db_artists(user_id, time_range):
     # param time_range: 'r' for recent artists, 'a' for all time artists, 'm' for medium term artists
 
     user_stats = UserStats.query.filter_by(user_id=user_id).first()
-    artists = {}
+    artists = []
     if time_range == 'r':
         if user_stats:
             recent_artists = RecentArtists.query \
@@ -211,11 +211,14 @@ def get_db_artists(user_id, time_range):
                             .all()
         
             for artist in recent_artists:
-                artists[artist.artist] = {
-                    'img_url': artist.img_url,
-                    'spotify_url': artist.spotify_url,
-                    'href': artist.href,
-                }
+                artists.append(
+                    {
+                        'name': artist.artist,
+                        'img_url': artist.img_url,
+                        'spotify_url': artist.spotify_url,
+                        'href': artist.href,
+                    }
+                )
             
     elif time_range == 'a':
         if user_stats:
@@ -225,11 +228,14 @@ def get_db_artists(user_id, time_range):
                             .all()
         
             for artist in all_time_artists:
-                artists[artist.artist] = {
-                    'img_url': artist.img_url,
-                    'spotify_url': artist.spotify_url,
-                    'href': artist.href,
-                }
+                artists.append(
+                    {
+                        'name': artist.artist,
+                        'img_url': artist.img_url,
+                        'spotify_url': artist.spotify_url,
+                        'href': artist.href,
+                    }
+                )
             
     elif time_range == 'm':
         if user_stats:
@@ -239,11 +245,14 @@ def get_db_artists(user_id, time_range):
                             .all()
         
             for artist in medium_artists:
-                artists[artist.artist] = {
-                    'img_url': artist.img_url,
-                    'spotify_url': artist.spotify_url,
-                    'href': artist.href,
-                }
+                artists.append(
+                    {
+                        'name': artist.artist,
+                        'img_url': artist.img_url,
+                        'spotify_url': artist.spotify_url,
+                        'href': artist.href,
+                    }
+                )
             
     else:
         # error handling
@@ -255,7 +264,7 @@ def get_db_tracks(user_id, time_range):
     # param time_range: 'r' for recent tracks, 'a' for all time tracks, 'm' for medium term tracks
 
     user_stats = UserStats.query.filter_by(user_id=user_id).first()
-
+    tracks = []
     if time_range == 'r':
         if user_stats:
             recent_tracks = RecentTracks.query \
@@ -263,8 +272,18 @@ def get_db_tracks(user_id, time_range):
                             .order_by(RecentTracks.id.asc()) \
                             .all()
         
-            track_list = [track.song for track in recent_tracks]
-            return track_list
+            for track in recent_tracks:
+                tracks.append(
+                    {
+                        'name': track.song,
+                        'track_id': track.track_id,
+                        'album_art_img_url': track.album_art_img_url,
+                        'preview_url': track.preview_url,
+                        'spotify_url': track.spotify_url,
+                        'href': track.href
+                    }
+                )
+            return tracks
         else:
             return []
     elif time_range == 'a':
@@ -274,8 +293,18 @@ def get_db_tracks(user_id, time_range):
                             .order_by(AllTimeTracks.id.asc()) \
                             .all()
         
-            track_list = [track.song for track in all_time_tracks]
-            return track_list
+            for track in all_time_tracks:
+                tracks.append(
+                    {
+                        'name': track.song,
+                        'track_id': track.track_id,
+                        'album_art_img_url': track.album_art_img_url,
+                        'preview_url': track.preview_url,
+                        'spotify_url': track.spotify_url,
+                        'href': track.href
+                    }
+                )
+            return tracks
         else:
             return []
     elif time_range == 'm':
@@ -285,8 +314,18 @@ def get_db_tracks(user_id, time_range):
                             .order_by(MediumTracks.id.asc()) \
                             .all()
         
-            track_list = [track.song for track in medium_tracks]
-            return track_list
+            for track in medium_tracks:
+                tracks.append(
+                    {
+                        'name': track.song,
+                        'track_id': track.track_id,
+                        'album_art_img_url': track.album_art_img_url,
+                        'preview_url': track.preview_url,
+                        'spotify_url': track.spotify_url,
+                        'href': track.href
+                    }
+                )
+            return tracks
         else:
             return []
     else:

@@ -2,20 +2,23 @@
 
 def get_tracks_info(top_tracks):
     # returns nested dictionary with top tracks and associated info
-    tracks = {}
+    tracks = []
     for item in top_tracks:
-        tracks[item['name']] = {
-            'track_id': item['id'],
-            'album_art_img_url': item['album']['images'][0]['url'] if item['album']['images'] else None,
-            'preview_url': item.get('preview_url', None),
-            'spotify_url': item['external_urls']['spotify'],
-            'href': item['href']
-        }
+        tracks.append(
+            {
+                'name': item['name'],
+                'album_art_img_url': item['album']['images'][0]['url'] if item['album']['images'] else None,
+                'preview_url': item.get('preview_url', None),
+                'spotify_url': item['external_urls']['spotify'],
+                'href': item['href'],
+            }
+        )
     return tracks
 
 def get_tracks_info_batch(top_tracks):
     # returns nested dictionary with top tracks and associated info
     tracks = {}
+    priority = 0
     for item in top_tracks:
         track = item['track']  # Access the nested track object
         tracks[track['name']] = {
@@ -23,8 +26,10 @@ def get_tracks_info_batch(top_tracks):
             'album_art_img_url': track['album']['images'][0]['url'] if track['album']['images'] else None,
             'preview_url': track.get('preview_url', None),
             'spotify_url': track['external_urls']['spotify'],
-            'href': track['href']
+            'href': track['href'],
+            'priority': priority
         }
+        priority += 1
     return tracks
 
 
@@ -32,15 +37,20 @@ def get_artists_info(top_artists):
     # returns nested dictionary with top 10 artists and associated info  
     # outer dictionary: (key, value) --> (artist, info dict)
     # inner dictionary: keys --> img_url, genres, spotify_url, href, popularity 
-    artists = {}
+    artists = []
+    priority = 0
     for item in top_artists:
-        artists[item['name']] = {
-            'img_url': item['images'][0]['url'] if item['images'] else None,  
-            'genres': item['genres'],
-            'spotify_url': item['external_urls']['spotify'],
-            'href': item['href'],
-            'popularity': item['popularity']
-        }
+        artists.append(
+            {
+                'name': item['name'],
+                'img_url': item['images'][0]['url'] if item['images'] else None,  
+                'genres': item['genres'],
+                'spotify_url': item['external_urls']['spotify'],
+                'href': item['href'],
+                'popularity': item['popularity'],
+
+            }
+        )
     return artists
 
 def get_genre_count(artists_info):

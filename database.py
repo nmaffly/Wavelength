@@ -92,7 +92,6 @@ class RecentArtists(db.Model):
     spotify_url = db.Column(db.String(100))
     href = db.Column(db.String(100))
 
-
 class MediumArtists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_stats_id = db.Column(db.Integer, db.ForeignKey('user_stats.id', ondelete='CASCADE'), nullable=False)

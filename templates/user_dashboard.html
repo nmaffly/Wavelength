@@ -318,9 +318,19 @@
                 num = 10;
             }
             currentArtistsData.slice(0, num).forEach(function(artist, index) {
+                // Create the list item
                 var li = document.createElement('li');
-                console.log(artist.name); // Log the artist's name
-                li.textContent = artist.name; // Using the artist's name as the text content
+
+                // Create an anchor element
+                var a = document.createElement('a');
+                a.textContent = artist.name; 
+                a.href = artist.spotify_url; 
+                a.target = "_blank"; 
+
+                a.style.textDecoration = 'none'; // Remove underline
+                a.style.color = 'inherit'; // Use the parent's text color or set a specific color
+
+                li.appendChild(a);
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
@@ -476,9 +486,19 @@
             var currentGenresData = genreData_r;
 
             currentArtistsData.slice(0, 5).forEach(function(artist, index) {
+                // Create the list item
                 var li = document.createElement('li');
-                console.log(artist.name); // Log the artist's name
-                li.textContent = artist.name; // Using the artist's name as the text content
+
+                // Create an anchor element
+                var a = document.createElement('a');
+                a.textContent = artist.name; 
+                a.href = artist.spotify_url; 
+                a.target = "_blank"; 
+
+                a.style.textDecoration = 'none'; // Remove underline
+                a.style.color = 'inherit'; // Use the parent's text color or set a specific color
+
+                li.appendChild(a);
                 document.getElementById('top-artists-list').appendChild(li);
             });
 

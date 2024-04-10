@@ -2,11 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Error Occurred</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wavelength App: Error</title>
+    <link rel="icon" href="../static/icons/logo.png" type="image/png">
+    <link rel="stylesheet" href="../static/error.css">
+    <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-    <h1>An error has occured while fetching audio features</h1>
-    <p>{{ error_message }}</p>
-    <a href="{{ url_for('index') }}">Go Back Home</a>
+    <header>
+        <h3><a href="/">wavelength</a></h3>
+    </header>
+    <div id="center-block">
+        <img src="../static/icons/giphy2.gif" alt="Awkward gif" id="gif">
+        <h1 class="gradient-high">Oops! That's awkward...</h1>
+        <h3>You seem to have broken our website. Luckily, if you go back everything should fix itself!</h3>
+        <button id="goBackHome">Go Back Home</button>
+        <p style="margin-top: 50px">Error info: {{ error_message }}</p>
+    </div>
+    <script>
+        document.getElementById('goBackHome').addEventListener('click', function() {
+        window.location.href = '/';
+    });
+    </script>
 </body>
 </html>

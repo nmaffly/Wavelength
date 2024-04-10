@@ -79,6 +79,11 @@ header {
     width: 260px;
     height: 50px;
     border-radius: 10px;
+    transition: background-color .25s ease;
+}
+
+#center-button:hover {
+    background-color: var(--primary-orange);
 }
 
 /* Add in a middle 50% to the below to fix? */

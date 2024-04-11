@@ -120,6 +120,7 @@
             </div>
             <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
         </div>
+        <img id="switch-tops-anthem" src="../static/icons/down.png" alt="View other!">
     </div>
 
     <script>
@@ -138,37 +139,57 @@
             }
             switchView();
         });
+
+        var showTops = true;  // Flag to track which view is shown
+
+        function toggleViews(forceView) {
+            const topsWrapper = document.getElementById('tops-wrapper');
+            const anthemWrapper = document.getElementById('anthem-wrapper');
+            const dots = document.querySelectorAll('.select-dot');
+            const arrow = document.getElementById('switch-tops-anthem');
+            
+            if (typeof forceView !== 'undefined') {
+                showTops = forceView;
+            } else {
+                showTops = !showTops;  // Toggle only when no forceView is provided, e.g., arrow click
+            }
+
+            if (showTops) {
+                topsWrapper.style.display = 'block';
+                anthemWrapper.style.display = 'none';
+                dots[0].classList.add('dot-highlight');
+                dots[1].classList.remove('dot-highlight');
+                arrow.style.right = "15px"; // Clear the 'right' property
+                arrow.style.left = ""; // Set the 'left' property
+                arrow.style.transform = "rotate(-90deg)";
+            } else {
+                topsWrapper.style.display = 'none';
+                anthemWrapper.style.display = 'flex';
+                dots[1].classList.add('dot-highlight');
+                dots[0].classList.remove('dot-highlight');
+                arrow.style.right = ""; // Set the 'right' property
+                arrow.style.left = "15px"; // Clear the 'left' property
+                arrow.style.transform = "rotate(90deg)";
+            }
+        }
+
         function setupDotNavigation() {
-            // Get all dot elements
             const dots = document.querySelectorAll('.select-dot');
             
-            // Function to toggle views
-            const toggleView = (activeDotId) => {
-                const topsWrapper = document.getElementById('tops-wrapper');
-                const anthemWrapper = document.getElementById('anthem-wrapper');
-                // Remove highlight from all dots
-                dots.forEach(dot => dot.classList.remove('dot-highlight'));
-                // Add highlight to the active dot
-                document.getElementById(activeDotId).classList.add('dot-highlight');
-
-                // Show/Hide divs based on the active dot
-                if (activeDotId === 'select-dot1') {
-                    topsWrapper.style.display = 'block';
-                    anthemWrapper.style.display = 'none';
-                } else if (activeDotId === 'select-dot2') {
-                    topsWrapper.style.display = 'none';
-                    anthemWrapper.style.display = 'flex';
-                } // Add conditions for other dots if needed
-            };
-
-            // Attach event listeners to dots
             dots.forEach(dot => {
-                dot.addEventListener('click', () => toggleView(dot.id));
+                dot.addEventListener('click', () => {
+                    const forceView = dot.id === 'select-dot1';  // Determine the intended view based on dot ID
+                    toggleViews(forceView);
+                });
             });
         }
 
-        // Call setupDotNavigation function when the document is loaded
-        document.addEventListener('DOMContentLoaded', setupDotNavigation);
+        document.addEventListener('DOMContentLoaded', () => {
+            setupDotNavigation();
+            document.getElementById('switch-tops-anthem').addEventListener('click', () => toggleViews());
+        });
+
+
 
     </script>
     
@@ -589,7 +610,6 @@
     </script>
 
     <script>
-    var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
     var tracks_r = {{ session['processed_data']['tracks_r'] | tojson | safe }};
     var tracks_m = {{ session['processed_data']['tracks_m'] | tojson | safe }};
     var tracks_a = {{ session['processed_data']['tracks_a'] | tojson | safe }};
@@ -597,34 +617,33 @@
     var median_values_m = {{ session['processed_data']['median_values_m'] | tojson | safe }};
     var median_values_a = {{ session['processed_data']['median_values_a'] | tojson | safe }};
 
+    function findAnthem(songList, medianValues) { 
+        let minDifference = Infinity; 
+        let anthem = null; 
 
-        function findAnthem(songList, medianValues) { 
-            let minDifference = Infinity; 
-            let anthem = null; 
-
-            songList.forEach(song => {
-                let totalDifference = 0;
-                Object.keys(medianValues).forEach(attribute => { 
-                    if (song[attribute] !== undefined) { 
-                        totalDifference += Math.abs(song[attribute] - medianValues[attribute]);
-                    }
-                });
-                if (totalDifference < minDifference) { 
-                    minDifference = totalDifference; 
-                    anthem = song;
+        songList.forEach(song => {
+            let totalDifference = 0;
+            Object.keys(medianValues).forEach(attribute => { 
+                if (song[attribute] !== undefined) { 
+                    totalDifference += Math.abs(song[attribute] - medianValues[attribute]);
                 }
-
             });
-            anthem.imageURL = anthem.album_art_img_url;
-            console.log(anthem);
-            return anthem;
-        }
-        let anthemOneMonth = findAnthem(tracks_r, median_values_r);
-        let anthemSixMonths = findAnthem(tracks_m, median_values_m);
-        let anthemOneYear = findAnthem(tracks_a, median_values_a);
+            if (totalDifference < minDifference) { 
+                minDifference = totalDifference; 
+                anthem = song;
+            }
 
-        document.getElementById('songName').textContent = anthemOneMonth.name;
-        document.getElementById('songArtist').textContent = anthemOneMonth.artist;
+        });
+        anthem.imageURL = anthem.album_art_img_url;
+        console.log(anthem);
+        return anthem;
+    }
+    let anthemOneMonth = findAnthem(tracks_r, median_values_r);
+    let anthemSixMonths = findAnthem(tracks_m, median_values_m);
+    let anthemOneYear = findAnthem(tracks_a, median_values_a);
+
+    document.getElementById('songName').textContent = anthemOneMonth.name;
+    document.getElementById('songArtist').textContent = anthemOneMonth.artist;
     </script>
 
 </body>

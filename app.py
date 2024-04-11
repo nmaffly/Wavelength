@@ -100,7 +100,7 @@ def fetch_data():
     update_time_range = timedelta(weeks=1)
 
     # For immediate spotify updates (testing purposes), uncomment line below
-    #update_time_range = timedelta(seconds=1)
+    update_time_range = timedelta(seconds=1)
 
     if user and (datetime.utcnow() - user.last_updated) < update_time_range: #I changed this just to work on things
         # If user exists and it's been less than a week, update tokens and most recent login
@@ -174,7 +174,6 @@ def fetch_data():
 
         # Recent (1 month) stats
         artists_info_r = get_artists_info(top_artists_r) # dictionary with top artists and associated info
-        artists_r = list(artists_info_r.keys())
         genres_r = get_genre_count(artists_info_r)
         tracks_r = get_tracks_info(top_tracks_r)
         popularity_r = get_popularity(top_artists_r)
@@ -185,7 +184,6 @@ def fetch_data():
 
         # Medium term (6 months) stats
         artists_info_m = get_artists_info(top_artists_m) # dictionary with top artists and associated info
-        artists_m = list(artists_info_m.keys())
         genres_m = get_genre_count(artists_info_m)
         tracks_m = get_tracks_info(top_tracks_m)
         popularity_m = get_popularity(top_artists_m)
@@ -196,7 +194,6 @@ def fetch_data():
 
         # All Time stats
         artists_info_a = get_artists_info(top_artists_a) # dictionary with top artists and associated info
-        artists_a = list(artists_info_a.keys())
         genres_a = get_genre_count(artists_info_a)
         tracks_a = get_tracks_info(top_tracks_a)
         popularity_a = get_popularity(top_artists_a)

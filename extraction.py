@@ -11,6 +11,7 @@ def get_tracks_info(top_tracks):
                 'preview_url': item.get('preview_url', None),
                 'spotify_url': item['external_urls']['spotify'],
                 'href': item['href'],
+                'track_id': item['id']
             }
         )
     return tracks
@@ -57,8 +58,8 @@ def get_genre_count(artists_info):
     # returns dictionary of genres and their respective count (calculated based on artists), sorted by count
     # dictionary: (key, value) --> (genre, count)
     all_genres = {}
-    for artist, info in artists_info.items():
-        for genre in info['genres']:
+    for artist in artists_info:
+        for genre in artist['genres']:
             if genre in all_genres:
                 all_genres[genre] += 1  
             else:
@@ -129,7 +130,7 @@ def split_list_into_chunks(lst, chunk_size):
 
 
 def get_audio_features_tracks(track_info, spotify):
-    track_ids = [info['track_id'] for track, info in track_info.items()]
+    track_ids = [track['track_id'] for track in track_info]
 
     track_chunks = list(split_list_into_chunks(track_ids, 50))
 

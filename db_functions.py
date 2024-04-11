@@ -78,69 +78,69 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         )
         db. session.add(new_genre)
 
-    for artist_name, info in new_data["recent_artists"].items():
+    for artist in new_data["recent_artists"]:
         new_artist = RecentArtists(
             user_stats_id=user_stats.id,
-            artist=artist_name,
-            img_url=info['img_url'],
-            spotify_url=info['spotify_url'],
-            href=info['href']
+            artist=artist['name'],
+            img_url=artist['img_url'],
+            spotify_url=artist['spotify_url'],
+            href=artist['href']
         )
         db.session.add(new_artist)
 
-    for artist_name, info in new_data["medium_artists"].items():
+    for artist in new_data["medium_artists"]:
         new_artist = MediumArtists(
             user_stats_id=user_stats.id,
-            artist=artist_name,
-            img_url=info['img_url'],
-            spotify_url=info['spotify_url'],
-            href=info['href']
+            artist=artist['name'],
+            img_url=artist['img_url'],
+            spotify_url=artist['spotify_url'],
+            href=artist['href']
         )
         db.session.add(new_artist)
 
-    for artist_name, info in new_data["all_time_artists"].items():
+    for artist in new_data["all_time_artists"]:
         new_artist = AllTimeArtists(
             user_stats_id=user_stats.id,
-            artist=artist_name,
-            img_url=info['img_url'],
-            spotify_url=info['spotify_url'],
-            href=info['href']
+            artist=artist['name'],
+            img_url=artist['img_url'],
+            spotify_url=artist['spotify_url'],
+            href=artist['href']
         )
         db. session.add(new_artist)
 
-    for track_name, info in new_data["recent_tracks"].items():
+    for track in new_data["recent_tracks"]:
         new_track = RecentTracks(
             user_stats_id=user_stats.id,
-            song=track_name,
-            track_id = info['track_id'],
-            album_art_img_url = info['album_art_img_url'],
-            preview_url = info['preview_url'],
-            spotify_url = info['spotify_url'],
-            href = info['href'],
+            song=track['name'],
+            track_id = track['track_id'],
+            album_art_img_url = track['album_art_img_url'],
+            preview_url = track['preview_url'],
+            spotify_url = track['spotify_url'],
+            href = track['href'],
         )
         db.session.add(new_track)
 
-    for track_name, info in new_data["medium_tracks"].items():
+    for track in new_data["medium_tracks"]:
         new_track = MediumTracks(
             user_stats_id=user_stats.id,
-            song=track_name,
-            track_id = info['track_id'],
-            album_art_img_url = info['album_art_img_url'],
-            preview_url = info['preview_url'],
-            spotify_url = info['spotify_url'],
-            href = info['href'],
+            song=track['name'],
+            track_id = track['track_id'],
+            album_art_img_url = track['album_art_img_url'],
+            preview_url = track['preview_url'],
+            spotify_url = track['spotify_url'],
+            href = track['href'],
         )
         db.session.add(new_track)
 
-    for track_name, info in new_data["all_time_tracks"].items():
+    for track in new_data["all_time_tracks"]:
         new_track = AllTimeTracks(
             user_stats_id=user_stats.id,
-            song=track_name,
-            track_id = info['track_id'],
-            album_art_img_url = info['album_art_img_url'],
-            preview_url = info['preview_url'],
-            spotify_url = info['spotify_url'],
-            href = info['href'],
+            song=track['name'],
+            track_id = track['track_id'],
+            album_art_img_url = track['album_art_img_url'],
+            preview_url = track['preview_url'],
+            spotify_url = track['spotify_url'],
+            href = track['href'],
         )
         db.session.add(new_track)
 

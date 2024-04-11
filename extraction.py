@@ -4,6 +4,10 @@ def get_tracks_info(top_tracks):
     # returns nested dictionary with top tracks and associated info
     tracks = []
     for item in top_tracks:
+        # If there are multiple artists, this will join their names with a comma. 
+        # If there's only one artist, it just returns that name.
+        artist_names = ', '.join([artist['name'] for artist in item['artists']])
+
         tracks.append(
             {
                 'name': item['name'],
@@ -11,7 +15,8 @@ def get_tracks_info(top_tracks):
                 'preview_url': item.get('preview_url', None),
                 'spotify_url': item['external_urls']['spotify'],
                 'href': item['href'],
-                'track_id': item['id']
+                'track_id': item['id'],
+                'artist': artist_names  # Now 'artist' will contain a string of artist names, possibly more than one
             }
         )
     return tracks
@@ -49,7 +54,6 @@ def get_artists_info(top_artists):
                 'spotify_url': item['external_urls']['spotify'],
                 'href': item['href'],
                 'popularity': item['popularity'],
-
             }
         )
     return artists

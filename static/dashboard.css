@@ -73,7 +73,7 @@ body h1{
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 300px;
+    width: 360px;
 }
 
 #anthem-wrapper h3 {
@@ -90,6 +90,7 @@ body h1{
 #anthem-song {
     display: flex;
     flex-direction: row;
+    width: 100%;
 }
 
 #anthem-song:hover {

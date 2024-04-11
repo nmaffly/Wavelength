@@ -285,6 +285,8 @@
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_r, median_values_r);
                 document.getElementById('playlist-cover').src = anthem.album_art_img_url;
+                document.getElementById('songName').textContent = anthem.name;
+                document.getElementById('songArtist').textContent = anthem.artist;
             } 
             else if (timeframeView == 'sixMonth') {
                 document.getElementById('sixMonthBtn').classList.add('active');
@@ -292,7 +294,9 @@
                 document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_m, median_values_m);
-                document.getElementById('playlist-cover').src = anthem.album_art_img_url;       
+                document.getElementById('playlist-cover').src = anthem.album_art_img_url;  
+                document.getElementById('songName').textContent = anthem.name;
+                document.getElementById('songArtist').textContent = anthem.artist;
             } 
             else if (timeframeView == 'oneYear') {
                 document.getElementById('sixMonthBtn').classList.remove('active');
@@ -301,6 +305,8 @@
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_a, median_values_a);
                 document.getElementById('playlist-cover').src = anthem.album_art_img_url;   
+                document.getElementById('songName').textContent = anthem.name;
+                document.getElementById('songArtist').textContent = anthem.artist;
             }
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
@@ -402,7 +408,7 @@
             // Apply custom font settings to all axis text (x and y)
             yAxisGroup.selectAll("text")
                         .style("font-family", "'Overpass Mono', monospace") // Set your desired font family
-                        .style("font-size", "20px");
+                        .style("font-size", "16px");
 
             yAxisGroup.append("text")
                     .attr("text-anchor", "middle") // Center the text (horizontally)
@@ -411,7 +417,7 @@
                     .attr("x", - (height / 2)) // Center the text vertically along the axis
                     .attr("dy", "1em") // Adjust the position a little bit down for better readability
                     .style("font-family", "'Overpass Mono', monospace") // Optional: Match the axis font style
-                    .style("font-size", "20px") // Optional: Match the axis font size
+                    .style("font-size", "16px") // Optional: Match the axis font size
                     .text("median attribute"); // Set the label text
 
             // Store components for updating
@@ -442,7 +448,7 @@
                 .attr("transform", "translate(20,0) rotate(45)")
                 .style("text-anchor", "start")
                 .style("font-family", "'Overpass Mono', monospace")
-                .style("font-size", "20px");
+                .style("font-size", "16px");
 
             const line = d3.line()
                 .x(d => x(d.x))
@@ -492,7 +498,8 @@
             document.getElementById('oneYearBtn').classList.remove('active');
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
-
+            anthem = findAnthem(tracks_r, median_values_r);
+            document.getElementById('playlist-cover').src = anthem.album_art_img_url;
             var currentArtistsData = artistData_r;
 
             var currentGenresData = genreData_r;
@@ -533,7 +540,7 @@
                 .attr("transform", "translate(20,0) rotate(45)")
                 .style("text-anchor", "start")
                 .style("font-family", "'Overpass Mono', monospace")
-                .style("font-size", "20px");
+                .style("font-size", "16px");
 
             const line = d3.line()
                 .x(d => x(d.x))

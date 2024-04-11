@@ -10,6 +10,13 @@
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
+<style>
+    .select-dot {
+        position: relative; /* Adjust if necessary for your layout */
+        z-index: 1; /* Set to a reasonable value within your stacking context */
+        cursor: pointer; /* To indicate the dots are clickable */
+    }
+</style>
 <body>
   <header>
     <h3><a href="/">wavelength</a></h3>
@@ -276,19 +283,24 @@
                 document.getElementById('oneYearBtn').classList.remove('active');
                 document.getElementById('sixMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
+                anthem = findAnthem(tracks_r, median_values_r);
+                document.getElementById('playlist-cover').src = anthem.album_art_img_url;
             } 
             else if (timeframeView == 'sixMonth') {
                 document.getElementById('sixMonthBtn').classList.add('active');
                 document.getElementById('oneYearBtn').classList.remove('active');
                 document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
-                
+                anthem = findAnthem(tracks_m, median_values_m);
+                document.getElementById('playlist-cover').src = anthem.album_art_img_url;       
             } 
             else if (timeframeView == 'oneYear') {
                 document.getElementById('sixMonthBtn').classList.remove('active');
                 document.getElementById('oneYearBtn').classList.add('active');
                 document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
+                anthem = findAnthem(tracks_a, median_values_a);
+                document.getElementById('playlist-cover').src = anthem.album_art_img_url;   
             }
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
@@ -567,6 +579,45 @@
                 updateGraph(graphComponents, graphData, true);
             }, 500); // 1000 milliseconds = 1 second
         }
-</script>
+    </script>
+
+    <script>
+    var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
+    var tracks_r = {{ session['processed_data']['tracks_r'] | tojson | safe }};
+    var tracks_m = {{ session['processed_data']['tracks_m'] | tojson | safe }};
+    var tracks_a = {{ session['processed_data']['tracks_a'] | tojson | safe }};
+    var median_values_r = {{ session['processed_data']['median_values_r'] | tojson | safe }};
+    var median_values_m = {{ session['processed_data']['median_values_m'] | tojson | safe }};
+    var median_values_a = {{ session['processed_data']['median_values_a'] | tojson | safe }};
+
+
+        function findAnthem(songList, medianValues) { 
+            let minDifference = Infinity; 
+            let anthem = null; 
+
+            songList.forEach(song => {
+                let totalDifference = 0;
+                Object.keys(medianValues).forEach(attribute => { 
+                    if (song[attribute] !== undefined) { 
+                        totalDifference += Math.abs(song[attribute] - medianValues[attribute]);
+                    }
+                });
+                if (totalDifference < minDifference) { 
+                    minDifference = totalDifference; 
+                    anthem = song;
+                }
+
+            });
+            anthem.imageURL = anthem.album_art_img_url;
+            return anthem;
+        }
+        let anthemOneMonth = findAnthem(tracks_r, median_values_r);
+        let anthemSixMonths = findAnthem(tracks_m, median_values_m);
+        let anthemOneYear = findAnthem(tracks_a, median_values_a);
+
+        document.getElementById('songName').textContent = anthemOneMonth.name;
+        document.getElementById('songArtist').textContent = anthemOneMonth.artist;
+    </script>
+
 </body>
 </html>

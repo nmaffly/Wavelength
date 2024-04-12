@@ -20,10 +20,17 @@ class User(db.Model):
     most_recent_login = db.Column(db.DateTime, default=datetime.utcnow)
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
     share_token = db.Column(db.String(5), nullable=False)
+    matches = db.relationship('Matches', backref='user', lazy=True, cascade="all, delete-orphan")
     stats = db.relationship('UserStats', backref='user', lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<User {self.display_name}>'
+
+class Matches(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_1_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user_2_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    compatibility_score = db.Column(db.Float)
 
 class UserStats(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -4,11 +4,10 @@ import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 from extraction import get_tracks_info, get_tracks_info_batch, get_artists_info, get_artist_genres_batch, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
-from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, db
+from database import User, UserStats, Matches, db
 from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
@@ -401,6 +400,18 @@ def comparison():
         if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
             return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
         
+        match = Matches.query.filter_by(user1_id=user1.id, user2_id=user2.id).first()
+
+        if match:
+            match.compatiblity_score = calculate_compatibility(user1.id, user2.id)
+            pass
+        else:
+            match = Matches(
+                user1_id=user1.id, 
+                user2_id=user2.id, 
+                compatibility_score=calculate_compatibility(user1.id, user2.id)
+            )
+
         return render_template('comparison.html', 
                                user1_graph_data_all_time=user1_graph_data_all_time, 
                                user1_graph_data_recent=user1_graph_data_recent, 
@@ -409,8 +420,12 @@ def comparison():
                                user2_graph_data_recent=user2_graph_data_recent, 
                                user2_graph_data_medium=user2_graph_data_medium, 
                                user1_name=user1.display_name, 
-                               user2_name=user2.display_name)
+                               user2_name=user2.display_name
+                            )
 
+def calculate_compatibility():
+    # Placeholder for compatibility score calculation
+    return 86
 
 @app.route('/compare_users_redirect', methods=['POST'])
 def compare_users_redirect():
@@ -514,11 +529,7 @@ def submit_new_profile():
         age = request.form.get('age')
         hometown = request.form.get('hometown')
 
-        print('hello')
         # need to implement logic here to randomly select from code_names to give the user their share code; either here or in the fetch_data
-        print(first_name)
-        print(hometown)
-        print(age)
 
         user_data = session['processed_data']['user_data']
 
@@ -532,7 +543,6 @@ def submit_new_profile():
         db.session.commit()
 
     return redirect(url_for('display'))
-
 
 @app.route('/error')
 def error_page():

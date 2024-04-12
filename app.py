@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
 from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists, AllTimeArtists, RecentTracks, AllTimeTracks, db
-from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_sharing_token, load_user_stats
+from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
 app = Flask(__name__)
@@ -217,7 +217,7 @@ def fetch_data():
         if not user:
             #if the user doesn't exist, create new user
             # setting up db entry for new user
-            user_share_token = generate_sharing_token()
+            user_share_token = generate_four_letter_sharing_token()
             user = User(
                 spotify_id=user_data['id'],
                 display_name=user_data.get('display_name', 'No Name'),

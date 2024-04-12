@@ -19,6 +19,7 @@ Duck
 Echo
 Fawn
 Fish
+Frog
 Gala
 Game
 Glow

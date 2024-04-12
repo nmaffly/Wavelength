@@ -12,6 +12,11 @@ from database import User, UserStats, RecentGenres, AllTimeGenres, RecentArtists
 from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
+# FOR TESTNG
+update_db = False
+          # True --> immediate spotify extraction and DB update
+          # False --> pull stats from DB
+
 app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
@@ -97,10 +102,10 @@ def fetch_data():
         user.last_updated = user.created_at
     
     
-    update_time_range = timedelta(weeks=1)
-
-    # For immediate spotify updates (testing purposes), uncomment line below
-    update_time_range = timedelta(seconds=1)
+    if(update_db):
+        update_time_range = timedelta(seconds=1)
+    else:
+        update_time_range = timedelta(weeks=1)
 
     if user and (datetime.utcnow() - user.last_updated) < update_time_range: #I changed this just to work on things
         # If user exists and it's been less than a week, update tokens and most recent login
@@ -151,7 +156,7 @@ def fetch_data():
             "variance_r": median_values_r["variance"]
         }
 
-        print(get_db_genres(user.id, 'r'))
+        print(get_db_tracks(user.id,'r'))
 
     else:
         # otherwise extract spotify info, add to database and session

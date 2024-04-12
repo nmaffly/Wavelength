@@ -128,6 +128,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = RecentTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -140,6 +141,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = MediumTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -152,6 +154,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = AllTimeTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -292,6 +295,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,
@@ -313,6 +317,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,
@@ -334,6 +339,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,

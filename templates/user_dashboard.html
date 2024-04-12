@@ -24,7 +24,8 @@
         <p><a href="/input_playlist">playlist</a></p>
         <p><a href="/comparison">compare</a></p>
         <p><a href="/about">about</a></p>
-        <p><a href="#help">help</a></p>
+        <p><a href="/new_profile">new profile</a></p>
+        <p><a href="/error">error</a></p>
     </div>
     
     <button id="nav-button">
@@ -36,7 +37,8 @@
             <li><a href="/input_playlist">playlist</a></li>
             <li><a href="/comparison">compare</a></li>
             <li><a href="/about">about</a></li>
-            <li><a href="#help">help</a></li>
+            <p><a href="/new_profile">new profile</a></p>
+            <p><a href="/error">error</a></p>
         </ul>
         <div id="icons">
             <img src="../static/icons/instagram.png" alt="Instagram">
@@ -192,22 +194,19 @@
 
 
     </script>
-    
-
-    <div id="spotify-logo">
-        <div id="spotify-logo">
-            <a href="https://www.spotify.com" target="_blank">
-                <img src="../static/icons/Spotify_Logo.png" alt="Spotify">
-            </a>
-        </div>
-    </div>
 
     <!-- Code export section -->
     <div id="code">
         <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ share_token }}</b></span></h2>
-        <button id="copyButton" onclick="copyButton()"><img src="../static/icons/export.png" alt="export"></button>
-        <div id="alertContainer" style="display: none;">Code copied. Have fun sharing!</div>
     </div>
+    
+    <div id="codeForm-wrapper">
+        <form id="codeForm" action="/comparison" method="POST">
+            <input type="text" name="user_share_token" id="inputCode" placeholder="Enter a code here!" required>
+            <button type="submit">Compare</button>
+        </form>
+    </div>
+    
     <script>
         function copyButton() {
             // Get the share_token text to copy
@@ -227,11 +226,9 @@
         }
     </script>
         
-    <a href="/new_profile">New Profile</a>
-    <a href="/error">Error</a>
+
     <div id="view-more">
       <h2 class="gradient-high">Who's on your wavelength?</h2>
-      <div id="img-holder"><img src="../static/icons/down.png" alt="Go down!"></div>
     </div>
 
     <div id="user-matches-wrapper">
@@ -281,6 +278,14 @@
         });
 
     </script>
+
+    <div id="spotify-logo">
+        <div id="spotify-logo">
+            <a href="https://www.spotify.com" target="_blank">
+                <img src="../static/icons/Spotify_Logo.png" alt="Spotify">
+            </a>
+        </div>
+    </div>
     
     <script>
         var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};

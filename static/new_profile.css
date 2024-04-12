@@ -61,10 +61,6 @@ body {
     transition: background-color .25s ease;
 }
 
-#form-submit:hover {
-    background-color: var(--primary-orange);
-}
-
 @media (max-width: 900px) {
     #form-wrapper {
         margin-top: 5vh;

@@ -73,6 +73,11 @@ button {
     font-size: var(--font-size-p);
     font-weight: var(--font-weight-semi-bold);
     border-radius: 10px;
+    transition: background-color .5s ease;
+}
+
+button:hover {
+    cursor: pointer;
 }
 
 header {
@@ -275,11 +280,6 @@ header img:hover {
 
 ol {
     font-weight: var(--font-weight-slim);
-}
-
-button:hover {
-    cursor: pointer;
-    /* background-color: var(--hover-pink); */
 }
 
 .highlight {

@@ -19,13 +19,6 @@ body h1{
     justify-content: space-between;
 }
 
-#graph-top-wrapper {
-    display: flex;
-    flex-direction:row;
-    border: 3px solid red;
-    width: 100%;
-}
-
 #lineGraph {
     margin-bottom: 10px;
     width: 70%;
@@ -136,6 +129,10 @@ body h1{
     padding-left: 25px;
 }
 
+#tops-artists-list li:hover { /* Doesn't work, should eventually fix */
+    color: var(--primary-orange);
+}
+
 #tops-view-more {
     align-self: center;
     height: 20px;
@@ -169,29 +166,16 @@ body h1{
 
 #switch-tops-anthem:hover {
     height: 11px;
+    cursor: pointer;
 }
 
 #code {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    width: 320px;
-    margin-top: 10px;
-
-}
-
-#code button {
-    width: 50px;
-    height: 40px;
-    display: flex;
-    align-items: center;
     justify-content: center;
-    margin: 0px;
-}
-
-#code button img {
-    width: 20px;
+    width: 320px;
+    margin-top: 20px;
 }
 
 #code-h2 {
@@ -200,22 +184,34 @@ body h1{
     margin: 0px;
 }
 
-#alertContainer {
-    display: none; /* Hidden by default */
-    position: fixed; /* Sit on top of the page content */
-    width: 270px;
-    top: 0;
-    left: 50%; /* Move to the middle of the screen horizontally */
-    transform: translateX(-50%);
-    border-radius: 0px 0px 10px 10px;
-    background-color: var(--primary-pink); /* Green background */
-    color: black; /* White text color */
-    text-align: center; /* Centered text */
-    padding: 10px; /* Some padding */
-    z-index: 1000; /* Sit on top */
-    animation: fadeOut ease 3s;
-    animation-fill-mode: forwards;
+#codeForm {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100px;
 }
+
+#codeForm button {
+    width: 80%;
+    height: 40px; 
+}
+
+#codeForm button:hover {
+    background-color: var(--primary-orange);
+}
+
+#inputCode {
+    height: 40px;
+    width: 80%;
+    border-radius: 50px;
+    font-family: var(--font-family-poppins);
+    font-size: 16px;
+    padding: 0px 20px;
+}
+
+
 
 @keyframes fadeOut {
     0% { opacity: 1; }
@@ -228,7 +224,14 @@ body h1{
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 40px;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+#view-more h2 {
+    text-align: center;
+    margin: 0px;
+    font-size: 24px;
 }
 
 #img-holder {
@@ -248,11 +251,6 @@ body h1{
 #img-holder:hover {
     transform: translateY(10px);
     opacity: 0.7;
-}
-
-#view-more h2 {
-    margin: 0px;
-    font-size: 24px;
 }
 
 /* Styles for the user matches wrapper */
@@ -328,7 +326,12 @@ body h1{
     #tops {
         width: 280px;
     }
+
+    #anthem-wrapper {
+        width: 280px;
+    }
+
     #view-more {
-        margin-top: 50px;
+        margin-top: 30px;
     }
 }

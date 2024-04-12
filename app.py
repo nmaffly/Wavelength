@@ -366,30 +366,45 @@ def get_graph_data(user_id):
         'tempo': user_stats.tempo_r,
         'valence': user_stats.valence_r
     }
-    return graph_data_all_time, graph_data_recent
+    graph_data_medium = {
+        'acousticness': user_stats.acousticness_m,
+        'danceability': user_stats.danceability_m,
+        'energy': user_stats.energy_m,
+        'loudness': user_stats.loudness_m,
+        'speechiness': user_stats.speechiness_m,
+        'popularity': user_stats.popularity_m,
+        'speechiness': user_stats.speechiness_m,
+        'tempo': user_stats.tempo_m,
+        'valence': user_stats.valence_m
+    }
+    return graph_data_all_time, graph_data_recent, graph_data_medium
 
-@app.route('/comparison/<user1_share_token>/<user2_share_token>')
-def comparison(user1_share_token, user2_share_token):
-    user1 = User.query.filter_by(share_token=user1_share_token).first()
-    user2 = User.query.filter_by(share_token=user2_share_token).first()
-    if not user1 or not user2:
-        return jsonify({"error": "One or both users not found"}), 404
-    user1_graph_data_all_time, user1_graph_data_recent = get_graph_data(user1.id)
-    user2_graph_data_all_time, user2_graph_data_recent = get_graph_data(user2.id)
-    print(f"User 1 all time: {user1_graph_data_all_time}")
-    print(f"User 1 recent: {user1_graph_data_recent}")
-    print(f"User 2 all time: {user2_graph_data_all_time}")
-    print(f"User 2 recent: {user2_graph_data_recent}")
+@app.route('/comparison', methods=['GET', 'POST'])
+def comparison():
+    if request.method == 'POST':
+        user_share_token = request.form.get('user_share_token')
+        user1_share_token = session['processed_data']['share_token']
+        user1 = User.query.filter_by(share_token=user1_share_token).first()
+        user2 = User.query.filter_by(share_token=user_share_token).first()
 
-    if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
-        return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
-    return render_template('comparison.html', 
-                           user1_graph_data_all_time=user1_graph_data_all_time, 
-                           user1_graph_data_recent=user1_graph_data_recent, 
-                           user2_graph_data_all_time=user2_graph_data_all_time, 
-                           user2_graph_data_recent=user2_graph_data_recent, 
-                           user1_name=user1.display_name, 
-                           user2_name=user2.display_name)
+        if not user1 or not user2:
+            return jsonify({"error": "One or both users not found"}), 404
+        
+        user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
+        user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
+
+        if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
+            return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
+        
+        return render_template('comparison.html', 
+                               user1_graph_data_all_time=user1_graph_data_all_time, 
+                               user1_graph_data_recent=user1_graph_data_recent, 
+                               user1_graph_data_medium=user1_graph_data_medium, 
+                               user2_graph_data_all_time=user2_graph_data_all_time, 
+                               user2_graph_data_recent=user2_graph_data_recent, 
+                               user2_graph_data_medium=user2_graph_data_medium, 
+                               user1_name=user1.display_name, 
+                               user2_name=user2.display_name)
 
 
 @app.route('/compare_users_redirect', methods=['POST'])
@@ -495,7 +510,7 @@ def submit_new_profile():
         hometown = request.form.get('hometown')
 
         print('hello')
-
+        # need to implement logic here to randomly select from code_names to give the user their share code; either here or in the fetch_data
         print(first_name)
         print(hometown)
         print(age)

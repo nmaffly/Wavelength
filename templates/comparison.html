@@ -111,23 +111,23 @@
       <div id="match">
          <p id="match-title">Similarity:</p>
          <h1 id="percent">
-            <span id="match-value"></span>%
+            <span id="match-value">{{ compatibility_score }}</span>%
          </h1>
         <p id="match-text"><i>You're on the same Wavelength!</i></p>
       </div>
       <script>
-        function compareDatasets(data1, data2) {
-            let match = 0;
-            data1.forEach((entry1) => {
-                const entry2 = data2.find((e) => e.x === entry1.x);
-                if (entry2) { // Ensure entry2 exists before attempting to access its properties
-                    const factor = .14 * (100 - Math.abs(entry1.y - entry2.y));
-                    match += factor;
-                }
-            });
-            // Update the innerText of the element with ID 'match-value'
-            document.getElementById('match-value').innerText = match.toFixed(2); // Use toFixed(2) to format to 2 decimal places
-        }
+        // function compareDatasets(data1, data2) {
+        //     let match = 0;
+        //     data1.forEach((entry1) => {
+        //         const entry2 = data2.find((e) => e.x === entry1.x);
+        //         if (entry2) { // Ensure entry2 exists before attempting to access its properties
+        //             const factor = .14 * (100 - Math.abs(entry1.y - entry2.y));
+        //             match += factor;
+        //         }
+        //     });
+        //     // Update the innerText of the element with ID 'match-value'
+        //     document.getElementById('match-value').innerText = match.toFixed(2); // Use toFixed(2) to format to 2 decimal places
+        // }
 
         function convertToGraphArray(dataObject) {
                  return Object.entries(dataObject).map(([key, value], index) => ({ x: index, y: value }));

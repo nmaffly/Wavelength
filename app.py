@@ -397,35 +397,87 @@ def comparison():
         user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
         user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
 
+        # user1_avg_values = get_avg_values(user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium)
+        # user2_avg_values = get_avg_values(user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium)
+
         if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
             return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
         
-        match = Matches.query.filter_by(user1_id=user1.id, user2_id=user2.id).first()
+        match = Matches.query.filter(
+            (Matches.user1_id == user1.id) & (Matches.user2_id == user2.id) | 
+            (Matches.user1_id == user2.id) & (Matches.user2_id == user1.id)
+        ).first()
+
+        compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
 
         if match:
-            match.compatiblity_score = calculate_compatibility(user1.id, user2.id)
-            pass
+            match.compatiblity = compatibility_score
         else:
             match = Matches(
                 user1_id=user1.id, 
                 user2_id=user2.id, 
-                compatibility_score=calculate_compatibility(user1.id, user2.id)
+                compatibility=compatibility_score
             )
 
-        return render_template('comparison.html', 
-                               user1_graph_data_all_time=user1_graph_data_all_time, 
-                               user1_graph_data_recent=user1_graph_data_recent, 
-                               user1_graph_data_medium=user1_graph_data_medium, 
-                               user2_graph_data_all_time=user2_graph_data_all_time, 
-                               user2_graph_data_recent=user2_graph_data_recent, 
-                               user2_graph_data_medium=user2_graph_data_medium, 
-                               user1_name=user1.display_name, 
-                               user2_name=user2.display_name
-                            )
+        db.session.add(match)
+        db.session.commit()
 
-def calculate_compatibility():
-    # Placeholder for compatibility score calculation
-    return 86
+        return render_template('comparison.html', 
+                       user1_graph_data_all_time=user1_graph_data_all_time, 
+                       user1_graph_data_recent=user1_graph_data_recent, 
+                       user1_graph_data_medium=user1_graph_data_medium, 
+                       user2_graph_data_all_time=user2_graph_data_all_time, 
+                       user2_graph_data_recent=user2_graph_data_recent, 
+                       user2_graph_data_medium=user2_graph_data_medium, 
+                       user1_name=user1.display_name, 
+                       user2_name=user2.display_name,
+                       compatibility_score=round(compatibility_score, 2)
+                    )
+
+def get_avg_values(all_time, recent, medium):
+    avg_values = []
+    avg_values.append((all_time['acousticness'] + recent['acousticness'] + medium['acousticness']) / 3)
+    avg_values.append((all_time['danceability'] + recent['danceability'] + medium['danceability']) / 3)
+    avg_values.append((all_time['energy'] + recent['energy'] + medium['energy']) / 3)
+    avg_values.append((all_time['loudness'] + recent['loudness'] + medium['loudness']) / 3)
+    avg_values.append((all_time['speechiness'] + recent['speechiness'] + medium['speechiness']) / 3)
+    avg_values.append((all_time['popularity'] + recent['popularity'] + medium['popularity']) / 3)
+    avg_values.append((all_time['tempo'] + recent['tempo'] + medium['tempo']) / 3)
+    avg_values.append((all_time['valence'] + recent['valence'] + medium['valence']) / 3)
+
+    return avg_values
+
+def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
+    # Factors for compatibility score calculation:
+    # - Common genres
+    # - Common artists
+    # - Common tracks?
+    # - Audio features similarity
+    #    - Popularity
+    #    - Tempo
+    #    - Loudness
+    #    - Acousticness
+    #    - Danceability
+    #    - Valence
+    #    - Energy
+    #    - Speechiness
+    # - Variance? 
+
+    score = 0
+
+    user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['loudness'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
+    user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['loudness'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
+
+    for x in range(0, len(user1_vals_list)):
+        diff = (abs(user1_vals_list[x] - user2_vals_list[x]))
+        diff /= ((user1_vals_list[x] + user2_vals_list[x]) / 2) 
+        score_multiplier = 1 - diff
+        print((12.5 * score_multiplier))
+        score += (12.5 * score_multiplier)
+
+    print(score)
+
+    return score
 
 @app.route('/compare_users_redirect', methods=['POST'])
 def compare_users_redirect():

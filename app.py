@@ -456,6 +456,17 @@ def comparison():
     db.session.add(match)
     db.session.commit()
 
+    match_data = {
+        "name": f"{user2.first_name} {user2.last_name}",
+        "profile_pic": user2.profile_pic,
+        "home_town": user2.hometown,
+        "age": user2.age,
+        "match_percentage": match.compatibility,
+        "share_token": user2.share_token
+    }
+
+    session['processed_data']['matches_data'].append(match_data)
+
     return render_template('comparison.html', 
                     user1_graph_data_all_time=user1_graph_data_all_time, 
                     user1_graph_data_recent=user1_graph_data_recent, 
@@ -467,6 +478,7 @@ def comparison():
                     user2_name=user2.display_name,
                     compatibility_score=int(round(compatibility_score, 0))
                 )
+
 
 def get_avg_values(all_time, recent, medium):
     avg_values = []
@@ -615,8 +627,6 @@ def submit_new_profile():
         age = request.form.get('age')
         hometown = request.form.get('hometown')
 
-        # need to implement logic here to randomly select from code_names to give the user their share code; either here or in the fetch_data
-
         user_data = session['processed_data']['user_data']
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
@@ -629,6 +639,28 @@ def submit_new_profile():
         db.session.commit()
 
     return redirect(url_for('display'))
+
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if 'user_data' not in session['processed_data']:
+        return jsonify({'error': 'User not logged in'}), 401 
+
+    user_data = session['processed_data']['user_data']
+    user = User.query.filter_by(spotify_id=user_data['id']).first()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404 
+
+    try:
+        Matches.query.filter((Matches.user1_id == user.id) | (Matches.user2_id == user.id)).delete()
+        db.session.delete(user)  # Delete the user from the database
+        db.session.commit()
+        session.clear() # clear session data
+        return redirect(url_for('index'))
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500 
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

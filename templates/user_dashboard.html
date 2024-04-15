@@ -22,12 +22,15 @@
 </style>
 <body>
   <header>
-    <h3><a href="/">wavelength</a></h3>
+    <h3><a href="/display">wavelength</a></h3>
     <div id="nav-items">
         <p><a href="/input_playlist">playlist</a></p>
         <p><a href="/comparison">compare</a></p>
         <p><a href="/about">about</a></p>
         <p><a href="/new_profile">new profile</a></p>
+        <form action="{{ url_for('delete_user') }}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
+            <button type="submit" class="logout-button">Delete Account</button>
+        </form>
         <p><a href="/error">error</a></p>
     </div>
     
@@ -41,6 +44,7 @@
             <li><a href="/comparison">compare</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="/new_profile">new profile</a></li>
+            <li><a href="/delete_user">log out</a></li>
             <li><a href="/error">error</a></li>
         </ul>
         <div id="icons">
@@ -609,7 +613,7 @@
     document.getElementById('songArtist').textContent = anthemOneMonth.artist;
 
     const users = [];
-    for (let i = 0; i < Math.min(3, matches_data.length); i++) {
+    for (let i = 0; i <  matches_data.length; i++) {
         users.push({
             imgSrc: matches_data[i].profile_pic,
             name: matches_data[i].name,

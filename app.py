@@ -11,6 +11,8 @@ from database import User, UserStats, Matches, db
 from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
+load_dotenv()
+
 # FOR TESTNG
 update_db = False
           # True --> immediate spotify extraction and DB update
@@ -34,8 +36,6 @@ migrate = Migrate(app, db)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
-
-load_dotenv()
 
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
@@ -64,19 +64,24 @@ def callback():
     cleanup()
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
+
     if not token_info:
         return redirect('/login')
     if sp_oauth.is_token_expired(token_info):
         token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
         session['token_info'] = token_info
+
     spotify = spotipy.Spotify(auth=token_info['access_token'])
     user_data = spotify.current_user()
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
-    new_user = False
+    new_user = True
     if user:
-        new_user = True
-    return render_template('loading.html', new_user = new_user)
+        new_user = False
+        return render_template('loading.html', new_user = new_user)
+    else:
+        return render_template('new_profile.html')
+
 
 @app.route('/fetch_data')
 def fetch_data():
@@ -330,6 +335,25 @@ def cleanup():
 
 @app.route('/display')
 def display():
+    # Get user's matches
+    user_id = session['processed_data']['user_data']['id']
+    matches_data = []
+    matches = Matches.query.filter((Matches.user1_id == user_id) | (Matches.user2_id == user_id)).all()
+    for match in matches:
+        other_user_id = match.user1_id if match.user1_id != user_id else match.user2_id
+        other_user = User.query.get(other_user_id)
+        match_data = {
+            "name": f"{other_user.first_name} {other_user.last_name}",
+            "profile_pic": other_user.profile_pic,
+            "home_town": other_user.hometown,
+            "age": other_user.age,
+            "match_percentage": match.compatibility,
+            "share_token": other_user.share_token
+        }
+        matches_data.append(match_data)
+
+    session['processed_data']['matches_data'] = matches_data
+    
     processed_data = session.get('processed_data', {})
     if not processed_data:
         return redirect('/login')
@@ -413,6 +437,7 @@ def comparison():
         user_share_token = request.form.get('user_share_token')  
     elif request.method == 'GET':
         user_share_token = request.args.get('token')
+        already_matched = True
     
     print(user_share_token)
     user1_share_token = session['processed_data']['share_token']
@@ -439,17 +464,30 @@ def comparison():
 
     compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
 
+    match_data = {
+            "name": f"{user2.first_name} {user2.last_name}",
+            "profile_pic": user2.profile_pic,
+            "home_town": user2.hometown,
+            "age": user2.age,
+            "match_percentage": compatibility_score,
+            "share_token": user2.share_token
+        }
+
+    # is there anything wrong here?
     if match:
         match.compatibility = compatibility_score
+        session['processed_data']['matches_data'] = [data for data in session['processed_data']['matches_data'] if data['share_token'] != match_data['share_token']]
+
     else:
         match = Matches(
             user1_id=user1.id, 
             user2_id=user2.id, 
             compatibility=compatibility_score
         )
-
     db.session.add(match)
     db.session.commit()
+
+    session['processed_data']['matches_data'].append(match_data)
 
     return render_template('comparison.html', 
                     user1_graph_data_all_time=user1_graph_data_all_time, 
@@ -462,6 +500,7 @@ def comparison():
                     user2_name=user2.display_name,
                     compatibility_score=int(round(compatibility_score, 0))
                 )
+
 
 def get_avg_values(all_time, recent, medium):
     avg_values = []
@@ -610,8 +649,6 @@ def submit_new_profile():
         age = request.form.get('age')
         hometown = request.form.get('hometown')
 
-        # need to implement logic here to randomly select from code_names to give the user their share code; either here or in the fetch_data
-
         user_data = session['processed_data']['user_data']
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
@@ -625,9 +662,27 @@ def submit_new_profile():
 
     return redirect(url_for('display'))
 
-@app.route('/error')
-def error_page():
-    return render_template('error.html')
+@app.route('/delete_user', methods=['POST'])
+def delete_user():
+    if 'user_data' not in session['processed_data']:
+        return jsonify({'error': 'User not logged in'}), 401 
+
+    user_data = session['processed_data']['user_data']
+    user = User.query.filter_by(spotify_id=user_data['id']).first()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404 
+
+    try:
+        Matches.query.filter((Matches.user1_id == user.id) | (Matches.user2_id == user.id)).delete()
+        db.session.delete(user)  # Delete the user from the database
+        db.session.commit()
+        session.clear() # clear session data
+        return redirect(url_for('index'))
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500 
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

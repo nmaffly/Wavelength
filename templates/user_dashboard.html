@@ -11,6 +11,9 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <style>
+        body {
+        background-color: #1a1a1a; /* Replace with your website's background color */
+    }
     .select-dot {
         position: relative; /* Adjust if necessary for your layout */
         z-index: 1; /* Set to a reasonable value within your stacking context */
@@ -37,8 +40,8 @@
             <li><a href="/input_playlist">playlist</a></li>
             <li><a href="/comparison">compare</a></li>
             <li><a href="/about">about</a></li>
-            <p><a href="/new_profile">new profile</a></p>
-            <p><a href="/error">error</a></p>
+            <li><a href="/new_profile">new profile</a></li>
+            <li><a href="/error">error</a></li>
         </ul>
         <div id="icons">
             <img src="../static/icons/instagram.png" alt="Instagram">
@@ -81,7 +84,7 @@
 </script>
 
     <!-- User's name -->
-    <h1 class="text-gradient">{{ user_name }}</h1>
+    <h1 id="username" class="text-gradient">{{ user_name }}</h1>
     
     <!-- Timeframe Buttons -->
     <div id="button-timeframe">
@@ -329,7 +332,8 @@
 
                 a.style.textDecoration = 'none'; // Remove underline
                 a.style.color = 'inherit'; // Use the parent's text color or set a specific color
-
+                a.classList.add('artist-name-highlight');
+            
                 li.appendChild(a);
                 document.getElementById('top-artists-list').appendChild(li);
             });

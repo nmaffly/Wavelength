@@ -19,6 +19,10 @@ body h1{
     justify-content: space-between;
 }
 
+#username {
+    overflow-y: hidden;
+}
+
 #lineGraph {
     margin-bottom: 10px;
     width: 70%;
@@ -129,10 +133,6 @@ body h1{
     padding-left: 25px;
 }
 
-#tops-artists-list li:hover { /* Doesn't work, should eventually fix */
-    color: var(--primary-orange);
-}
-
 #tops-view-more {
     align-self: center;
     height: 20px;
@@ -167,6 +167,10 @@ body h1{
 #switch-tops-anthem:hover {
     height: 11px;
     cursor: pointer;
+}
+
+.artist-name-highlight:hover {
+    color: var(--primary-orange);
 }
 
 #code {

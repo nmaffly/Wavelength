@@ -418,6 +418,7 @@ def comparison():
         user_share_token = request.form.get('user_share_token')  
     elif request.method == 'GET':
         user_share_token = request.args.get('token')
+        already_matched = True
     
     print(user_share_token)
     user1_share_token = session['processed_data']['share_token']
@@ -444,26 +445,28 @@ def comparison():
 
     compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
 
+    match_data = {
+            "name": f"{user2.first_name} {user2.last_name}",
+            "profile_pic": user2.profile_pic,
+            "home_town": user2.hometown,
+            "age": user2.age,
+            "match_percentage": compatibility_score,
+            "share_token": user2.share_token
+        }
+
+    # is there anything wrong here?
     if match:
         match.compatibility = compatibility_score
+        session['processed_data']['matches_data'] = [data for data in session['processed_data']['matches_data'] if data['share_token'] != match_data['share_token']]
+
     else:
         match = Matches(
             user1_id=user1.id, 
             user2_id=user2.id, 
             compatibility=compatibility_score
         )
-
     db.session.add(match)
     db.session.commit()
-
-    match_data = {
-        "name": f"{user2.first_name} {user2.last_name}",
-        "profile_pic": user2.profile_pic,
-        "home_town": user2.hometown,
-        "age": user2.age,
-        "match_percentage": match.compatibility,
-        "share_token": user2.share_token
-    }
 
     session['processed_data']['matches_data'].append(match_data)
 

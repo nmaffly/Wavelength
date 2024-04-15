@@ -162,8 +162,6 @@ def fetch_data():
             "variance_r": median_values_r["variance"]
         }
 
-        print(get_db_tracks(user.id,'r'))
-
     else:
         # otherwise extract spotify info, add to database and session
         print("User doesn't exist, or it's been longer than 30 seconds, new data being pulled")
@@ -336,11 +334,13 @@ def cleanup():
 @app.route('/display')
 def display():
     # Get user's matches
-    user_id = session['processed_data']['user_data']['id']
+    user1 = User.query.filter_by(spotify_id=session['processed_data']['user_data']['id']).first()
+    print('display route reached')
+    print(user1.id)
     matches_data = []
-    matches = Matches.query.filter((Matches.user1_id == user_id) | (Matches.user2_id == user_id)).all()
+    matches = Matches.query.filter((Matches.user1_id == user1.id) | (Matches.user2_id == user1.id)).all()
     for match in matches:
-        other_user_id = match.user1_id if match.user1_id != user_id else match.user2_id
+        other_user_id = match.user1_id if match.user1_id != user1.id else match.user2_id
         other_user = User.query.get(other_user_id)
         match_data = {
             "name": f"{other_user.first_name} {other_user.last_name}",
@@ -351,9 +351,10 @@ def display():
             "share_token": other_user.share_token
         }
         matches_data.append(match_data)
+    print(matches_data)
 
     session['processed_data']['matches_data'] = matches_data
-    
+
     processed_data = session.get('processed_data', {})
     if not processed_data:
         return redirect('/login')
@@ -464,20 +465,8 @@ def comparison():
 
     compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
 
-    match_data = {
-            "name": f"{user2.first_name} {user2.last_name}",
-            "profile_pic": user2.profile_pic,
-            "home_town": user2.hometown,
-            "age": user2.age,
-            "match_percentage": compatibility_score,
-            "share_token": user2.share_token
-        }
-
-    # is there anything wrong here?
     if match:
         match.compatibility = compatibility_score
-        session['processed_data']['matches_data'] = [data for data in session['processed_data']['matches_data'] if data['share_token'] != match_data['share_token']]
-
     else:
         match = Matches(
             user1_id=user1.id, 
@@ -486,8 +475,6 @@ def comparison():
         )
     db.session.add(match)
     db.session.commit()
-
-    session['processed_data']['matches_data'].append(match_data)
 
     return render_template('comparison.html', 
                     user1_graph_data_all_time=user1_graph_data_all_time, 

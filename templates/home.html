@@ -80,24 +80,37 @@
         <form action="/login" method="post" id="team-select">
             <fieldset>
                 <legend>What's your referral team?</legend>
-                <label><input type="radio" name="options" value="1" checked>Azure</label><br>
-                <label><input type="radio" name="options" value="2">Bravo</label><br>
-                <label><input type="radio" name="options" value="3">Cobalt</label><br>
-                <label><input type="radio" name="options" value="4">Dance</label>
+                <button class="team-select-button" type="button" onclick="submitForm(1)" class="team-button"><span>Azure</span></button>
+                <button class="team-select-button" type="button" onclick="submitForm(2)" class="team-button"><span>Bravo</span></button>
+                <button class="team-select-button" type="button" onclick="submitForm(3)" class="team-button"><span>Cobalt</span></button>
+                <button class="team-select-button" type="button" onclick="submitForm(4)" class="team-button"><span>Dance</span></button>
             </fieldset>
-            <button type="submit">Next</button>
         </form>
     </div>
-
     <script>
+        function submitForm(teamValue) {
+            var form = document.getElementById('team-select');
+            // Remove any existing hidden inputs
+            var oldInput = document.getElementById('team-input');
+            if (oldInput) {
+                form.removeChild(oldInput);
+            }
+            // Create a new hidden input
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'options';
+            input.value = teamValue;
+            input.id = 'team-input';
+            form.appendChild(input);
+            // Submit the form
+            form.submit();
+        }
         function showSecondBlock() {
             document.getElementById('center-block').style.display = 'none';
             document.getElementById('center-block2').style.display = 'block';
         }
     </script>
 
-
-    
     <svg id="graphic"></svg>
     <svg id="graphic2"></svg>
     <script>

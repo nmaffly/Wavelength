@@ -41,11 +41,62 @@ header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 20vh;
+    margin-top: 25vh;
     width: 300px;
     text-align: center;
     animation: fade 1s 1;
 }
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 20px;
+}
+
+#team-select legend {
+    text-align: center;
+}
+
+label input[type="radio"] {
+    margin-right: 10px;
+}
+#team-select button {
+    text-align:center;
+}
+
+.team-select-button {
+    margin-top: 20px;
+    width: 100%;
+    height: 50px;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(140deg, #ffede0 0%, #FFC79F 60%, #FF8934 100%);
+    color: #000; /* Set text color to ensure visibility */
+}
+
+.team-select-button span {
+    position: relative;
+    z-index: 2; /* Higher z-index to keep text on top */
+}
+
+.team-select-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0; /* Start from the right */
+    width: 0%; /* Start with no width */
+    height: 100%;
+    background-color: #FF8934; /* Solid orange color */
+    transition: width 0.2s ease-out; /* Animate the width */
+    border-radius: 10px;
+    z-index: 1; /* Lower than the text */
+}
+
+.team-select-button:hover::before {
+    width: 100%; /* Expand to full width on hover */
+}
+
 
 #lineGraph {
     margin-bottom: 10px;

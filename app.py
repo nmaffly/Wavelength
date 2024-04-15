@@ -54,7 +54,6 @@ def login():
     if request.method == 'POST':
         team_option = request.form['options'] ## We can use this value to switch between the OAuth
         print('Selected team option:', team_option)
-
     cleanup()
     auth_url = sp_oauth.get_authorize_url() #I'm trying to think abt how we can get around the max user issue and I think it might require giving
                                             #people unique IDs associated with whoever's account they're using (ie. Sean's, Nathan's, etc.) and then

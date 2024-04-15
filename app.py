@@ -11,6 +11,8 @@ from database import User, UserStats, Matches, db
 from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
+load_dotenv()
+
 # FOR TESTNG
 update_db = False
           # True --> immediate spotify extraction and DB update
@@ -34,8 +36,6 @@ migrate = Migrate(app, db)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
-
-load_dotenv()
 
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')

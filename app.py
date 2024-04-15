@@ -379,7 +379,7 @@ def get_graph_data(user_id):
     }
     return graph_data_all_time, graph_data_recent, graph_data_medium
 
-@app.route('/comparison', methods=['GET', 'POST'])
+@app.route('/comparison', methods=['GET', 'POST']) #need this to grab top artists and potentially shared songs
 def comparison():
     if request.method == 'POST':
         user_share_token = request.form.get('user_share_token')

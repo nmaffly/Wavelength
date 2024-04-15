@@ -97,9 +97,11 @@ def fetch_data():
 
     print("User acquired from database")
 
+    # Will get set to false if it's a new user
+    get_matches = True
+
     if user and not user.last_updated:
         user.last_updated = user.created_at
-    
     
     if(update_db):
         update_time_range = timedelta(seconds=1)
@@ -219,6 +221,7 @@ def fetch_data():
         }
 
         if not user:
+            get_matches = False
             #if the user doesn't exist, create new user
             # setting up db entry for new user
             user_share_token = generate_four_letter_sharing_token()
@@ -296,7 +299,28 @@ def fetch_data():
         db.session.rollback()
         return redirect(url_for('error_page'))
 
-    # print(session['processed_data'])
+    
+    # Get user's matches
+
+    matches_data = []
+
+    if(get_matches):
+        matches = Matches.query.filter((Matches.user1_id == user.id) | (Matches.user2_id == user.id)).all()
+        for match in matches:
+            other_user_id = match.user1_id if match.user1_id != user.id else match.user2_id
+            other_user = User.query.get(other_user_id)
+            match_data = {
+                "name": f"{other_user.first_name} {other_user.last_name}",
+                "profile_pic": other_user.profile_pic,
+                "home_town": other_user.hometown,
+                "age": other_user.age,
+                "match_percentage": match.compatibility,
+                "share_token": other_user.share_token
+            }
+            matches_data.append(match_data)
+
+    session['processed_data']['matches_data'] = matches_data
+
     return jsonify(success=True)
 
 def cleanup():
@@ -311,9 +335,9 @@ def display():
         return redirect('/login')
     return render_template('user_dashboard.html', **processed_data)
 
-@app.route('/comparison')
-def comparison_form():
-    return render_template('compare_form.html')
+# @app.route('/comparison')
+# def comparison_form():
+#     return render_template('compare_form.html')
 
 @app.route('/compare/<user1_share_token>/<user2_share_token>')
 def compare_users(user1_share_token, user2_share_token):
@@ -386,53 +410,58 @@ def get_graph_data(user_id):
 @app.route('/comparison', methods=['GET', 'POST'])
 def comparison():
     if request.method == 'POST':
-        user_share_token = request.form.get('user_share_token')
-        user1_share_token = session['processed_data']['share_token']
-        user1 = User.query.filter_by(share_token=user1_share_token).first()
-        user2 = User.query.filter_by(share_token=user_share_token).first()
+        user_share_token = request.form.get('user_share_token')  
+    elif request.method == 'GET':
+        user_share_token = request.args.get('token')
+    
+    print(user_share_token)
+    user1_share_token = session['processed_data']['share_token']
 
-        if not user1 or not user2:
-            return jsonify({"error": "One or both users not found"}), 404
-        
-        user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
-        user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
+    user1 = User.query.filter_by(share_token=user1_share_token).first()
+    user2 = User.query.filter_by(share_token=user_share_token).first()
 
-        # user1_avg_values = get_avg_values(user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium)
-        # user2_avg_values = get_avg_values(user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium)
+    if not user1 or not user2:
+        return jsonify({"error": "One or both users not found"}), 404
+    
+    user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
+    user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
 
-        if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
-            return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
-        
-        match = Matches.query.filter(
-            (Matches.user1_id == user1.id) & (Matches.user2_id == user2.id) | 
-            (Matches.user1_id == user2.id) & (Matches.user2_id == user1.id)
-        ).first()
+    # user1_avg_values = get_avg_values(user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium)
+    # user2_avg_values = get_avg_values(user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium)
 
-        compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
+    if not user1_graph_data_all_time or not user2_graph_data_all_time or not user1_graph_data_recent or not user2_graph_data_recent:
+        return jsonify({"error": "Could not fetch graph data for one or both users"}), 500
+    
+    match = Matches.query.filter(
+        (Matches.user1_id == user1.id) & (Matches.user2_id == user2.id) | 
+        (Matches.user1_id == user2.id) & (Matches.user2_id == user1.id)
+    ).first()
 
-        if match:
-            match.compatiblity = compatibility_score
-        else:
-            match = Matches(
-                user1_id=user1.id, 
-                user2_id=user2.id, 
-                compatibility=compatibility_score
-            )
+    compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
 
-        db.session.add(match)
-        db.session.commit()
+    if match:
+        match.compatibility = compatibility_score
+    else:
+        match = Matches(
+            user1_id=user1.id, 
+            user2_id=user2.id, 
+            compatibility=compatibility_score
+        )
 
-        return render_template('comparison.html', 
-                       user1_graph_data_all_time=user1_graph_data_all_time, 
-                       user1_graph_data_recent=user1_graph_data_recent, 
-                       user1_graph_data_medium=user1_graph_data_medium, 
-                       user2_graph_data_all_time=user2_graph_data_all_time, 
-                       user2_graph_data_recent=user2_graph_data_recent, 
-                       user2_graph_data_medium=user2_graph_data_medium, 
-                       user1_name=user1.display_name, 
-                       user2_name=user2.display_name,
-                       compatibility_score=round(compatibility_score, 2)
-                    )
+    db.session.add(match)
+    db.session.commit()
+
+    return render_template('comparison.html', 
+                    user1_graph_data_all_time=user1_graph_data_all_time, 
+                    user1_graph_data_recent=user1_graph_data_recent, 
+                    user1_graph_data_medium=user1_graph_data_medium, 
+                    user2_graph_data_all_time=user2_graph_data_all_time, 
+                    user2_graph_data_recent=user2_graph_data_recent, 
+                    user2_graph_data_medium=user2_graph_data_medium, 
+                    user1_name=user1.display_name, 
+                    user2_name=user2.display_name,
+                    compatibility_score=round(compatibility_score, 2)
+                )
 
 def get_avg_values(all_time, recent, medium):
     avg_values = []

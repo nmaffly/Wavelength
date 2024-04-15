@@ -233,52 +233,6 @@
 
     <div id="user-matches-wrapper">
     </div>
-
-    <script>
-        const users = [
-            {
-                imgSrc: "../static/icons/user1.jpg",
-                name: "Sean Vanderaa",
-                info: "23 | San Mateo, CA",
-                percent: "95%"
-            },
-            {
-                imgSrc: "../static/icons/user2.jpg",
-                name: "Ciel Wood",
-                info: "22 | Redding, CA",
-                percent: "80%"
-            },
-            {
-                imgSrc: "../static/icons/user3.jpg",
-                name: "Jadyn Sacoolas",
-                info: "22 | Santa Cruz, CA",
-                percent: "90%"
-            }
-        ];
-        document.addEventListener("DOMContentLoaded", function() {
-            const wrapper = document.getElementById('user-matches-wrapper');
-
-            users.forEach(user => {
-                const userDiv = document.createElement('div');
-                userDiv.classList.add('matched-user');
-                userDiv.classList.add('widget-border');
-                
-                userDiv.innerHTML = `
-                    <img src="${user.imgSrc}" alt="">
-                    <div class="matched-user-info-wrapper">
-                        <h2 class="matched-user-name">${user.name}</h2>
-                        <p class="matched-user-info">${user.info}</p> 
-                    </div>
-                    <div class="matched-user-percent"><h2>${user.percent}</h2></div>
-                    
-                `;
-                
-                wrapper.appendChild(userDiv);
-            });
-        });
-
-    </script>
-
     <div id="spotify-logo">
         <div id="spotify-logo">
             <a href="https://www.spotify.com" target="_blank">
@@ -288,6 +242,8 @@
     </div>
     
     <script>
+        var matches_data = {{ session['processed_data']['matches_data'] | tojson | safe }};
+        console.log(matches_data)
         var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
         var artistData_r = {{ session['processed_data']['artists_r'] | tojson | safe }};
         var artistData_a = {{ session['processed_data']['artists_a'] | tojson | safe }};
@@ -612,9 +568,7 @@
                 updateGraph(graphComponents, graphData, true);
             }, 500); // 1000 milliseconds = 1 second
         }
-    </script>
 
-    <script>
     var tracks_r = {{ session['processed_data']['tracks_r'] | tojson | safe }};
     var tracks_m = {{ session['processed_data']['tracks_m'] | tojson | safe }};
     var tracks_a = {{ session['processed_data']['tracks_a'] | tojson | safe }};
@@ -649,6 +603,49 @@
 
     document.getElementById('songName').textContent = anthemOneMonth.name;
     document.getElementById('songArtist').textContent = anthemOneMonth.artist;
+
+    const users = [];
+    for (let i = 0; i < Math.min(3, matches_data.length); i++) {
+        users.push({
+            imgSrc: matches_data[i].profile_pic,
+            name: matches_data[i].name,
+            info: `${matches_data[i].age} | ${matches_data[i].home_town}`,
+            percent: `${parseInt(matches_data[i].match_percentage)}%`,
+            share_token: matches_data[i].share_token
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const wrapper = document.getElementById('user-matches-wrapper');
+
+        users.forEach(user => {
+            const userDiv = document.createElement('div');
+            userDiv.classList.add('matched-user');
+            userDiv.classList.add('widget-border');
+            
+            userDiv.innerHTML = `
+                <img src="${user.imgSrc}" alt="">
+                <div class="matched-user-info-wrapper">
+                    <h2 class="matched-user-name">${user.name}</h2>
+                    <p class="matched-user-info">${user.info}</p> 
+                </div>
+                <div class="matched-user-percent"><h2>${user.percent}</h2></div>
+                
+            `;
+
+            userDiv.onclick = function() {
+                
+                window.location.href = '/comparison?token=' + user.share_token;
+            };
+
+            // Stop propagation if interactive elements within the div are clicked
+            userDiv.querySelectorAll('a, button, input, select').forEach(el => {
+                el.addEventListener('click', (e) => e.stopPropagation());
+            });
+
+            wrapper.appendChild(userDiv);
+        });
+    });
     </script>
 
 </body>

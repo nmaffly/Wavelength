@@ -460,7 +460,7 @@ def comparison():
                     user2_graph_data_medium=user2_graph_data_medium, 
                     user1_name=user1.display_name, 
                     user2_name=user2.display_name,
-                    compatibility_score=round(compatibility_score, 2)
+                    compatibility_score=int(round(compatibility_score, 0))
                 )
 
 def get_avg_values(all_time, recent, medium):

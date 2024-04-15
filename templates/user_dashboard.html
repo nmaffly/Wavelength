@@ -614,7 +614,7 @@
             imgSrc: matches_data[i].profile_pic,
             name: matches_data[i].name,
             info: `${matches_data[i].age} | ${matches_data[i].home_town}`,
-            percent: `${parseInt(matches_data[i].match_percentage)}%`,
+            percent: `${Math.round(matches_data[i].match_percentage)}%`,
             share_token: matches_data[i].share_token
         });
     }

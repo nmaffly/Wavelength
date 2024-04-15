@@ -64,19 +64,24 @@ def callback():
     cleanup()
     token_info = sp_oauth.get_access_token(code)
     session['token_info'] = token_info
+
     if not token_info:
         return redirect('/login')
     if sp_oauth.is_token_expired(token_info):
         token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
         session['token_info'] = token_info
+
     spotify = spotipy.Spotify(auth=token_info['access_token'])
     user_data = spotify.current_user()
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
-    new_user = False
+    new_user = True
     if user:
-        new_user = True
-    return render_template('loading.html', new_user = new_user)
+        new_user = False
+        return render_template('loading.html', new_user = new_user)
+    else:
+        return render_template('new_profile.html')
+
 
 @app.route('/fetch_data')
 def fetch_data():
@@ -624,10 +629,6 @@ def submit_new_profile():
         db.session.commit()
 
     return redirect(url_for('display'))
-
-@app.route('/error')
-def error_page():
-    return render_template('error.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

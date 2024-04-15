@@ -28,13 +28,12 @@ body h1{
     width: 70%;
     max-width: 700px;
     height: 200px;
-    position: absolute;
     top: 170px;
     padding: 40px 0px;
 }
 
 #center-block {
-    margin-top: 270px;
+    margin-top: 0px;
     padding-top: 10px;
     position: relative;
 }
@@ -179,7 +178,7 @@ body h1{
     align-items: center;
     justify-content: center;
     width: 320px;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 #code-h2 {
@@ -229,7 +228,10 @@ body h1{
     flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
-    margin-top: 30px;
+    margin-top: 40px;
+    border-top: 1px solid rgb(125, 125, 125);
+    width: 40%;
+    padding-top: 30px;
 }
 
 #view-more h2 {
@@ -320,6 +322,20 @@ body h1{
     margin: 0px;
 }
 
+#no-matches-text {
+    margin: 0px;
+    text-align: center;
+    width: 400px;
+    margin-bottom: 30px;
+}
+
+#no-matches-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 
 @media (max-width: 500px) {
     #lineGraph {
@@ -336,6 +352,10 @@ body h1{
     }
 
     #view-more {
-        margin-top: 30px;
+        width: 90%;
+    }
+
+    #no-matches-text {
+        width: 90%;
     }
 }

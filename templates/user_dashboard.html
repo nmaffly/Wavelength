@@ -28,9 +28,6 @@
         <p><a href="/comparison">compare</a></p>
         <p><a href="/about">about</a></p>
         <p><a href="/new_profile">new profile</a></p>
-        <form action="{{ url_for('delete_user') }}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
-            <button type="submit" class="logout-button">Delete Account</button>
-        </form>
         <p><a href="/error">error</a></p>
     </div>
     
@@ -86,7 +83,9 @@
         });
     });
 </script>
-
+    <form action="{{ url_for('delete_user') }}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
+        <button type="submit" class="logout-button">Delete Account</button>
+    </form>
     <!-- User's name -->
     <h1 id="username" class="text-gradient">{{ user_name }}</h1>
     
@@ -204,7 +203,7 @@
 
     <!-- Code export section -->
     <div id="code">
-        <h2 id="code-h2">MY CODE: <span class="highlight"><b>{{ share_token }}</b></span></h2>
+        <h2 class="gradient-high" id="code-h2">My Code: <span class="highlight"><b>{{ share_token }}</b></span></h2>
     </div>
     
     <div id="codeForm-wrapper">
@@ -376,8 +375,8 @@
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", 0).attr("y1", y(0))
                 .attr("x2", 0).attr("y2", y(100));
-            gradient.append("stop").attr("offset", "40%").attr("stop-color", "rgba(255, 137, 52, .4)");
-            gradient.append("stop").attr("offset", "80%").attr("stop-color", "#FF8934");
+            gradient.append("stop").attr("offset", "10%").attr("stop-color", "rgba(255, 137, 52, .2)");
+            gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
 
             // Add the y-axis
             const yAxis = d3.axisLeft(y)
@@ -626,6 +625,19 @@
     document.addEventListener("DOMContentLoaded", function() {
         const wrapper = document.getElementById('user-matches-wrapper');
 
+        // Check if the users array is empty
+        if (users.length === 0) {
+            const userDiv = document.createElement('div');
+            userDiv.innerHTML = `
+            <div id="no-matches-wrapper">
+                <p id="no-matches-text">You haven't matched with anyone yet, but when you do, they'll appear here.</p>
+                <p id="no-matches-text">Enter a code above to get started!</p>
+            </div>
+            `;
+            wrapper.appendChild(userDiv);
+            return; // Exit the function if the array is empty
+        }
+
         users.forEach(user => {
             const userDiv = document.createElement('div');
             userDiv.classList.add('matched-user');
@@ -638,11 +650,9 @@
                     <p class="matched-user-info">${user.info}</p> 
                 </div>
                 <div class="matched-user-percent"><h2>${user.percent}</h2></div>
-                
             `;
 
             userDiv.onclick = function() {
-                
                 window.location.href = '/comparison?token=' + user.share_token;
             };
 
@@ -654,6 +664,7 @@
             wrapper.appendChild(userDiv);
         });
     });
+
     </script>
 
 </body>

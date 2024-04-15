@@ -24,6 +24,17 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.display_name}>'
+    
+class Matches(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user1_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user2_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    compatibility = db.Column(db.Float)
+
+    user1 = db.relationship('User', foreign_keys=[user1_id], backref=db.backref('matches_as_user1', lazy=True))
+    user2 = db.relationship('User', foreign_keys=[user2_id], backref=db.backref('matches_as_user2', lazy=True))
+
+
 
 class UserStats(db.Model):
     id = db.Column(db.Integer, primary_key=True)

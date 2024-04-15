@@ -1,7 +1,23 @@
-from database import UserStats, RecentGenres, MediumGenres, AllTimeGenres, RecentArtists, MediumArtists, AllTimeArtists, RecentTracks, MediumTracks, AllTimeTracks, db
+from database import User, UserStats, RecentGenres, MediumGenres, AllTimeGenres, RecentArtists, MediumArtists, AllTimeArtists, RecentTracks, MediumTracks, AllTimeTracks, db
 import string, random
 
-def generate_sharing_token():
+def generate_four_letter_sharing_token():
+    with open('code_names.txt', 'r') as file:
+        code_names = [line.strip() for line in file]
+    
+    queried_codes = User.query.with_entities(User.share_token).all()
+    unavailable_codes = {code[0] for code in queried_codes}
+
+    available_codes = [code for code in code_names if code not in unavailable_codes]
+
+    if not available_codes:
+        raise ValueError("No available codes left")
+
+    share_code = random.choice(available_codes)
+    
+    return share_code
+
+def generate_random_sharing_token():
     possible_characters = string.ascii_letters + string.digits
     share_token = ""
     for i in range(0,5):
@@ -112,6 +128,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = RecentTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -124,6 +141,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = MediumTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -136,6 +154,7 @@ def load_user_stats(user_id, median_values_r, median_values_m, median_values_a, 
         new_track = AllTimeTracks(
             user_stats_id=user_stats.id,
             song=track['name'],
+            artist=track['artist'],
             track_id = track['track_id'],
             album_art_img_url = track['album_art_img_url'],
             preview_url = track['preview_url'],
@@ -276,6 +295,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,
@@ -297,6 +317,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,
@@ -318,6 +339,7 @@ def get_db_tracks(user_id, time_range):
                 tracks.append(
                     {
                         'name': track.song,
+                        'artist': track.artist,
                         'track_id': track.track_id,
                         'album_art_img_url': track.album_art_img_url,
                         'preview_url': track.preview_url,

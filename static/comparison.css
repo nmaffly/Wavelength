@@ -2,6 +2,10 @@ body h1{
     margin: 10px;
 }
 
+#back-to-dashboard {
+    padding: 10px;
+}
+
 #names-title {
     margin: 0px;
     margin-top: 30px;

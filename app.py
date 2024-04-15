@@ -49,8 +49,12 @@ sp = spotipy.Spotify(auth_manager=sp_oauth)
 def index():
     return render_template('home.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        team_option = request.form['options'] ## We can use this value to switch between the OAuth
+        print('Selected team option:', team_option)
+
     cleanup()
     auth_url = sp_oauth.get_authorize_url() #I'm trying to think abt how we can get around the max user issue and I think it might require giving
                                             #people unique IDs associated with whoever's account they're using (ie. Sean's, Nathan's, etc.) and then
@@ -161,8 +165,6 @@ def fetch_data():
             "speechiness_r": median_values_r["speechiness"],
             "variance_r": median_values_r["variance"]
         }
-
-        print(get_db_tracks(user.id,'r'))
 
     else:
         # otherwise extract spotify info, add to database and session
@@ -439,7 +441,6 @@ def comparison():
         user_share_token = request.args.get('token')
         already_matched = True
     
-    print(user_share_token)
     user1_share_token = session['processed_data']['share_token']
 
     user1 = User.query.filter_by(share_token=user1_share_token).first()
@@ -543,7 +544,6 @@ def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
         print((12.5 * score_multiplier))
         score += (12.5 * score_multiplier)
 
-    print(score)
 
     return score
 

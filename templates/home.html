@@ -74,8 +74,29 @@
         <h1 class="text-gradient">Who's on your <i>wavelength?</i></h1>
         <svg id="lineGraph"></svg>
         <p>Let's find out.</p>
-        <button id="center-button" onclick="window.location='/login';">Log in with Spotify</button>
+        <button id="center-button" onclick="showSecondBlock();">Get Started</button>
     </div>
+    <div style="display: none;" id="center-block2">
+        <form action="/login" method="post" id="team-select">
+            <fieldset>
+                <legend>What's your referral team?</legend>
+                <label><input type="radio" name="options" value="1" checked>Azure</label><br>
+                <label><input type="radio" name="options" value="2">Bravo</label><br>
+                <label><input type="radio" name="options" value="3">Cobalt</label><br>
+                <label><input type="radio" name="options" value="4">Dance</label>
+            </fieldset>
+            <button type="submit">Next</button>
+        </form>
+    </div>
+
+    <script>
+        function showSecondBlock() {
+            document.getElementById('center-block').style.display = 'none';
+            document.getElementById('center-block2').style.display = 'block';
+        }
+    </script>
+
+
     
     <svg id="graphic"></svg>
     <svg id="graphic2"></svg>

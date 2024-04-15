@@ -335,6 +335,25 @@ def cleanup():
 
 @app.route('/display')
 def display():
+    # Get user's matches
+    user_id = session['processed_data']['user_data']['id']
+    matches_data = []
+    matches = Matches.query.filter((Matches.user1_id == user_id) | (Matches.user2_id == user_id)).all()
+    for match in matches:
+        other_user_id = match.user1_id if match.user1_id != user_id else match.user2_id
+        other_user = User.query.get(other_user_id)
+        match_data = {
+            "name": f"{other_user.first_name} {other_user.last_name}",
+            "profile_pic": other_user.profile_pic,
+            "home_town": other_user.hometown,
+            "age": other_user.age,
+            "match_percentage": match.compatibility,
+            "share_token": other_user.share_token
+        }
+        matches_data.append(match_data)
+
+    session['processed_data']['matches_data'] = matches_data
+    
     processed_data = session.get('processed_data', {})
     if not processed_data:
         return redirect('/login')

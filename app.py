@@ -20,6 +20,13 @@ update_db = False
 
 app = Flask(__name__)
 
+env_files = {
+    '1': '.env.team1',
+    '2': '.env.team2',
+    '3': '.env.team3',
+    '4': '.env.team4'
+}
+
 # Configure the Flask app to use Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
@@ -49,17 +56,33 @@ sp = spotipy.Spotify(auth_manager=sp_oauth)
 def index():
     return render_template('home.html')
 
+def load_team_config(team_number):
+    """Load the environment variables from a team-specific .env file."""
+    if team_number in env_files:
+        dotenv_path = env_files[team_number]
+        load_dotenv(dotenv_path=dotenv_path, override=True)
+        update_spotify_oauth()
+    else:
+        print("Invalid team number provided")
+
+def update_spotify_oauth():
+    """Update Spotify OAuth details from environment variables."""
+    sp_oauth.client_id = os.getenv('SPOTIPY_CLIENT_ID')
+    sp_oauth.client_secret = os.getenv('SPOTIPY_CLIENT_SECRET')
+    sp_oauth.redirect_uri = os.getenv('SPOTIPY_REDIRECT_URI')
+    print(os.getenv('SPOTIPY_CLIENT_ID'))
+    print(os.getenv('SPOTIPY_CLIENT_SECRET'))   
+    print(os.getenv('SPOTIPY_REDIRECT_URI'))
+    sp_oauth.cache_path = None  # This line could be adjusted based on actual caching strategy
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        team_option = request.form['options'] ## We can use this value to switch between the OAuth
-        print('Selected team option:', team_option)
-    cleanup()
-    auth_url = sp_oauth.get_authorize_url() #I'm trying to think abt how we can get around the max user issue and I think it might require giving
-                                            #people unique IDs associated with whoever's account they're using (ie. Sean's, Nathan's, etc.) and then
-                                            #having them plug that in before they sign in so that we can change the env variables and connect them
-                                            #to the right account. Otherwise we will be stuck at 25. Might be too problematic, we'll have to test
-    return redirect(auth_url)
+        team_option = request.form['options']
+        load_team_config(team_option)
+        auth_url = sp_oauth.get_authorize_url()
+        return redirect(auth_url)
+    return render_template('login.html')
 
 @app.route('/callback')
 def callback():

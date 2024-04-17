@@ -116,13 +116,8 @@
         }
 
     </script>
-    <button id="back-to-dashboard" onclick="window.location='/display'">back to dashboard</button>
+    <a id="back-to-dashboard" href="/display">back to dashboard</a>
     <h1 id="names-title" class="text-gradient">{{ user1_name }} & {{ user2_name }}</h1>
-    <div id="percent-wrapper">
-        <h1 id="percent">
-            <span class="gradient-high" id="match-value">{{ compatibility_score }}% Match!</span>
-        </h1>
-    </div>
 
     <div id="button-timeframe">
         <button id="oneMonthBtn" class="view-button" onclick="timeframeView = 'oneMonth'; switchView()">1 Month</button>
@@ -141,6 +136,11 @@
       </div>
 
     <svg id="lineGraph"></svg>
+    <div id="percent-wrapper">
+        <h1 id="percent">
+            <span class="gradient-high" id="match-value">{{ compatibility_score }}% Match!</span>
+        </h1>
+    </div>
     <div id="tops">
         <div id="tops-genres">
         <h3 class="gradient-low">SHARED GENRES:</h3>

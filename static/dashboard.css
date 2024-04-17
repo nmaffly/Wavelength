@@ -24,47 +24,75 @@ body h1{
 }
 
 #lineGraph {
-    margin-bottom: 10px;
-    width: 70%;
+    width: 90%;
     max-width: 700px;
-    height: 200px;
+    height: 230px;
     top: 170px;
     padding: 40px 0px;
 }
 
 #center-block {
     margin-top: 0px;
-    padding-top: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
     position: relative;
+    width: 400px;
 }
 
-#select-dot-wrapper {
-    height: 10px;
+#center-block-wrapper {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     align-items: center;
-    margin-bottom: 5px;
+    justify-content: center;
+    padding: 20px;
 }
 
-.select-dot {
-    height: 5px;
-    width: 5px;
+#select-wrapper {
+    width: 100%;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    top: 0px;
+}
+
+.select-button{
+    width: 33.33333%;
+    border-radius: 0;
+    border-bottom: 1px solid white;
+    height: 35px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    box-shadow: inset 0px -10px 20px rgba(255, 255, 255, 0.15);
+    transition: color .25s ease;
+}
+
+.select-button-highlight {
     background-color: white;
-    margin: 0px 5px;
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0);
-    transition: transform .1s ease;
-    transition: background-color .5s ease;
+    color: black;
+    font-weight: 700px;
 }
 
-.dot-highlight {
-    background-color: var(--primary-orange);
+.select-button-highlight:hover {
+    color: black !important;
+    box-shadow: none !important;
 }
 
-.select-dot:hover {
-    cursor: pointer;
-    transform: scale(1.25);
+.select-button:hover {
+    color: var(--primary-orange);
+    box-shadow: inset 0px -10px 20px rgb(255, 102, 25, .25);
+}
+
+#button-anthem {
+    border-right: 1px solid white;
+    border-top-left-radius: 8px;
+}
+
+#button-genres {
+    border-right: 1px solid white;
+}
+
+#button-artists {
+    border-top-right-radius: 8px;
 }
 
 #anthem-wrapper {
@@ -88,7 +116,7 @@ body h1{
 #anthem-song {
     display: flex;
     flex-direction: row;
-    width: 100%;
+    width: 90%;
 }
 
 #anthem-song:hover {
@@ -103,69 +131,6 @@ body h1{
     height: 100px;
     width: 100px;
     margin-right: 20px;
-}
-
-#tops-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-  
-#tops {
-    display: flex;
-    justify-content: space-between;
-    width: 400px;
-    height: 100%;
-}
-
-#tops-section {
-    width: 200px;
-}
-
-#tops h3 {
-    font-size: 20px;
-    margin: 0px;
-}
-
-#tops ol {
-    margin: 0px;
-    padding-left: 25px;
-}
-
-#tops-view-more {
-    align-self: center;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    border: 1px solid white;
-    border-radius: 15px;
-    width: 100%;
-}
-
-#tops-view-more:hover {
-    opacity: 0.8;
-    cursor: pointer;
-}
-
-#tops-view-more img {
-    width: 15px;
-}
-
-#switch-tops-anthem {
-    position:absolute;
-    top: 10px;
-    right: 15px;
-    height: 10px;
-    transform: rotate(-90deg);
-    transition: height 0.2s ease;
-}
-
-#switch-tops-anthem:hover {
-    height: 11px;
-    cursor: pointer;
 }
 
 .artist-name-highlight:hover {
@@ -187,18 +152,30 @@ body h1{
     margin: 0px;
 }
 
-#codeForm {
-    margin-top: 10px;
+#codeForm-wrapper {
+    width: 100%;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0px;
+    height: 80px;
+}
+
+#codeForm {
+    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     height: 100px;
+    max-width: 350px;
+    width: 100%;
 }
 
 #codeForm button {
-    width: 80%;
+    width: 140px;
     height: 40px; 
+    margin: 0px;
+    margin-left: 10px;
 }
 
 #codeForm button:hover {
@@ -207,14 +184,14 @@ body h1{
 
 #inputCode {
     height: 40px;
-    width: 80%;
-    border-radius: 50px;
+    width: 200px;
+    border-radius: 10px;
     font-family: var(--font-family-poppins);
     font-size: 16px;
-    padding: 0px 20px;
+    padding: 0px 10px;
+    border: none;
+    margin: 0px;
 }
-
-
 
 @keyframes fadeOut {
     0% { opacity: 1; }
@@ -228,9 +205,10 @@ body h1{
     flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
-    margin-top: 40px;
+    margin-top: 20px;
     border-top: 1px solid rgb(125, 125, 125);
     width: 40%;
+    max-width: 600px;
     padding-top: 30px;
 }
 
@@ -342,6 +320,7 @@ body h1{
         width: 95%;
         top: 170px;
         height: 180px;
+        padding: 35px 0px;
     }
     #tops {
         width: 280px;

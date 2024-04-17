@@ -3,17 +3,22 @@ body h1{
 }
 
 #back-to-dashboard {
-    padding: 10px;
+    color: white;
+    margin: 0px;
+    margin-top: 20px;
 }
 
 #names-title {
-    margin: 0px;
-    margin-top: 30px;
+    margin: 20px 0px;
     text-align: center;
 }
 
 #percent-wrapper {
     margin-bottom: 30px;
+    border-bottom: 1px solid rgb(164, 164, 164);
+    width: 50%;
+    padding: 10px;
+    text-align: center;
 }
 
 #percent {

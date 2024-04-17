@@ -24,8 +24,6 @@
   <header>
     <h3><a href="/">wavelength</a></h3>
     <div id="nav-items">
-        <p><a href="/input_playlist">playlist</a></p>
-        <p><a href="/comparison">compare</a></p>
         <p><a href="/about">about</a></p>
         <p><a href="/new_profile">new profile</a></p>
         <p><a href="/error">error</a></p>
@@ -37,11 +35,9 @@
     <div id="nav-menu">
         <ul>
             <li><a href="/">home</a></li>
-            <li><a href="/input_playlist">playlist</a></li>
-            <li><a href="/comparison">compare</a></li>
             <li><a href="/about">about</a></li>
             <li><a href="/new_profile">new profile</a></li>
-            <li><a href="/delete_user">log out</a></li>
+            <li><a href="/delete_user">delete user</a></li>
             <li><a href="/error">error</a></li>
         </ul>
         <div id="icons">
@@ -83,9 +79,6 @@
         });
     });
 </script>
-    <form action="{{ url_for('delete_user') }}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
-        <button type="submit" class="logout-button">Delete Account</button>
-    </form>
     <!-- User's name -->
     <h1 id="username" class="text-gradient">{{ user_name }}</h1>
     
@@ -96,110 +89,74 @@
         <button id="oneYearBtn" class="view-button" onclick="timeframeView = 'oneYear'; switchView()">1 Year</button>
     </div>
     <svg id="lineGraph"></svg>
-    
-    <div class="widget-border" id="center-block">
-        <div id="select-dot-wrapper">
-            <div class="select-dot dot-highlight" id="select-dot1"></div>
-            <div class="select-dot" id="select-dot2"></div>
+    <div id="center-block">
+        <div id="select-wrapper">
+            <button class="select-button select-button-highlight" id="button-anthem" onclick="topsView = 'anthem'; changeSelect()">Anthem</button>
+            <button class="select-button" id="button-genres" onclick="topsView = 'genres'; changeSelect()">Genres</button>
+            <button class="select-button" id="button-artists" onclick="topsView = 'artists'; changeSelect()">Artists</button>
         </div>
-        <div id="anthem-wrapper" style="display: none;">
-            <h3 class="gradient-low">YOUR ANTHEM</h3>
-            <p><i>The song that most represents <span class="highlight">you.</span></i></p>
-            <div id="anthem-song">
-                <img class="border-radius-img" id="playlist-cover" src="" alt="">
-                <div id="anthem-song-info">
-                    <h3 id="songName">Song Name</h3>
-                    <p id="songArtist">Artist Name</p>
+        <div id="center-block-wrapper">
+            <div id="anthem-wrapper" style="display: none;">
+                <h3 class="gradient-low">YOUR ANTHEM</h3>
+                <p><i>The song that most represents <span class="highlight">you.</span></i></p>
+                <div id="anthem-song">
+                    <img class="border-radius-img" id="playlist-cover" src="" alt="">
+                    <div id="anthem-song-info">
+                        <h3 id="songName">Song Name</h3>
+                        <p id="songArtist">Artist Name</p>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="tops-wrapper">
-            <div id="tops">
-                <div id="tops-section">
-                    <h3 class="gradient-low">TOP GENRES</h3>
-                    <ol id="top-genres-list">
-                    </ol>
-                </div>
-                <div id="tops-section">
-                    <h3 class="gradient-low">TOP ARTISTS</h3>
-                    <ol id="top-artists-list">
-                    </ol>
-                </div>
+            <div id="top-genres" style="display: none;">
+                <ol id="top-genres-list">
+                </ol>
             </div>
-            <div id="tops-view-more"><img src="../static/icons/down.png" alt="View more!"></div>
+            <div id="top-artists" style="display: none;">
+                <ol id="top-artists-list">
+                </ol>
+            </div>
         </div>
-        <img id="switch-tops-anthem" src="../static/icons/down.png" alt="View other!">
     </div>
+    <p id="tops-explainer" class="explainer"><i><b>Anthem:</b> The song that most aligns with your Wavelength.</i></p>
+    
 
     <script>
-        var tops = true;
         var timeframeView = "oneMonth";
-        var window = "tops";
-        document.getElementById('tops-view-more').addEventListener('click', function() {
-            const buttonImg = document.querySelector("#tops-view-more img");
-
-            if (tops == true) {
-                tops = false;
-                buttonImg.style.transform = "rotate(180deg)";
-            } else {
-                tops = true;
-                buttonImg.style.transform = "rotate(0deg)";
-            }
-            switchView();
-        });
-
-        var showTops = true;  // Flag to track which view is shown
-
-        function toggleViews(forceView) {
-            const topsWrapper = document.getElementById('tops-wrapper');
+        var topsView = "anthem";
+    
+        function changeSelect() {
             const anthemWrapper = document.getElementById('anthem-wrapper');
-            const dots = document.querySelectorAll('.select-dot');
-            const arrow = document.getElementById('switch-tops-anthem');
-            
-            if (typeof forceView !== 'undefined') {
-                showTops = forceView;
-            } else {
-                showTops = !showTops;  // Toggle only when no forceView is provided, e.g., arrow click
-            }
-
-            if (showTops) {
-                topsWrapper.style.display = 'block';
-                anthemWrapper.style.display = 'none';
-                dots[0].classList.add('dot-highlight');
-                dots[1].classList.remove('dot-highlight');
-                arrow.style.right = "15px"; // Clear the 'right' property
-                arrow.style.left = ""; // Set the 'left' property
-                arrow.style.transform = "rotate(-90deg)";
-            } else {
-                topsWrapper.style.display = 'none';
-                anthemWrapper.style.display = 'flex';
-                dots[1].classList.add('dot-highlight');
-                dots[0].classList.remove('dot-highlight');
-                arrow.style.right = ""; // Set the 'right' property
-                arrow.style.left = "15px"; // Clear the 'left' property
-                arrow.style.transform = "rotate(90deg)";
-            }
-        }
-
-        function setupDotNavigation() {
-            const dots = document.querySelectorAll('.select-dot');
-            
-            dots.forEach(dot => {
-                dot.addEventListener('click', () => {
-                    const forceView = dot.id === 'select-dot1';  // Determine the intended view based on dot ID
-                    toggleViews(forceView);
-                });
+            const genresWrapper = document.getElementById('top-genres');
+            const artistsWrapper = document.getElementById('top-artists');
+            // Object to hold the explanations for each view
+            const explanations = {
+                'anthem': '<i><b>Anthem:</b> The song that most aligns with your Wavelength.</i>',
+                'genres': '<i><b>Genres:</b> Your top genres for the selected timeframe.</i>',
+                'artists': '<i><b>Artists:</b> Your top artists for the selected timeframe.</i>'
+            };
+    
+            // Update the highlight class on buttons
+            document.querySelectorAll('.select-button').forEach(button => {
+                if (button.id === 'button-' + topsView) {
+                    button.classList.add('select-button-highlight');
+                } else {
+                    button.classList.remove('select-button-highlight');
+                }
             });
+    
+            // Update the explainer text according to the current view
+            document.getElementById('tops-explainer').innerHTML = explanations[topsView];
+    
+            // Manage visibility of the divs
+            anthemWrapper.style.display = (topsView === 'anthem' ? 'flex' : 'none');
+            genresWrapper.style.display = (topsView === 'genres' ? 'flex' : 'none');
+            artistsWrapper.style.display = (topsView === 'artists' ? 'flex' : 'none');
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            setupDotNavigation();
-            document.getElementById('switch-tops-anthem').addEventListener('click', () => toggleViews());
-        });
-
-
-
+    
+        // Initial setup call to apply the default view settings
+        changeSelect();
     </script>
+    
 
     <!-- Code export section -->
     <div id="code">
@@ -246,6 +203,10 @@
             </a>
         </div>
     </div>
+
+    <form action="{{ url_for('delete_user') }}" method="post" onsubmit="return confirm('Are you sure you want to delete your account?');">
+        <button type="submit" class="logout-button">Delete Account</button>
+    </form>
     
     <script>
         var matches_data = {{ session['processed_data']['matches_data'] | tojson | safe }};
@@ -318,12 +279,7 @@
                 currentGenresData = genreData_a;
             }
 
-            var num = 5;
-
-            if (tops == false) {
-                num = 10;
-            }
-            currentArtistsData.slice(0, num).forEach(function(artist, index) {
+            currentArtistsData.slice(0, 10).forEach(function(artist, index) {
                 // Create the list item
                 var li = document.createElement('li');
 
@@ -342,7 +298,7 @@
             });
 
 
-            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, num).forEach(function([genre, count]) {
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);
@@ -375,7 +331,7 @@
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", 0).attr("y1", y(0))
                 .attr("x2", 0).attr("y2", y(100));
-            gradient.append("stop").attr("offset", "10%").attr("stop-color", "rgba(255, 137, 52, .2)");
+            gradient.append("stop").attr("offset", "0%").attr("stop-color", "#F18CE7");
             gradient.append("stop").attr("offset", "100%").attr("stop-color", "#FF8934");
 
             // Add the y-axis
@@ -468,7 +424,7 @@
             linePath.enter()
                 .append("path")
                 .attr("class", "line-path")
-                .attr("stroke", "#FF8934")
+                .attr("stroke", "url(#area-gradient)")
                 .attr("stroke-width", 2)
                 .attr("fill", "none")
                 .merge(linePath)
@@ -493,7 +449,7 @@
 
             var currentGenresData = genreData_r;
 
-            currentArtistsData.slice(0, 5).forEach(function(artist, index) {
+            currentArtistsData.slice(0,10).forEach(function(artist, index) {
                 // Create the list item
                 var li = document.createElement('li');
 
@@ -510,7 +466,7 @@
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
-            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 5).forEach(function([genre, count]) {
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count]) {
                 var li = document.createElement('li');
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);
@@ -560,7 +516,7 @@
             linePath.enter()
                 .append("path")
                 .attr("class", "line-path")
-                .attr("stroke", "#FF8934")
+                .attr("stroke", "url(#area-gradient)")
                 .attr("stroke-width", 2)
                 .attr("fill", "none")
                 .merge(linePath)

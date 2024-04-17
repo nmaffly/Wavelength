@@ -336,6 +336,10 @@ ol {
     border-radius: 10px;
 }
 
+.explainer {
+    font-size: 12px;
+}
+
 @media (max-width: 500px) {
     #nav-menu {
         align-items: center;

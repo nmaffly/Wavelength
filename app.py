@@ -454,6 +454,9 @@ def comparison():
     user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
     user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
 
+    shared_genres_r, shared_genres_m, shared_genres_a = get_shared_genres(user1.id, user2.id)
+    shared_artists_r, shared_artists_m, shared_artists_a = get_shared_artists(user1.id, user2.id)
+
     # user1_avg_values = get_avg_values(user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium)
     # user2_avg_values = get_avg_values(user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium)
 
@@ -487,8 +490,46 @@ def comparison():
                     user2_graph_data_medium=user2_graph_data_medium, 
                     user1_name=user1.display_name, 
                     user2_name=user2.display_name,
-                    compatibility_score=int(round(compatibility_score, 0))
+                    compatibility_score=int(round(compatibility_score, 0)),
+                    shared_genres_r=shared_genres_r[:5], 
+                    shared_genres_m=shared_genres_m[:5], 
+                    shared_genres_a=shared_genres_a[:5], 
+                    shared_artists_r=shared_artists_r[:5], 
+                    shared_artists_m=shared_artists_m[:5], 
+                    shared_artists_a=shared_artists_a[:5]
                 )
+
+def get_shared_genres(user1_id, user2_id):
+    user1_genres_r = set(get_db_genres(user1_id, 'r'))
+    user2_genres_r = set(get_db_genres(user2_id, 'r'))
+
+    user1_genres_m = set(get_db_genres(user1_id, 'm'))
+    user2_genres_m = set(get_db_genres(user2_id, 'm'))
+
+    user1_genres_a = set(get_db_genres(user1_id, 'a'))
+    user2_genres_a = set(get_db_genres(user2_id, 'a'))
+
+    common_genres_r = list(user1_genres_r.intersection(user2_genres_r))
+    common_genres_m = list(user1_genres_m.intersection(user2_genres_m))
+    common_genres_a = list(user1_genres_a.intersection(user2_genres_a))
+
+    return common_genres_r, common_genres_m, common_genres_a
+
+def get_shared_artists(user1_id, user2_id):
+    user1_artists_r = set([artist['name'] for artist in get_db_artists(user1_id, 'r')])
+    user2_artists_r = set([artist['name'] for artist in get_db_artists(user2_id, 'r')])
+
+    user1_artists_m = set([artist['name'] for artist in get_db_artists(user1_id, 'm')])
+    user2_artists_m = set([artist['name'] for artist in get_db_artists(user2_id, 'm')])
+
+    user1_artists_a = set([artist['name'] for artist in get_db_artists(user1_id, 'a')])
+    user2_artists_a = set([artist['name'] for artist in get_db_artists(user2_id, 'a')])
+
+    common_artists_r = list(user1_artists_r.intersection(user2_artists_r))
+    common_artists_m = list(user1_artists_m.intersection(user2_artists_m))
+    common_artists_a = list(user1_artists_a.intersection(user2_artists_a))
+
+    return common_artists_r, common_artists_m, common_artists_a
 
 
 def get_avg_values(all_time, recent, medium):

@@ -77,6 +77,12 @@
         let user2DataRecent = JSON.parse('{{ user2_graph_data_recent|tojson|safe }}');
         let user1DataMedium = JSON.parse('{{ user1_graph_data_medium|tojson|safe }}');
         let user2DataMedium = JSON.parse('{{ user2_graph_data_medium|tojson|safe }}');
+        let sharedGenresR = JSON.parse('{{ shared_genres_r|tojson|safe }}');
+        let sharedGenresM = JSON.parse('{{ shared_genres_m|tojson|safe }}');
+        let sharedGenresA = JSON.parse('{{ shared_genres_a|tojson|safe }}');
+        let sharedArtistsR = JSON.parse('{{ shared_artists_r|tojson|safe }}');
+        let sharedArtistsM = JSON.parse('{{ shared_artists_m|tojson|safe }}');
+        let sharedArtistsA = JSON.parse('{{ shared_artists_a|tojson|safe }}');
         var timeframeView = "oneMonth";
         var components = '';
 
@@ -87,21 +93,27 @@
             document.getElementById('sixMonthBtn').classList.remove('active');
             document.getElementById('oneYearBtn').classList.remove('active');
 
-            let user1Data, user2Data;
+            let user1Data, user2Data, shared_genres, shared_artists;
 
             // Select the appropriate data based on timeframeView
             switch (timeframeView) {
                 case "oneMonth":
                     user1Data = user1DataRecent;
                     user2Data = user2DataRecent;
+                    shared_genres = sharedGenresR;
+                    shared_artists = sharedArtistsR;
                     break;
                 case "sixMonth":
                     user1Data = user1DataMedium;
                     user2Data = user2DataMedium;
+                    shared_genres = sharedGenresM;
+                    shared_artists = sharedArtistsM;
                     break;
                 case "oneYear":
                     user1Data = user1DataAllTime;
                     user2Data = user2DataAllTime;
+                    shared_genres = sharedGenresA;
+                    shared_artists = sharedArtistsA;
                     break;
                 default:
                     console.error('Invalid timeframeView:', timeframeView);
@@ -110,6 +122,9 @@
 
             // Add 'active' class to the current view button
             document.getElementById(timeframeView + 'Btn').classList.add('active');
+
+            document.getElementById('shared-genres-text').textContent = shared_genres.join(', ');
+            document.getElementById('shared-artists-text').textContent = shared_artists.join(', ');
 
             // Draw the graph with the selected data
             updateGraph(components, user1Data, user2Data);

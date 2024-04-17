@@ -160,6 +160,7 @@ header img:hover {
 
 #nav-items a:hover {
     color: var(--primary-orange);
+    cursor: pointer;
 }
 
 #nav-button {

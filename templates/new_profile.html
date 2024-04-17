@@ -62,22 +62,45 @@
     <svg id="graphic"></svg>
     <svg id="graphic2"></svg>
     <script>
+        // Flags to track form submission and AJAX call completion
+        let formSubmitted = false;
+        let ajaxCompleted = false;
+    
         // Function to switch view from form to center block
         function switch_view() {
             document.getElementById('form-wrapper').style.display = 'none';
             document.getElementById('center-block').style.display = 'flex'; // Assuming you want this to be flex
         }
-
+    
+        // Function to attempt redirection
+        function attemptRedirect() {
+            if (formSubmitted && ajaxCompleted) {
+                // If form has been submitted and AJAX call is complete, redirect
+                window.location.href = "/display";
+            }
+        }
+    
         $(document).ready(function() {
             $.ajax({
-                url: '/fetch_data',  
+                url: '/fetch_data',
                 type: 'GET',
                 success: function(response) {
-                    console.log('Data fetched successfully');
+                    if(response.success) {
+                        ajaxCompleted = true; // Mark AJAX as completed
+                        attemptRedirect(); // Attempt to redirect if form also submitted
+                    }
                 },
                 error: function(error) {
-                    console.log('Error fetching data:', error);
+                    console.log(error);
                 }
+            });
+    
+            // Listen for form submission
+            $('#profile-form').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+                formSubmitted = true; // Mark form as submitted
+                switch_view(); // Switch the view regardless of AJAX completion
+                attemptRedirect(); // Attempt to redirect if AJAX call also completed
             });
         });
 

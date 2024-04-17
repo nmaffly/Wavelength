@@ -14,9 +14,9 @@ body h1{
 }
 
 #percent-wrapper {
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     border-bottom: 1px solid rgb(164, 164, 164);
-    width: 50%;
+    width: 30%;
     padding: 10px;
     text-align: center;
 }
@@ -38,8 +38,8 @@ body h1{
 }
 
 .circle {
-    width: 15px; /* Size of the circle */
-    height: 15px; /* Size of the circle */
+    width: 15px !important; /* Size of the circle */
+    height: 15px !important; /* Size of the circle */
     border-radius: 50%; /* This makes it round */
     margin: 10px;
 }
@@ -58,6 +58,7 @@ body h1{
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    width: 400px;
 }
 
 #user-ids p {
@@ -87,7 +88,6 @@ body h1{
     flex-direction: column;
     justify-content: center;
     width: 300px;
-    margin-top: 20px;
 }
 
 #tops h3 {
@@ -135,13 +135,14 @@ body h1{
 }
 
 #questions-wrapper {
-    margin-top: 20px;
+    margin-top: 30px;
     width: 360px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
+    margin-bottom: 40px;
 }
 
 #questions-header {
@@ -186,9 +187,9 @@ body h1{
 @media (max-width: 500px) {
     #lineGraph {
         width: 95%;
-        max-width: 1000px;
-        top: 360px;
         height: 180px;
+        padding: 35px 0px;
+        margin: 0px;
     }
 
     #tops {
@@ -197,5 +198,17 @@ body h1{
     
     #view-more {
         margin-top: 50px;
+    }
+
+    #percent-wrapper {
+        width: 80%;
+    }
+
+    #questions-wrapper {
+        width: 90%;
+    }
+
+    #user-ids {
+        width: 90%;
     }
 }

@@ -27,12 +27,11 @@ body h1{
     width: 90%;
     max-width: 700px;
     height: 230px;
-    top: 170px;
-    padding: 40px 0px;
+    padding: 25px 0px;
 }
 
 #center-block {
-    margin-top: 0px;
+    margin-top: 10px;
     border: 1px solid white;
     border-radius: 10px;
     position: relative;
@@ -135,6 +134,10 @@ body h1{
 
 .artist-name-highlight:hover {
     color: var(--primary-orange);
+}
+
+#top-genres {
+
 }
 
 #code {
@@ -321,6 +324,10 @@ body h1{
         top: 170px;
         height: 180px;
         padding: 35px 0px;
+    }
+
+    #center-block {
+        width: 90%;
     }
     #tops {
         width: 280px;

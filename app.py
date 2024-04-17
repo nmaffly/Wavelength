@@ -528,6 +528,7 @@ def get_shared_artists(user1_id, user2_id):
     common_artists_r = list(user1_artists_r.intersection(user2_artists_r))
     common_artists_m = list(user1_artists_m.intersection(user2_artists_m))
     common_artists_a = list(user1_artists_a.intersection(user2_artists_a))
+    print(common_artists_a)
 
     return common_artists_r, common_artists_m, common_artists_a
 
@@ -546,21 +547,6 @@ def get_avg_values(all_time, recent, medium):
     return avg_values
 
 def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
-    # Factors for compatibility score calculation:
-    # - Common genres
-    # - Common artists
-    # - Common tracks?
-    # - Audio features similarity
-    #    - Popularity
-    #    - Tempo
-    #    - Loudness
-    #    - Acousticness
-    #    - Danceability
-    #    - Valence
-    #    - Energy
-    #    - Speechiness
-    # - Variance? 
-
     score = 0
 
     user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['loudness'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
@@ -678,7 +664,7 @@ def submit_new_profile():
         age = request.form.get('age')
         hometown = request.form.get('hometown')
 
-        user_data = session['processed_data']['user_data']
+        user_data = session['processed_data']['user_data'] #I think the error is here, if a user's data wasn't pulled when they hit submit (ie. if it hadn't finished being processed, then there's nothing to pull)
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
 

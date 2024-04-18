@@ -12,11 +12,7 @@
     <header>
         <h3><a href="/display">wavelength</a></h3>
         <div id="nav-items">
-            <p><a href="/input_playlist">playlist</a></p>
-            <p><a href="/comparison">compare</a></p>
             <p><a href="/about">about</a></p>
-            <p><a href="/new_profile">new profile</a></p>
-            <p><a href="/error">error</a></p>
         </div>
         
         <button id="nav-button">
@@ -25,11 +21,7 @@
         <div id="nav-menu">
             <ul>
                 <li><a href="/">home</a></li>
-                <li><a href="/input_playlist">playlist</a></li>
-                <li><a href="/comparison">compare</a></li>
                 <li><a href="/about">about</a></li>
-                <p><a href="/new_profile">new profile</a></p>
-                <p><a href="/error">error</a></p>
             </ul>
             <div id="icons">
                 <img src="../static/icons/instagram.png" alt="Instagram">
@@ -123,12 +115,30 @@
             // Add 'active' class to the current view button
             document.getElementById(timeframeView + 'Btn').classList.add('active');
 
-            document.getElementById('shared-genres-text').textContent = shared_genres.join(', ');
-            document.getElementById('shared-artists-text').textContent = shared_artists.join(', ');
+            // Clear existing content in the divs
+            document.getElementById('shared-genres-text').innerHTML = "";
+            document.getElementById('shared-artists-text').innerHTML = "";
+
+            // Populate shared genres
+            shared_genres.forEach(genre => {
+                const span = document.createElement('span');
+                span.textContent = genre;
+                document.getElementById('shared-genres-text').appendChild(span);
+                document.getElementById('shared-genres-text').appendChild(document.createElement('br'));
+            });
+
+            // Populate shared artists
+            shared_artists.forEach(artist => {
+                const span = document.createElement('span');
+                span.textContent = artist;
+                document.getElementById('shared-artists-text').appendChild(span);
+                document.getElementById('shared-artists-text').appendChild(document.createElement('br'));
+            });
 
             // Draw the graph with the selected data
             updateGraph(components, user1Data, user2Data);
         }
+
 
     </script>
     <a id="back-to-dashboard" href="/display">back to dashboard</a>
@@ -264,7 +274,7 @@
             const g = svg.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
+            const x = d3.scaleLinear().domain([0, 6]).range([0, graphWidth]);
             const y = d3.scaleLinear().domain([0, 100]).range([graphHeight, 20]);
 
             // Define the gradient
@@ -324,11 +334,11 @@
                 const { svg, x, y, graphWidth, graphHeight, margin } = components;
 
                 // Prepare the data for plotting
-                const data1 = Object.values(user1Data).slice(0, 8).map((value, index) => ({x: index, y: value}));
-                const data2 = Object.values(user2Data).slice(0, 8).map((value, index) => ({x: index, y: value}));
+                const data1 = Object.values(user1Data).slice(0, 7).map((value, index) => ({x: index, y: value}));
+                const data2 = Object.values(user2Data).slice(0, 7).map((value, index) => ({x: index, y: value}));
 
                 // Define the x-axis with custom tick names
-                const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+                const customTickNames = ["Acousticness", "Danceability", "Energy", "Popularity", "Speechiness", "Tempo", "Happiness"];
                 const xAxis = svg.selectAll('.x-axis').data([null]); // Select the x-axis if it exists, or prepare to create one
                 const xAxisEnter = xAxis.enter().append("g").attr("class", "x-axis");
                 xAxisEnter.merge(xAxis)
@@ -337,7 +347,7 @@
                         .tickValues(data1.map((d) => d.x))
                         .tickFormat((d, i) => customTickNames[i]))
                     .selectAll("text")
-                    .attr("transform", "translate(20,0) rotate(45)")
+                    .attr("transform", "translate(18,0) rotate(45)")
                     .style("text-anchor", "start")
                     .style("font-family", "'Overpass Mono', monospace")
                     .style("font-size", "16px");

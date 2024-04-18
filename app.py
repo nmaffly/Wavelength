@@ -170,18 +170,21 @@ def fetch_data():
         print("User doesn't exist, or it's been longer than 30 seconds, new data being pulled")
         # stored user data
         user_name = user_data['display_name']
-        profile_pic = user_data['images'][1]['url']
+        if 'images' in user_data and len(user_data['images']) > 1:
+            profile_pic = user_data['images'][1]['url']
+        else:
+            profile_pic = "../static/icons/no_user.png"
 
         # extracted recent data 
-        top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
+        top_artists_r = spotify.current_user_top_artists(limit=25, time_range='short_term')['items']
         top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
 
         # extracted all time data
-        top_artists_m = spotify.current_user_top_artists(limit=50, time_range='medium_term')['items']
+        top_artists_m = spotify.current_user_top_artists(limit=25, time_range='medium_term')['items']
         top_tracks_m = spotify.current_user_top_tracks(limit=50, time_range='medium_term')['items']
         
         # extracted all time data
-        top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
+        top_artists_a = spotify.current_user_top_artists(limit=25, time_range='long_term')['items']
         top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
         # Recent (1 month) stats
@@ -404,7 +407,6 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_a,
         'danceability': user_stats.danceability_a,
         'energy': user_stats.energy_a,
-        'loudness': user_stats.loudness_a,
         'speechiness': user_stats.speechiness_a,
         'popularity': user_stats.popularity_a,
         'speechiness': user_stats.speechiness_a,
@@ -415,7 +417,6 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_r,
         'danceability': user_stats.danceability_r,
         'energy': user_stats.energy_r,
-        'loudness': user_stats.loudness_r,
         'speechiness': user_stats.speechiness_r,
         'popularity': user_stats.popularity_r,
         'speechiness': user_stats.speechiness_r,
@@ -426,7 +427,6 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_m,
         'danceability': user_stats.danceability_m,
         'energy': user_stats.energy_m,
-        'loudness': user_stats.loudness_m,
         'speechiness': user_stats.speechiness_m,
         'popularity': user_stats.popularity_m,
         'speechiness': user_stats.speechiness_m,
@@ -538,7 +538,6 @@ def get_avg_values(all_time, recent, medium):
     avg_values.append((all_time['acousticness'] + recent['acousticness'] + medium['acousticness']) / 3)
     avg_values.append((all_time['danceability'] + recent['danceability'] + medium['danceability']) / 3)
     avg_values.append((all_time['energy'] + recent['energy'] + medium['energy']) / 3)
-    avg_values.append((all_time['loudness'] + recent['loudness'] + medium['loudness']) / 3)
     avg_values.append((all_time['speechiness'] + recent['speechiness'] + medium['speechiness']) / 3)
     avg_values.append((all_time['popularity'] + recent['popularity'] + medium['popularity']) / 3)
     avg_values.append((all_time['tempo'] + recent['tempo'] + medium['tempo']) / 3)
@@ -549,15 +548,15 @@ def get_avg_values(all_time, recent, medium):
 def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
     score = 0
 
-    user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['loudness'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
-    user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['loudness'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
+    user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
+    user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
 
     for x in range(0, len(user1_vals_list)):
         diff = (abs(user1_vals_list[x] - user2_vals_list[x]))
         diff /= ((user1_vals_list[x] + user2_vals_list[x]) / 2) 
         score_multiplier = 1 - diff
         print((12.5 * score_multiplier))
-        score += (12.5 * score_multiplier)
+        score += (14.3 * score_multiplier)
 
 
     return score

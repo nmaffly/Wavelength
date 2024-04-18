@@ -25,8 +25,6 @@
     <h3><a href="/">wavelength</a></h3>
     <div id="nav-items">
         <p><a href="/about">about</a></p>
-        <p><a href="/new_profile">new profile</a></p>
-        <p><a href="/error">error</a></p>
     </div>
     
     <button id="nav-button">
@@ -36,9 +34,6 @@
         <ul>
             <li><a href="/">home</a></li>
             <li><a href="/about">about</a></li>
-            <li><a href="/new_profile">new profile</a></li>
-            <li><a href="/delete_user">delete user</a></li>
-            <li><a href="/error">error</a></li>
         </ul>
         <div id="icons">
             <img src="../static/icons/instagram.png" alt="Instagram">
@@ -88,7 +83,33 @@
         <button id="sixMonthBtn" class="view-button" onclick="timeframeView = 'sixMonth'; switchView()">6 Month</button>
         <button id="oneYearBtn" class="view-button" onclick="timeframeView = 'oneYear'; switchView()">1 Year</button>
     </div>
-    <svg id="lineGraph"></svg>
+    <div id="wavelength-explainer-wrapper">
+        <div style="display: none;" id="wavelength-explainer-popup">
+            <h2 class="gradient-high">Your Wavelength</h2>
+            <!-- Here, we use a span with an id to display the value of timeframeView -->
+            <p>This graph shows your Wavelength, the <b>average attributes for the music you listened to</b> during the selected timeframe.</p>
+            <p>For example, if your graph shows acousticness as high, that means the music you listened to during this time period was more acoustic!</p>
+            <button id="graph-explainer-button">Got it!</button>
+        </div>
+        <svg id="lineGraph"></svg>
+        <p id="wavelength-explainer-trigger"><i>What does this graph mean?</i></p>
+    </div>
+    
+    <script>
+        // Get references to the elements
+        const explainerTrigger = document.getElementById('wavelength-explainer-trigger');
+        const explainerPopup = document.getElementById('wavelength-explainer-popup');
+        const closeButton = document.getElementById('graph-explainer-button');
+    
+        explainerTrigger.addEventListener('click', function() {
+            explainerPopup.style.display = (explainerPopup.style.display === 'none') ? 'flex' : 'none';
+        });
+    
+        // Add event listener to the close button
+        closeButton.addEventListener('click', function() {
+            explainerPopup.style.display = 'none';
+        });
+    </script>
     <div id="center-block">
         <div id="select-wrapper">
             <button class="select-button select-button-highlight" id="button-anthem" onclick="topsView = 'anthem'; changeSelect()">Anthem</button>
@@ -98,7 +119,7 @@
         <div id="center-block-wrapper">
             <div id="anthem-wrapper" style="display: none;">
                 <div id="anthem-song">
-                    <img class="border-radius-img" id="playlist-cover" src="" alt="">
+                    <img class="border-radius-img" id="anthem-cover" src="" alt="">
                     <div id="anthem-song-info">
                         <h3 id="songName">Song Name</h3>
                         <p id="songArtist">Artist Name</p>
@@ -121,6 +142,7 @@
     <script>
         var timeframeView = "oneMonth";
         var topsView = "anthem";
+        var anthem_href = '';
     
         function changeSelect() {
             const anthemWrapper = document.getElementById('anthem-wrapper');
@@ -164,7 +186,7 @@
     <div id="codeForm-wrapper">
         <form id="codeForm" action="/comparison" method="POST">
             <input type="text" name="user_share_token" id="inputCode" placeholder="Enter a code here!" required>
-            <button type="submit">Compare</button>
+            <button type="submit">Compare</button> <!-- Need a catch to check if string is 4 letters and exists in code_names.txt -->
         </form>
     </div>
     
@@ -189,7 +211,7 @@
         
 
     <div id="view-more">
-      <h2 class="gradient-high">Who's on your wavelength?</h2>
+      <h2 class="gradient-high">Who's on your Wavelength?</h2>
     </div>
 
     <div id="user-matches-wrapper">
@@ -222,6 +244,11 @@
             document.getElementById('oneMonthBtn').classList.add('active');
             initializeScreen(graphComponents, initializedData);
             document.body.classList.add('fade-in');
+            const anthemSongDiv = document.getElementById('anthem-song');
+            anthemSongDiv.addEventListener('click', function() {
+                // Redirect to the link stored in anthemOneMonth.href
+                window.location.href = anthem_href;
+            });
         };
       
         function switchView() {
@@ -231,9 +258,10 @@
                 document.getElementById('sixMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_r, median_values_r);
-                document.getElementById('playlist-cover').src = anthem.album_art_img_url;
+                document.getElementById('anthem-cover').src = anthem.album_art_img_url;
                 document.getElementById('songName').textContent = anthem.name;
                 document.getElementById('songArtist').textContent = anthem.artist;
+                anthem_href = anthem.spotify_url;
             } 
             else if (timeframeView == 'sixMonth') {
                 document.getElementById('sixMonthBtn').classList.add('active');
@@ -241,9 +269,10 @@
                 document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_m, median_values_m);
-                document.getElementById('playlist-cover').src = anthem.album_art_img_url;  
+                document.getElementById('anthem-cover').src = anthem.album_art_img_url;  
                 document.getElementById('songName').textContent = anthem.name;
                 document.getElementById('songArtist').textContent = anthem.artist;
+                anthem_href = anthem.spotify_url;
             } 
             else if (timeframeView == 'oneYear') {
                 document.getElementById('sixMonthBtn').classList.remove('active');
@@ -251,33 +280,34 @@
                 document.getElementById('oneMonthBtn').classList.remove('active');
                 updateGraph(graphComponents, graphData);
                 anthem = findAnthem(tracks_a, median_values_a);
-                document.getElementById('playlist-cover').src = anthem.album_art_img_url;   
+                document.getElementById('anthem-cover').src = anthem.album_art_img_url;   
                 document.getElementById('songName').textContent = anthem.name;
                 document.getElementById('songArtist').textContent = anthem.artist;
+                anthem_href = anthem.spotify_url;
             }
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
 
             // Determine which data set to use based on the view
-            var currentArtistsData;
-            if (timeframeView === 'oneMonth') {
-                currentArtistsData = artistData_r;
-            } else if (timeframeView === 'sixMonth') {
-                currentArtistsData = artistData_m;
-            } else if (timeframeView === 'oneYear') {
-                currentArtistsData = artistData_a;
-            }
-            var currentGenresData;
+            var currentArtistsData, currentGenresData;
 
             if (timeframeView === 'oneMonth') {
+                currentArtistsData = artistData_r;
                 currentGenresData = genreData_r;
             } else if (timeframeView === 'sixMonth') {
+                currentArtistsData = artistData_m;
                 currentGenresData = genreData_m;
             } else if (timeframeView === 'oneYear') {
+                currentArtistsData = artistData_a;
                 currentGenresData = genreData_a;
             }
 
-            currentArtistsData.slice(0, 10).forEach(function(artist, index) {
+            // Divide artists and genres into two groups
+            var topArtistsFirstHalf = currentArtistsData.slice(0, 5);
+            var topArtistsSecondHalf = currentArtistsData.slice(5, 10);
+
+            // Append top artists to the list
+            topArtistsFirstHalf.forEach(function(artist, index) {
                 // Create the list item
                 var li = document.createElement('li');
 
@@ -290,13 +320,31 @@
                 a.style.textDecoration = 'none'; // Remove underline
                 a.style.color = 'inherit'; // Use the parent's text color or set a specific color
                 a.classList.add('artist-name-highlight');
-            
+                
                 li.appendChild(a);
                 document.getElementById('top-artists-list').appendChild(li);
             });
 
+            topArtistsSecondHalf.forEach(function(artist, index) {
+                // Create the list item
+                var li = document.createElement('li');
 
-            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count]) {
+                // Create an anchor element
+                var a = document.createElement('a');
+                a.textContent = artist.name; 
+                a.href = artist.spotify_url; 
+                a.target = "_blank"; 
+
+                a.style.textDecoration = 'none'; // Remove underline
+                a.style.color = 'inherit'; // Use the parent's text color or set a specific color
+                a.classList.add('artist-name-highlight');
+                
+                li.appendChild(a);
+                document.getElementById('top-artists-list').appendChild(li);
+            });
+
+            // Sort and append top genres to the list
+            Object.entries(currentGenresData).sort((a,b) => b[1] - a[1]).slice(0, 10).forEach(function([genre, count], index) {
                 var li = document.createElement('li');
                 li.textContent = genre;
                 document.getElementById('top-genres-list').appendChild(li);
@@ -442,7 +490,7 @@
             document.getElementById('top-genres-list').innerHTML = '';
             document.getElementById('top-artists-list').innerHTML = '';
             anthem = findAnthem(tracks_r, median_values_r);
-            document.getElementById('playlist-cover').src = anthem.album_art_img_url;
+            document.getElementById('anthem-cover').src = anthem.album_art_img_url;
             var currentArtistsData = artistData_r;
 
             var currentGenresData = genreData_r;
@@ -564,6 +612,7 @@
 
     document.getElementById('songName').textContent = anthemOneMonth.name;
     document.getElementById('songArtist').textContent = anthemOneMonth.artist;
+    anthem_href = anthemOneMonth.spotify_url;
 
     const users = [];
     for (let i = 0; i <  matches_data.length; i++) {

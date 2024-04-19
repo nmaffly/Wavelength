@@ -409,7 +409,6 @@ def get_graph_data(user_id):
         'energy': user_stats.energy_a,
         'speechiness': user_stats.speechiness_a,
         'popularity': user_stats.popularity_a,
-        'speechiness': user_stats.speechiness_a,
         'tempo': user_stats.tempo_a,
         'valence': user_stats.valence_a
     }
@@ -419,7 +418,6 @@ def get_graph_data(user_id):
         'energy': user_stats.energy_r,
         'speechiness': user_stats.speechiness_r,
         'popularity': user_stats.popularity_r,
-        'speechiness': user_stats.speechiness_r,
         'tempo': user_stats.tempo_r,
         'valence': user_stats.valence_r
     }
@@ -429,7 +427,6 @@ def get_graph_data(user_id):
         'energy': user_stats.energy_m,
         'speechiness': user_stats.speechiness_m,
         'popularity': user_stats.popularity_m,
-        'speechiness': user_stats.speechiness_m,
         'tempo': user_stats.tempo_m,
         'valence': user_stats.valence_m
     }
@@ -552,12 +549,12 @@ def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
     user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
 
     for x in range(0, len(user1_vals_list)):
-        diff = (abs(user1_vals_list[x] - user2_vals_list[x]))
-        diff /= ((user1_vals_list[x] + user2_vals_list[x]) / 2) 
-        score_multiplier = 1 - diff
-        print((12.5 * score_multiplier))
-        score += (14.3 * score_multiplier)
-
+        larger_val = max(user1_vals_list[x], user2_vals_list[x])
+        smaller_val = min(user1_vals_list[x], user2_vals_list[x])
+        percent_diff = (larger_val - smaller_val) / larger_val
+        print(f'percent diff: {percent_diff}')
+        score_multiplier = 1 - percent_diff
+        score += (14.2857 * score_multiplier)
 
     return score
 

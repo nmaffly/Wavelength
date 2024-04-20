@@ -59,7 +59,7 @@ body h1{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgba(0,0,0,.8);
+    background-color: rgba(0,0,0,.9);
     border: 1px solid white;
     border-radius: 10px;
     padding: 20px;
@@ -93,7 +93,11 @@ body h1{
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+}
+
+
+#center-block-wrapper li {
+    padding: 0px 10px;
 }
 
 #select-wrapper {
@@ -145,8 +149,9 @@ body h1{
     border-top-right-radius: 8px;
 }
 
-#top-genres-list li {
-    text-transform: capitalize;
+#top-artists-list, #top-genres-list {
+    column-count: 2;
+    column-gap: 20px;
 }
 
 #top-artists-list li:hover {
@@ -158,6 +163,7 @@ body h1{
     flex-direction: column;
     align-items: center;
     width: 360px;
+    padding: 20px;
 }
 
 #anthem-wrapper h3 {
@@ -193,10 +199,6 @@ body h1{
 
 .artist-name-highlight:hover {
     color: var(--primary-orange);
-}
-
-#top-genres {
-
 }
 
 #code {
@@ -366,7 +368,7 @@ body h1{
     margin: 0px;
     text-align: center;
     width: 400px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 #no-matches-wrapper {

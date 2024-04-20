@@ -443,6 +443,7 @@ def comparison():
     user1_share_token = session['processed_data']['share_token']
 
     user1 = User.query.filter_by(share_token=user1_share_token).first()
+    print(vars(user1))
     user2 = User.query.filter_by(share_token=user_share_token).first()
 
     if not user1 or not user2:
@@ -475,6 +476,7 @@ def comparison():
             user2_id=user2.id, 
             compatibility=compatibility_score
         )
+    print(user1.first_name)
     db.session.add(match)
     db.session.commit()
 
@@ -485,15 +487,15 @@ def comparison():
                     user2_graph_data_all_time=user2_graph_data_all_time, 
                     user2_graph_data_recent=user2_graph_data_recent, 
                     user2_graph_data_medium=user2_graph_data_medium, 
-                    user1_name=user1.display_name, 
-                    user2_name=user2.display_name,
+                    user1_name=user1.first_name, 
+                    user2_name=user2.first_name,
                     compatibility_score=int(round(compatibility_score, 0)),
-                    shared_genres_r=shared_genres_r[:5], 
-                    shared_genres_m=shared_genres_m[:5], 
-                    shared_genres_a=shared_genres_a[:5], 
-                    shared_artists_r=shared_artists_r[:5], 
-                    shared_artists_m=shared_artists_m[:5], 
-                    shared_artists_a=shared_artists_a[:5]
+                    shared_genres_r=shared_genres_r[:10], 
+                    shared_genres_m=shared_genres_m[:10], 
+                    shared_genres_a=shared_genres_a[:10], 
+                    shared_artists_r=shared_artists_r[:10], 
+                    shared_artists_m=shared_artists_m[:10], 
+                    shared_artists_a=shared_artists_a[:10]
                 )
 
 def get_shared_genres(user1_id, user2_id):
@@ -654,15 +656,23 @@ def new_profile():
 @app.route('/submit_new_profile', methods=['POST'])
 def submit_new_profile():
     if request.method == 'POST':
-        print('submission of new profile route reached')
-        first_name = request.form.get('first-name')
-        last_name = request.form.get('last-name')
+        print('Submission of new profile route reached')
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
         age = request.form.get('age')
         hometown = request.form.get('hometown')
-
-        user_data = session['processed_data']['user_data'] #I think the error is here, if a user's data wasn't pulled when they hit submit (ie. if it hadn't finished being processed, then there's nothing to pull)
+        print("First Name:", first_name)  # This will help verify what is being received
+        
+        # Assuming the user data is stored in the session correctly
+        user_data = session.get('processed_data', {}).get('user_data')
+        if not user_data or 'id' not in user_data:
+            print("No user data available or user data is incomplete.")
+            return redirect(url_for('some_error_handling_route'))  # Redirect to an error handling page or route
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
+        if not user:
+            print("No user found with the given Spotify ID.")
+            return redirect(url_for('some_error_handling_route'))  # Another redirect to handle no user found
 
         user.first_name = first_name
         user.last_name = last_name
@@ -672,6 +682,7 @@ def submit_new_profile():
         db.session.commit()
 
     return redirect(url_for('display'))
+
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():

@@ -81,6 +81,7 @@
         }
     
         $(document).ready(function() {
+            // Initial AJAX call to fetch data
             $.ajax({
                 url: '/fetch_data',
                 type: 'GET',
@@ -94,15 +95,55 @@
                     console.log(error);
                 }
             });
-    
-            // Listen for form submission
+
+            // Handle form submission
             $('#profile-form').on('submit', function(e) {
                 e.preventDefault(); // Prevent default form submission
-                formSubmitted = true; // Mark form as submitted
+                
+                // Collect form data
+                let formData = {
+                    first_name: $('#first-name').val(),
+                    last_name: $('#last-name').val(),
+                    age: $('#age').val(),
+                    hometown: $('#hometown').val()
+                };
+
+                // Mark form as submitted
+                formSubmitted = true;
+
+                // Function to send form data to server
+                function submitFormData() {
+                    $.ajax({
+                        url: "{{ url_for('submit_new_profile') }}",
+                        type: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            // Handle response here, such as redirecting to another page
+                            window.location.href = "/display";
+                        },
+                        error: function(error) {
+                            console.log("Error submitting form data:", error);
+                        }
+                    });
+                }
+
+                // Check if AJAX data has been completed before sending form data
+                if (ajaxCompleted) {
+                    submitFormData();
+                } else {
+                    // Set up a handler to submit form data when AJAX completes
+                    $(document).ajaxStop(function() {
+                        if (!window.formAlreadySubmitted) {
+                            window.formAlreadySubmitted = true; // Prevent multiple submissions
+                            submitFormData();
+                        }
+                    });
+                }
+                
                 switch_view(); // Switch the view regardless of AJAX completion
-                attemptRedirect(); // Attempt to redirect if AJAX call also completed
             });
         });
+
 
         const datasets = [
             [

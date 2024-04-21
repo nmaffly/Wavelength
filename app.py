@@ -1,34 +1,41 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, url_for
 import spotipy
-import os
 from spotipy.oauth2 import SpotifyOAuth
+import os
 from dotenv import load_dotenv
-from extraction import get_tracks_info, get_tracks_info_batch, get_artists_info, get_artist_genres_batch, get_artist_genres_batch, get_genre_count, get_genre_count_batch, get_popularity, get_audio_features_tracks, get_variance
+from extraction import get_tracks_info, get_tracks_info_batch, get_artists_info, get_artist_genres_batch, get_genre_count, get_popularity, get_audio_features_tracks, get_variance
 from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
 from database import User, UserStats, Matches, db
-from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
+from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
 load_dotenv()
 
-# FOR TESTNG
-update_db = True
-          # True --> immediate spotify extraction and DB update
-          # False --> pull stats from DB
+update_db = True  # True for immediate Spotify extraction and DB update, False to pull stats from DB
 
 app = Flask(__name__)
 
-
-# Configure the Flask app to use Flask-Session
+# Configuration for Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
 
-import os
-
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("TEAM1_MYSQL_USER")}:{os.getenv("TEAM1_MYSQL_PASSWORD")}@{os.getenv("TEAM1_MYSQL_HOST")}/{os.getenv("TEAM1_MYSQL_DB")}'
+db.init_app(app)
+SCOPE = 'user-library-read user-top-read user-read-currently-playing'
+
+def init_spotify_oauth():
+    app.config['SPOTIPY_CLIENT_ID'] = os.getenv('TEAM1_SPOTIPY_CLIENT_ID')
+    app.config['SPOTIPY_CLIENT_SECRET'] = os.getenv('TEAM1_SPOTIPY_CLIENT_SECRET')
+    app.config['SPOTIPY_REDIRECT_URI'] = os.getenv('TEAM1_SPOTIPY_REDIRECT_URI')
+    return SpotifyOAuth(
+        client_id=app.config['SPOTIPY_CLIENT_ID'],
+        client_secret=app.config['SPOTIPY_CLIENT_SECRET'],
+        redirect_uri=app.config['SPOTIPY_REDIRECT_URI'],
+        scope=SCOPE
+    )
 
 @app.route('/')
 def index():
@@ -42,38 +49,24 @@ def load_team_config(team_number):
     app.config['SPOTIPY_REDIRECT_URI'] = os.getenv(prefix + 'SPOTIPY_REDIRECT_URI')
     app.config['SECRET_KEY'] = os.getenv(prefix + 'FLASK_SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv(prefix + 'MYSQL_USER')}:{os.getenv(prefix + 'MYSQL_PASSWORD')}@{os.getenv(prefix + 'MYSQL_HOST')}/{os.getenv(prefix + 'MYSQL_DB')}"
-
-    # Update Spotify OAuth settings if already initialized
     if hasattr(app, 'sp_oauth'):
-        app.sp_oauth.client_id = app.config['SPOTIPY_CLIENT_ID']
-        app.sp_oauth.client_secret = app.config['SPOTIPY_CLIENT_SECRET']
-        app.sp_oauth.redirect_uri = app.config['SPOTIPY_REDIRECT_URI']
-
-# Flask and Spotify OAuth initialization
-app.config['SESSION_TYPE'] = 'filesystem'
-Session(app)
-db.init_app(app)
-migrate = Migrate(app, db)
-SCOPE = 'user-library-read user-top-read user-read-currently-playing'
+        app.sp_oauth = init_spotify_oauth()  # Reinitialize with new settings
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session.clear()
         team_option = request.form['options']
+        app.sp_oauth = init_spotify_oauth()  # Initialize or update OAuth settings
         load_team_config(team_option)
-        app.sp_oauth = SpotifyOAuth(client_id=app.config['SPOTIPY_CLIENT_ID'], client_secret=app.config['SPOTIPY_CLIENT_SECRET'], redirect_uri=app.config['SPOTIPY_REDIRECT_URI'], scope=SCOPE)
-        
-        # Print Spotify values
-        print("SPOTIPY_CLIENT_ID:", app.config['SPOTIPY_CLIENT_ID'])
-        print("SPOTIPY_CLIENT_SECRET:", app.config['SPOTIPY_CLIENT_SECRET'])
-        print("SPOTIPY_REDIRECT_URI:", app.config['SPOTIPY_REDIRECT_URI'])
-        
         auth_url = app.sp_oauth.get_authorize_url()
         return redirect(auth_url)
-    return render_template('login.html')
+    return render_template('home.html')
+
 @app.route('/callback')
 def callback():
+    if not hasattr(app, 'sp_oauth'):
+        return redirect('/login')
     code = request.args.get('code')
     cleanup()
     token_info = app.sp_oauth.get_access_token(code)
@@ -92,10 +85,9 @@ def callback():
     new_user = True
     if user:
         new_user = False
-        return render_template('loading.html', new_user = new_user)
+        return render_template('loading.html', new_user=new_user)
     else:
         return render_template('new_profile.html')
-
 
 @app.route('/fetch_data')
 def fetch_data():
@@ -107,11 +99,9 @@ def fetch_data():
         session['token_info'] = token_info
 
     spotify = spotipy.Spotify(auth=token_info['access_token'])
-
     # Extracted and stored user data
     user_data = spotify.current_user()
-    print("Here_fetched")
-    # check if user exists
+
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
     print("User acquired from database")

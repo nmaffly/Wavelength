@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 load_dotenv()
 
 # FOR TESTNG
-update_db = False
+update_db = True
           # True --> immediate spotify extraction and DB update
           # False --> pull stats from DB
 
@@ -248,13 +248,14 @@ def fetch_data():
             )
 
             print("user instance made")
-            db.session.add(user)
             try:
+                db.session.add(user)
                 db.session.commit()
             except Exception as e:
                 # Handle database errors, such as connection issues or constraints violations
                 print(f"Unable to commit to session: {e}")
                 db.session.rollback()
+                print('db session rolled back')
                 return jsonify(error=str(e)), 500
             
             print("user instanced added to db session")
@@ -306,9 +307,8 @@ def fetch_data():
         # Handle database errors, such as connection issues or constraints violations
         print(f"Unable to commit to session: {e}")
         db.session.rollback()
-        return redirect(url_for('error_page'))
+        return jsonify(error=str(e)), 500
 
-    
     # Get user's matches
 
     matches_data = []
@@ -445,9 +445,6 @@ def comparison():
     user1 = User.query.filter_by(share_token=user1_share_token).first()
     print(vars(user1))
     user2 = User.query.filter_by(share_token=user_share_token).first()
-
-    if not user1 or not user2:
-        return jsonify({"error": "One or both users not found"}), 404
     
     user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
     user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
@@ -666,13 +663,11 @@ def submit_new_profile():
         # Assuming the user data is stored in the session correctly
         user_data = session.get('processed_data', {}).get('user_data')
         if not user_data or 'id' not in user_data:
-            print("No user data available or user data is incomplete.")
-            return redirect(url_for('some_error_handling_route'))  # Redirect to an error handling page or route
+            raise Exception("No user data available or user data is incomplete.")
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
         if not user:
-            print("No user found with the given Spotify ID.")
-            return redirect(url_for('some_error_handling_route'))  # Another redirect to handle no user found
+            raise Exception("No user found with the given Spotify ID.")
 
         user.first_name = first_name
         user.last_name = last_name
@@ -704,6 +699,25 @@ def delete_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500 
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return render_template('error.html', error_message=e), 500
+
+@app.route('/test-error')
+def test_error():
+    raise Exception("This is a test error")
+
+@app.route('/test_error_page')
+def test_error_page():
+    # Directly testing error page redirection
+    return redirect(url_for('error_page', error_message="Test error message"))
+
+@app.route('/error_page')
+def error_page():
+    print('Error page reached')
+    error_message = request.args.get('error_message', default='An unexpected error occurred.')
+    return render_template('error.html', error_message=error_message)
 
 
 if __name__ == '__main__':

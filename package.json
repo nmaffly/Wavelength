@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "flask": "^0.2.10",
     "plotly": "^1.0.6",
     "watchdog": "^0.8.17"
   }

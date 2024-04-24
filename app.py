@@ -22,6 +22,7 @@ app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
 
 import os
@@ -72,7 +73,6 @@ def callback():
     spotify = spotipy.Spotify(auth=token_info['access_token'])
     user_data = spotify.current_user()
     user = User.query.filter_by(spotify_id=user_data['id']).first()
-    app.config['SECRET_KEY'] = user_data['id']
     new_user = True
     if user:
         new_user = False

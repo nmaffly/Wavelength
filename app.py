@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
 from database import User, UserStats, Matches, db
-from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
+from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats, taken_tokens
 from urllib.parse import urlparse
 
 load_dotenv('.env')
@@ -32,7 +32,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("TEAM1_MYSQ
 
 db.init_app(app)
 migrate = Migrate(app, db)
-
 
 #SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 #SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
@@ -94,7 +93,7 @@ def callback():
     user_data = sp.current_user()
     app.config['SECRET_KEY'] = user_data['id'] 
     user = User.query.filter_by(spotify_id=user_data['id']).first()
-
+    
     new_user = not user
     if user:
         return render_template('loading.html', new_user=new_user)
@@ -188,10 +187,17 @@ def fetch_data():
         print("User doesn't exist, or it's been longer than 30 seconds, new data being pulled")
         # stored user data
         user_name = user_data['display_name']
+        profile_pic = "../static/icons/no_user.png"
         if 'images' in user_data and len(user_data['images']) > 1:
-            profile_pic = user_data['images'][1]['url']
-        else:
+            # Check if 'url' key exists in the second image and it is not None or empty
+            if 'url' in user_data['images'][1] and user_data['images'][1]['url']:
+                profile_pic = user_data['images'][1]['url']
+                print("First: ", profile_pic)
+
+        if profile_pic == None:
             profile_pic = "../static/icons/no_user.png"
+        print("Second: ",profile_pic)
+
 
         # extracted recent data 
         top_artists_r = sp.current_user_top_artists(limit=25, time_range='short_term')['items']
@@ -358,9 +364,10 @@ def cleanup():
 @app.route('/display')
 def display():
     # Get user's matches
+    processed_data = session.get('processed_data', {})
+    if not processed_data:
+        return redirect('/')
     user1 = User.query.filter_by(spotify_id=session['processed_data']['user_data']['id']).first()
-    print('display route reached')
-    print(user1.id)
     matches_data = []
     matches = Matches.query.filter((Matches.user1_id == user1.id) | (Matches.user2_id == user1.id)).all()
     for match in matches:
@@ -375,18 +382,14 @@ def display():
             "share_token": other_user.share_token
         }
         matches_data.append(match_data)
-    print(matches_data)
 
     session['processed_data']['matches_data'] = matches_data
-
+    taken_tokens_list = taken_tokens() or []
+    print(taken_tokens_list)
     processed_data = session.get('processed_data', {})
     if not processed_data:
         return redirect('/login')
-    return render_template('user_dashboard.html', **processed_data)
-
-# @app.route('/comparison')
-# def comparison_form():
-#     return render_template('compare_form.html')
+    return render_template('user_dashboard.html', taken_tokens=taken_tokens_list, **processed_data)
 
 @app.route('/compare/<user1_share_token>/<user2_share_token>')
 def compare_users(user1_share_token, user2_share_token):
@@ -481,15 +484,17 @@ def comparison():
         (Matches.user1_id == user2.id) & (Matches.user2_id == user1.id)
     ).first()
 
-    compatibility_score = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
+    compatibility_score_recent = calculate_compatibility(user1.id, user2.id, user1_graph_data_recent, user2_graph_data_recent)
+    compatibility_score_medium = calculate_compatibility(user1.id, user2.id, user1_graph_data_medium, user2_graph_data_medium)
+    compatibility_score_allTime = calculate_compatibility(user1.id, user2.id, user1_graph_data_all_time, user2_graph_data_all_time)
 
     if match:
-        match.compatibility = compatibility_score
+        match.compatibility = compatibility_score_recent
     else:
         match = Matches(
             user1_id=user1.id, 
             user2_id=user2.id, 
-            compatibility=compatibility_score
+            compatibility=compatibility_score_recent
         )
     print(user1.first_name)
     db.session.add(match)
@@ -504,6 +509,9 @@ def comparison():
                     user2_graph_data_medium=user2_graph_data_medium, 
                     user1_name=user1.first_name, 
                     user2_name=user2.first_name,
+                    compatibility_score_recent=int(round(compatibility_score_recent, 0)),
+                    compatibility_score_medium=int(round(compatibility_score_medium, 0)),
+                    compatibility_score_all_time=int(round(compatibility_score_allTime, 0)),
                     compatibility_score=int(round(compatibility_score, 0)),
                     shared_genres_r=shared_genres_r[:10], 
                     shared_genres_m=shared_genres_m[:10], 
@@ -531,6 +539,7 @@ def get_shared_genres(user1_id, user2_id):
 
 def get_shared_artists(user1_id, user2_id):
     user1_artists_r = set([artist['name'] for artist in get_db_artists(user1_id, 'r')])
+    print(user1_artists_r)
     user2_artists_r = set([artist['name'] for artist in get_db_artists(user2_id, 'r')])
 
     user1_artists_m = set([artist['name'] for artist in get_db_artists(user1_id, 'm')])
@@ -568,7 +577,7 @@ def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
     for x in range(0, len(user1_vals_list)):
         larger_val = max(user1_vals_list[x], user2_vals_list[x])
         smaller_val = min(user1_vals_list[x], user2_vals_list[x])
-        percent_diff = (larger_val - smaller_val) / larger_val
+        percent_diff = (larger_val - smaller_val) / (larger_val+0.01)
         print(f'percent diff: {percent_diff}')
         score_multiplier = 1 - percent_diff
         score += (14.2857 * score_multiplier)
@@ -717,6 +726,32 @@ def delete_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500 
+    
+@app.errorhandler(404)
+def page_not_found(e):
+    # you can log the error here if you want
+    print("A 404 error occurred:", str(e))
+    # Redirect to the error page with error information
+    return render_template('error.html', error=e), 404
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return render_template('error.html', error_message=e), 500
+
+@app.route('/test-error')
+def test_error():
+    raise Exception("This is a test error")
+
+@app.route('/test_error_page')
+def test_error_page():
+    # Directly testing error page redirection
+    return redirect(url_for('error_page', error_message="Test error message"))
+
+@app.route('/error_page')
+def error_page():
+    print('Error page reached')
+    error_message = request.args.get('error_message', default='An unexpected error occurred.')
+    return render_template('error.html', error_message=error_message)
 
 @app.errorhandler(Exception)
 def handle_exception(e):

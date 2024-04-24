@@ -14,64 +14,14 @@
     <header>
         <h3><a href="/">wavelength</a></h3>
         <div id="nav-items">
-            <p><a href="/input_playlist">playlist</a></p>
             <p><a href="/about">about</a></p>
         </div>
     <button id="nav-button">
         <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
     </button>
-    <div id="nav-menu">
-        <ul>
-            <li><a href="/">home</a></li>
-            <li><a href="/input_playlist">playlist</a></li>
-            <li><a href="/comparison">compare</a></li>
-            <li><a href="/about">about</a></li>
-            <li><a href="#help">help</a></li>
-        </ul>
-        <div id="icons">
-            <img src="../static/icons/instagram.png" alt="Instagram">
-            <img src="../static/icons/facebook.png" alt="Facebook">
-            <img src="../static/icons/x.png" alt="X (Twitter)">
-        </div>
-    </div>
     </header>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const navButton = document.getElementById("nav-button");
-            const navMenu = document.getElementById("nav-menu");
-            const navIcon = document.getElementById("nav-icon");
-            const bodyElement = document.body;
-
-            // Toggle the menu's visibility when the button is clicked
-            navButton.addEventListener("click", () => {
-                if (navIcon.src.endsWith("Menu2.png")) {
-                    navIcon.src = "../static/icons/Menu_close.png";
-                    navIcon.style.width = "20px";
-                    navMenu.style.display = "flex";
-                    navButton.style.top = "255px";
-                    navButton.classList.add("nav-button-spin");
-                    bodyElement.style.opacity = "0.8";
-                    navButton.addEventListener("animationend", () => {
-                        navButton.classList.remove("nav-button-spin");
-                    });
-
-                } else {
-                    navIcon.src = "../static/icons/Menu2.png";
-                    navIcon.style.width = "30px";
-                    navButton.style.top = "30px";
-                    navMenu.style.display = "none";
-                    navIcon.classList.toggle("nav-icon-fade");
-                    navButton.classList.add("nav-button-spin-reverse");
-                    bodyElement.style.opacity = "1";
-                    navIcon.addEventListener("transitionend", () => {
-                        navIcon.classList.remove("nav-button-spin-reverse");
-                    });
-                }
-            });
-        });
-    </script>
     <div id="center-block">
-        <h1 class="text-gradient">Who's on your <i>wavelength?</i></h1>
+        <h1 class="text-gradient">Who's on your <i>Wavelength?</i></h1>
         <svg id="lineGraph"></svg>
         <p>Let's find out.</p>
         <button id="center-button" onclick="showSecondBlock();">Get Started</button>

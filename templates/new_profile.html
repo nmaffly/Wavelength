@@ -34,7 +34,7 @@
 
     <div id="form-wrapper">
         <h2 class="gradient-high">Create your profile</h2>
-        <p>While we figure out your music taste, let’s get down some basic info.</p>
+        <p>While we figure out your music taste, let’s get down some basic info. </p>
         <form id="profile-form" action="{{ url_for('submit_new_profile') }}" method="POST">
             <div class="form-field">
                 <label for="first-name">First Name</label>
@@ -62,24 +62,88 @@
     <svg id="graphic"></svg>
     <svg id="graphic2"></svg>
     <script>
+        // Flags to track form submission and AJAX call completion
+        let formSubmitted = false;
+        let ajaxCompleted = false;
+    
         // Function to switch view from form to center block
         function switch_view() {
             document.getElementById('form-wrapper').style.display = 'none';
             document.getElementById('center-block').style.display = 'flex'; // Assuming you want this to be flex
         }
-
+    
+        // Function to attempt redirection
+        function attemptRedirect() {
+            if (formSubmitted && ajaxCompleted) {
+                // If form has been submitted and AJAX call is complete, redirect
+                window.location.href = "/display";
+            }
+        }
+    
         $(document).ready(function() {
+            // Initial AJAX call to fetch data
             $.ajax({
-                url: '/fetch_data',  
+                url: '/fetch_data',
                 type: 'GET',
                 success: function(response) {
-                    console.log('Data fetched successfully');
+                    if(response.success) {
+                        ajaxCompleted = true; // Mark AJAX as completed
+                        attemptRedirect(); // Attempt to redirect if form also submitted
+                    }
                 },
                 error: function(error) {
-                    console.log('Error fetching data:', error);
+                    console.log(error);
                 }
             });
+
+            // Handle form submission
+            $('#profile-form').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+                
+                // Collect form data
+                let formData = {
+                    first_name: $('#first-name').val(),
+                    last_name: $('#last-name').val(),
+                    age: $('#age').val(),
+                    hometown: $('#hometown').val()
+                };
+
+                // Mark form as submitted
+                formSubmitted = true;
+
+                // Function to send form data to server
+                function submitFormData() {
+                    $.ajax({
+                        url: "{{ url_for('submit_new_profile') }}",
+                        type: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            // Handle response here, such as redirecting to another page
+                            window.location.href = "/display";
+                        },
+                        error: function(error) {
+                            console.log("Error submitting form data:", error);
+                        }
+                    });
+                }
+
+                // Check if AJAX data has been completed before sending form data
+                if (ajaxCompleted) {
+                    submitFormData();
+                } else {
+                    // Set up a handler to submit form data when AJAX completes
+                    $(document).ajaxStop(function() {
+                        if (!window.formAlreadySubmitted) {
+                            window.formAlreadySubmitted = true; // Prevent multiple submissions
+                            submitFormData();
+                        }
+                    });
+                }
+                
+                switch_view(); // Switch the view regardless of AJAX completion
+            });
         });
+
 
         const datasets = [
             [

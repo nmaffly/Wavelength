@@ -51,10 +51,19 @@ fieldset {
     display: flex;
     flex-direction: column;
     padding-bottom: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+#team-select fieldset {
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 0px 30px 30px 30px;
 }
 
 #team-select legend {
     text-align: center;
+    padding: 0px 10px;
 }
 
 label input[type="radio"] {
@@ -107,7 +116,7 @@ label input[type="radio"] {
 }
 
 #graphic {
-    position: absolute;
+    position: fixed;
     bottom: -630px; /* Aligns it to the bottom of the nearest positioned ancestor */
     left: -400px;
     width: 1400px; /* Makes it responsive, taking the full width of its container */
@@ -121,7 +130,7 @@ label input[type="radio"] {
 }
 
 #graphic2 {
-    position: absolute;
+    position: fixed;
     top: -1250px; /* Aligns it to the bottom of the nearest positioned ancestor */
     right: 900px;
     width: 1400px; /* Makes it responsive, taking the full width of its container */
@@ -183,13 +192,12 @@ label input[type="radio"] {
     body {
         overflow: hidden;
     }
-
     #nav-button {
-        display: block;
+        display: none !important;
     }
 
     #nav-items {
-        display: none;
+        display: block !important;
     }
 
     #graphic {
@@ -199,6 +207,7 @@ label input[type="radio"] {
         transform: rotate(0deg);
         height: 25%;
         width: 110%;
+        position: fixed;
     }
 
     #graphic2 {

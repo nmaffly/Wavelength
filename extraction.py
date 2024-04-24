@@ -1,4 +1,4 @@
-# Spotify extraction functions
+import math# Spotify extraction functions
 
 def get_tracks_info(top_tracks):
     # returns nested dictionary with top tracks and associated info
@@ -148,9 +148,7 @@ def get_audio_features_tracks(track_info, spotify):
 
     for chunk in track_chunks:
         chunk_as_string = ".".join(chunk)
-        print(len(chunk))
         audio_features_list = spotify.audio_features(chunk)
-        print("first chunk successfully extracted")
 
         for audio_features in audio_features_list:
             if audio_features:
@@ -168,13 +166,26 @@ def get_audio_features_tracks(track_info, spotify):
     median_danceability = round(round(find_median(danceability_scores), ndigits=4)* 100, ndigits=2)
     median_valence = round(round(find_median(valence_scores), ndigits=4)* 100, ndigits=2)
     median_energy = round(round(find_median(energy_scores), ndigits=4)* 100, ndigits=2)
-    median_speechiness = round(round(find_median(speechiness_scores), ndigits=4)* 1000, ndigits=2) #This is not always right
+    median_speechiness = round(round(find_median(speechiness_scores), ndigits=4)* 1000, ndigits=2)
 
-    # Normalizing process, others normalized before
-    median_tempo = ((median_tempo_pre - 120)*2.5) + 50
-    median_loudness = abs((abs(median_loudness_pre) - 10) * 33)
+    print("Median Pre: ", median_tempo_pre)
+    if median_tempo_pre <= 130:
+        # Linear increase from 60 to 130
+        median_tempo = 100 * (median_tempo_pre - 60) / (130 - 60)
+    else:
+        # Linear decrease from 130 to 200
+        median_tempo = 100 * (200 - median_tempo_pre) / (200 - 130)
+
+    print("Median: ",median_tempo)
+    if median_tempo > 100:
+        median_tempo = 100
+    elif median_tempo < 0:
+        median_tempo = 0
+    median_loudness = (median_loudness_pre + 20) * 100 / 17
     if median_loudness > 100:
         median_loudness = 100
+    elif median_loudness < 0:
+        median_loudness = 0
     median_values = {
         'tempo': median_tempo, 
         'loudness': median_loudness, 

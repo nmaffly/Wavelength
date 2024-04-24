@@ -23,48 +23,140 @@ body h1{
     overflow-y: hidden;
 }
 
+#wavelength-explainer-wrapper {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    text-align: center;
+}
+
 #lineGraph {
-    margin-bottom: 10px;
-    width: 70%;
+    width: 90%;
     max-width: 700px;
-    height: 200px;
-    top: 170px;
-    padding: 40px 0px;
+    min-width:700px;
+    height: 230px;
+    padding: 25px 0px;
+}
+
+#wavelength-explainer-trigger {
+    position: absolute;
+    bottom: 0px;
+    right: 80px;
+    font-size: 12px;
+    text-decoration: underline;
+}
+
+#wavelength-explainer-trigger:hover {
+    cursor: pointer;
+}
+
+#wavelength-explainer-popup {
+    position: absolute;
+    max-width: 700px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,.9);
+    border: 1px solid white;
+    border-radius: 10px;
+    padding: 20px;
+    width: 500px;
+    z-index: 10000;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.9);
+}
+#wavelength-explainer-popup button {
+    margin-top: 10px;
+    width: 120px;
+}
+
+
+#wavelength-explainer-popup h2 {
+    margin: 0px;
+}
+
+#wavelength-explainer-popup p {
+    margin: 10px;
 }
 
 #center-block {
-    margin-top: 0px;
-    padding-top: 10px;
+    margin-top: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
     position: relative;
+    width: 400px;
 }
 
-#select-dot-wrapper {
-    height: 10px;
+#center-block-wrapper {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     align-items: center;
-    margin-bottom: 5px;
+    justify-content: center;
 }
 
-.select-dot {
-    height: 5px;
-    width: 5px;
+
+#center-block-wrapper li {
+    padding: 0px 10px;
+}
+
+#select-wrapper {
+    width: 100%;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    top: 0px;
+}
+
+.select-button{
+    width: 33.33333%;
+    border-radius: 0;
+    border-bottom: 1px solid white;
+    height: 35px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    box-shadow: inset 0px -10px 20px rgba(255, 255, 255, 0.15);
+    transition: color .25s ease;
+}
+
+.select-button-highlight {
     background-color: white;
-    margin: 0px 5px;
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0);
-    transition: transform .1s ease;
-    transition: background-color .5s ease;
+    color: black;
+    font-weight: 700px;
 }
 
-.dot-highlight {
-    background-color: var(--primary-orange);
+.select-button-highlight:hover {
+    color: black !important;
+    box-shadow: none !important;
 }
 
-.select-dot:hover {
-    cursor: pointer;
-    transform: scale(1.25);
+.select-button:hover {
+    color: var(--primary-orange);
+    box-shadow: inset 0px -10px 20px rgb(255, 255, 255, 0.25);
+}
+
+#button-anthem {
+    border-right: 1px solid white;
+    border-top-left-radius: 8px;
+}
+
+#button-genres {
+    border-right: 1px solid white;
+}
+
+#button-artists {
+    border-top-right-radius: 8px;
+}
+
+#top-artists-list, #top-genres-list {
+    column-count: 2;
+    column-gap: 20px;
+    column-width: 120px;
+}
+
+#top-artists-list li:hover {
+    color: var(--primary-orange);
 }
 
 #anthem-wrapper {
@@ -72,6 +164,7 @@ body h1{
     flex-direction: column;
     align-items: center;
     width: 360px;
+    padding: 20px;
 }
 
 #anthem-wrapper h3 {
@@ -88,7 +181,7 @@ body h1{
 #anthem-song {
     display: flex;
     flex-direction: row;
-    width: 100%;
+    width: 90%;
 }
 
 #anthem-song:hover {
@@ -99,106 +192,78 @@ body h1{
     margin: 0px;
 }
 
-#playlist-cover {
+#anthem-cover {
     height: 100px;
     width: 100px;
     margin-right: 20px;
-}
-
-#tops-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-  
-#tops {
-    display: flex;
-    justify-content: space-between;
-    width: 400px;
-    height: 100%;
-}
-
-#tops-section {
-    width: 200px;
-}
-
-#tops h3 {
-    font-size: 20px;
-    margin: 0px;
-}
-
-#tops ol {
-    margin: 0px;
-    padding-left: 25px;
-}
-
-#tops-view-more {
-    align-self: center;
-    height: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    border: 1px solid white;
-    border-radius: 15px;
-    width: 100%;
-}
-
-#tops-view-more:hover {
-    opacity: 0.8;
-    cursor: pointer;
-}
-
-#tops-view-more img {
-    width: 15px;
-}
-
-#switch-tops-anthem {
-    position:absolute;
-    top: 10px;
-    right: 15px;
-    height: 10px;
-    transform: rotate(-90deg);
-    transition: height 0.2s ease;
-}
-
-#switch-tops-anthem:hover {
-    height: 11px;
-    cursor: pointer;
 }
 
 .artist-name-highlight:hover {
     color: var(--primary-orange);
 }
 
+#tops-explainer {
+    margin-top: 10px;
+}
+
 #code {
+    border-top: 1px solid rgb(125, 125, 125);
+    padding-top: 30px;
+    width: 40%;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 320px;
-    margin-top: 30px;
+    margin-top: 20px;
+    min-width: 400px;
 }
 
 #code-h2 {
-    margin-top: 50px;
-    font-weight: var(--font-weight-semi-bold);
+    font-weight: var(--font-weight-bold);
     margin: 0px;
+    text-align: center;
+    font-size: 24px;
+}
+
+#share-code-h3 {
+    margin: 0px;
+    font-size: 18px;
+    margin-bottom: 0px;
+    margin-top: 10px;
+}
+
+#share-code-explainer {
+    width: 40%;
+    min-width: 400px;
+    text-align: center;
+}
+
+#codeForm-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0px;
+    height: 60px;
+    padding-top: 10px;
 }
 
 #codeForm {
-    margin-top: 10px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     height: 100px;
+    max-width: 350px;
+    width: 100%;
 }
 
 #codeForm button {
-    width: 80%;
+    width: 140px;
     height: 40px; 
+    margin: 0px;
+    margin-left: 10px;
 }
 
 #codeForm button:hover {
@@ -207,19 +272,35 @@ body h1{
 
 #inputCode {
     height: 40px;
-    width: 80%;
-    border-radius: 50px;
+    width: 200px;
+    border-radius: 10px;
     font-family: var(--font-family-poppins);
     font-size: 16px;
-    padding: 0px 20px;
+    padding: 0px 10px;
+    border: none;
+    margin: 0px;
 }
 
+#error {
+    width: 300px;
+    margin: 0px;
+    border-color: red;
+    display: none;  /* Initially hidden */
+    opacity: 1;     /* Start fully visible */
+}
 
+#error p {
+    margin: 0px;
+}
 
 @keyframes fadeOut {
     0% { opacity: 1; }
     80% { opacity: 1; } /* Stay fully visible for the majority of the time */
     100% { opacity: 0; } /* Fade to completely transparent */
+}
+
+.error-fade-out {
+    animation: fadeOut 1s forwards; /* 'forwards' will keep the final state (opacity: 0) */
 }
   
 
@@ -228,10 +309,12 @@ body h1{
     flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
-    margin-top: 40px;
+    margin-top: 20px;
     border-top: 1px solid rgb(125, 125, 125);
     width: 40%;
+    max-width: 600px;
     padding-top: 30px;
+    min-width: 400px;
 }
 
 #view-more h2 {
@@ -273,7 +356,7 @@ body h1{
 
 /* Styles for each matched user */
 .matched-user {
-    width: 110%;
+    width: 100%;
     height: 60px;
     display: flex;
     justify-content: flex-start;
@@ -296,7 +379,7 @@ body h1{
     height: 100%;
     width: 80%;
     overflow: hidden;
-    max-width: 220px;
+    max-width: 260px;
 }
 
 .matched-user img {
@@ -326,7 +409,7 @@ body h1{
     margin: 0px;
     text-align: center;
     width: 400px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 #no-matches-wrapper {
@@ -338,10 +421,34 @@ body h1{
 
 
 @media (max-width: 500px) {
+
+    #wavelength-explainer-wrapper {
+        width: 105%;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #wavelength-explainer-trigger {
+        position: absolute;
+        left: 50%; /* Position the left of the element at the horizontal center */
+        transform: translate(-50%); /* Translate the element back by half of its own width and height */
+        width: 100%;
+    }
+
+    #wavelength-explainer-popup {
+        width: 350px;
+        background-color: rgba(0,0,0,.9);
+    }
     #lineGraph {
-        width: 95%;
         top: 170px;
         height: 180px;
+        padding: 35px 0px;
+        width: 95%;
+        min-width: 300px;
+    }
+
+    #center-block {
+        width: 90%;
     }
     #tops {
         width: 280px;
@@ -353,6 +460,17 @@ body h1{
 
     #view-more {
         width: 90%;
+        min-width: 200px;
+    }
+
+    #share-code-explainer {
+        width: 90%;
+        min-width: 200px;
+    }
+
+    #code {
+        width: 95%;
+        min-width: 200px;
     }
 
     #no-matches-text {

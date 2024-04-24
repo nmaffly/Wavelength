@@ -12,11 +12,7 @@
     <header>
         <h3><a href="/display">wavelength</a></h3>
         <div id="nav-items">
-            <p><a href="/input_playlist">playlist</a></p>
-            <p><a href="/comparison">compare</a></p>
             <p><a href="/about">about</a></p>
-            <p><a href="/new_profile">new profile</a></p>
-            <p><a href="/error">error</a></p>
         </div>
         
         <button id="nav-button">
@@ -25,11 +21,7 @@
         <div id="nav-menu">
             <ul>
                 <li><a href="/">home</a></li>
-                <li><a href="/input_playlist">playlist</a></li>
-                <li><a href="/comparison">compare</a></li>
                 <li><a href="/about">about</a></li>
-                <p><a href="/new_profile">new profile</a></p>
-                <p><a href="/error">error</a></p>
             </ul>
             <div id="icons">
                 <img src="../static/icons/instagram.png" alt="Instagram">
@@ -52,20 +44,12 @@
                     navIcon.src = "../static/icons/Menu_close.png";
                     navIcon.style.width = "20px";
                     navMenu.style.display = "flex";
-                    navButton.classList.add("nav-button-spin");
-                    navButton.addEventListener("animationend", () => {
-                        navButton.classList.remove("nav-button-spin");
-                    });
     
                 } else {
                     navIcon.src = "../static/icons/Menu2.png";
                     navIcon.style.width = "30px";
                     navMenu.style.display = "none";
                     navIcon.classList.toggle("nav-icon-fade");
-                    navButton.classList.add("nav-button-spin-reverse");
-                    navIcon.addEventListener("transitionend", () => {
-                        navIcon.classList.remove("nav-button-spin-reverse");
-                    });
                 }
             });
         });
@@ -77,6 +61,12 @@
         let user2DataRecent = JSON.parse('{{ user2_graph_data_recent|tojson|safe }}');
         let user1DataMedium = JSON.parse('{{ user1_graph_data_medium|tojson|safe }}');
         let user2DataMedium = JSON.parse('{{ user2_graph_data_medium|tojson|safe }}');
+        let sharedGenresR = JSON.parse('{{ shared_genres_r|tojson|safe }}');
+        let sharedGenresM = JSON.parse('{{ shared_genres_m|tojson|safe }}');
+        let sharedGenresA = JSON.parse('{{ shared_genres_a|tojson|safe }}');
+        let sharedArtistsR = JSON.parse('{{ shared_artists_r|tojson|safe }}');
+        let sharedArtistsM = JSON.parse('{{ shared_artists_m|tojson|safe }}');
+        let sharedArtistsA = JSON.parse('{{ shared_artists_a|tojson|safe }}');
         var timeframeView = "oneMonth";
         var components = '';
 
@@ -87,42 +77,76 @@
             document.getElementById('sixMonthBtn').classList.remove('active');
             document.getElementById('oneYearBtn').classList.remove('active');
 
-            let user1Data, user2Data;
+            let user1Data, user2Data, shared_genres, shared_artists, matchPercentage;
 
-            // Select the appropriate data based on timeframeView
+            // Select the appropriate data and match percentage based on timeframeView
             switch (timeframeView) {
                 case "oneMonth":
                     user1Data = user1DataRecent;
                     user2Data = user2DataRecent;
+                    shared_genres = sharedGenresR;
+                    shared_artists = sharedArtistsR;
+                    matchPercentage = {{ compatibility_score_recent }};
                     break;
                 case "sixMonth":
                     user1Data = user1DataMedium;
                     user2Data = user2DataMedium;
+                    shared_genres = sharedGenresM;
+                    shared_artists = sharedArtistsM;
+                    matchPercentage = {{ compatibility_score_medium }};
                     break;
                 case "oneYear":
                     user1Data = user1DataAllTime;
                     user2Data = user2DataAllTime;
+                    shared_genres = sharedGenresA;
+                    shared_artists = sharedArtistsA;
+                    matchPercentage = {{ compatibility_score_all_time }};
                     break;
                 default:
                     console.error('Invalid timeframeView:', timeframeView);
                     return; // Early exit on invalid timeframe
             }
 
+            // Update the match percentage display
+            document.getElementById('match-value').textContent = `${matchPercentage}% Match!`;
+
             // Add 'active' class to the current view button
             document.getElementById(timeframeView + 'Btn').classList.add('active');
+
+            // Clear existing content in the divs
+            document.getElementById('shared-genres-text').innerHTML = "";
+            document.getElementById('shared-artists-text').innerHTML = "";
+
+            // Format shared genres and artists with colored bullet points
+            function formatWithBullets(items) {
+                return items.map((item, index) => {
+                    return `${item}${index < items.length - 1 ? '<span class="bullet"> • </span>' : ''}`;
+                }).join('');
+            }
+
+            // Append formatted shared genres
+            if (shared_genres.length > 0) {
+                document.getElementById('shared-genres-text').innerHTML = formatWithBullets(shared_genres);
+            } else {
+                document.getElementById('shared-genres-text').textContent = "No overlap!";
+            }
+
+            // Append formatted shared artists
+            if (shared_artists.length > 0) {
+                document.getElementById('shared-artists-text').innerHTML = formatWithBullets(shared_artists);
+            } else {
+                document.getElementById('shared-artists-text').textContent = "No overlap!";
+            }
 
             // Draw the graph with the selected data
             updateGraph(components, user1Data, user2Data);
         }
 
+
     </script>
-    <button id="back-to-dashboard" onclick="window.location='/display'">back to dashboard</button>
+
+    <a id="back-to-dashboard" href="/display">back to dashboard</a>
     <h1 id="names-title" class="text-gradient">{{ user1_name }} & {{ user2_name }}</h1>
-    <div id="percent-wrapper">
-        <h1 id="percent">
-            <span class="gradient-high" id="match-value">{{ compatibility_score }}% Match!</span>
-        </h1>
-    </div>
 
     <div id="button-timeframe">
         <button id="oneMonthBtn" class="view-button" onclick="timeframeView = 'oneMonth'; switchView()">1 Month</button>
@@ -141,30 +165,85 @@
       </div>
 
     <svg id="lineGraph"></svg>
-    <div id="tops">
-        <div id="tops-genres">
-        <h3 class="gradient-low">SHARED GENRES:</h3>
-        <p id="shared-genres-text"></p>
+    <div id="percent-wrapper">
+        <h1 id="percent">
+            <span class="gradient-high" id="match-value">{{ compatibility_score_recent }}% Match!</span>
+        </h1>
+        <p class="explainer"><i>This match percentage is based purely on your Wavelength, not artist or genre overlap!</i></p>
+    </div>
+    <div id="center-block">
+        <div id="select-wrapper">
+            <button class="select-button select-button-highlight" id="button-artists" onclick="topsView = 'artists'; changeSelect()">Artists</button>
+            <button class="select-button" id="button-genres" onclick="topsView = 'genres'; changeSelect()">Genres</button>
+            <button class="select-button" id="button-questions" onclick="topsView = 'questions'; changeSelect()">Questions</button>
         </div>
-        <div id="tops-artists">
-        <h3 class="gradient-low">SHARED ARTISTS</h3>
-        <p id="shared-artists-text"></p>
+        <div id="center-block-wrapper">
+            <div id="artists-wrapper" style="display: flex;">
+                <div id="shared-artists">
+                    <div id="shared-artists-text"></div>
+                </div>
+            </div>
+            <div id="genres-wrapper" style="display: none;">
+                <div id="shared-genres-text"></div>
+            </div>
+            <div id="questions-wrapper" style="display: none;">
+                <h2 class="gradient-high" id="questions-header">Get Talking</h2>
+                <div id="question">
+                    <p id="question-text"></p>
+                </div>
+                <div id="questions-buttons">
+                    <button id="back-question">Back</button>
+                    <button id="next-question">Next</button>
+                </div>
+            </div>
         </div>
     </div>
+    <p id="tops-explainer" class="explainer"><i>Select a category above to view more details.</i></p>
 
-    <div id="questions-wrapper" class="widget-border">
-        <h2 class="gradient-high" id="questions-header">Get Talking</h2>
-        <div id="question">
-            <p id="question-text"></p>
+    <div id="spotify-logo">
+        <div id="spotify-logo">
+            <a href="https://www.spotify.com" target="_blank">
+                <img src="../static/icons/Spotify_Logo.png" alt="Spotify">
+            </a>
         </div>
-        <div id="questions-buttons">
-            <button id="back-question">Back</button>
-            <button id="next-question">Next</button>
-        </div>
-        
     </div>
-
+    
     <script>
+        var topsView = "artists";  // Start with 'Shared Artists' as default view
+    
+        function changeSelect() {
+            const artistsWrapper = document.getElementById('artists-wrapper');
+            const genresWrapper = document.getElementById('genres-wrapper');
+            const questionsWrapper = document.getElementById('questions-wrapper');
+    
+            // Object to hold the explanations for each view
+            const explanations = {
+                'artists': '<i><b>Shared Artists:</b> The artists both of you enjoy listening to.</i>',
+                'genres': '<i><b>Shared Genres:</b> The music genres both of you enjoy.</i>',
+                'questions': '<i><b>Questions:</b> Conversation starters to explore your musical tastes further.</i>'
+            };
+    
+            // Update the highlight class on buttons
+            document.querySelectorAll('.select-button').forEach(button => {
+                if (button.id === 'button-' + topsView) {
+                    button.classList.add('select-button-highlight');
+                } else {
+                    button.classList.remove('select-button-highlight');
+                }
+            });
+    
+            // Update the explainer text according to the current view
+            document.getElementById('tops-explainer').innerHTML = explanations[topsView];
+    
+            // Manage visibility of the divs
+            artistsWrapper.style.display = (topsView === 'artists' ? 'flex' : 'none');
+            genresWrapper.style.display = (topsView === 'genres' ? 'flex' : 'none');
+            questionsWrapper.style.display = (topsView === 'questions' ? 'flex' : 'none');
+        }
+    
+        // Initial setup call to apply the default view settings
+        changeSelect();
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -172,16 +251,38 @@
             }
         }
         const questions = [
-                "If you could only listen to the soundtrack of one movie for the rest of your life, which movie would you choose and why?",
-                "Imagine you're a musician about to go on tour. What three artists (dead or alive) would you pick as your opening acts?",
-                "If you had to choose a song that played every time you entered a room, what would it be and why?",
-                "What's a song that you think is wildly underrated and why do you think it deserves more attention?",
-                "If you could be any musical instrument, which one would you be and why?",
-                "Have you ever had a song completely change your mind or attitude about something? What was the song and the situation?",
-                "If you could witness any historical musical performance live, which one would it be and why?",
-                "Which genre of music do you think your life would fit as a soundtrack and why?",
-                "If we were in a band, what would our band name be and what kind of music would we play?",
-                "What's one song or artist you love but are slightly embarrassed to admit?"
+                "On a scale of 1 - 10, how messy do you think my car is?",
+                "What do you think my major is?",
+                "What was your first impression of me?",
+                "How are you, really?",
+                "What's the most unexplainable thing that has ever happened to you?",
+                "What's your first loves name and the reason you fell in love with them?",
+                "What does a perfect day for you look like?",
+                "What dating advice would you give your younger self?",
+                "Why did you come out to this event tonight?",
+                "What's one song or artist you love but are slightly embarrassed to admit?",
+                "What's one of your biggest pet peeves?",
+                "Are you looking for anything right now? Why or why not?",
+                "Are there any artists or songs you listen to because of your parents? Which ones?",
+                "Think of a song that you attach to someone in your life. What's the song and who's the person?",
+                "Do you play any instruments or make music in any capacity? If not, do you wish you played anything?",
+                "If you could instantly become an expert in something, what would it be and why?",
+                "What's something you're proud of but don't often get to talk about?",
+                "What's one habit you're trying to build or break?",
+                "What is the coolest dream you have had that you can remember?",
+                "If you were given a one-minute ad slot during the Super Bowl that you could not sell, what would you fill it with?",
+                "What is an unusual fear you have?",
+                "If you had to leave earth on a spaceship and take four friends, who would they be?",
+                "If you could have any animal as a pet, mythical or real, what would you choose?",
+                "What's your go-to sandwich order?",
+                "What is the weirdest fact you know?",
+                "If you could broadcast one song to the entire world, which song would you choose?",
+                "What's the most niche band or artist that you know? What's your favorite song from them?",
+                "If animals could talk, which species would be the rudest?",
+                "If you could instantly master any language, which one would it be and why?",
+                "What is a conspiracy theory you find fascinating?",
+                "If you could turn any activity into an Olympic sport, in which event would you have a good chance at winning a medal?",
+                "If you had your own bar, what would you call it?"
             ];
 
         // Shuffle questions initially
@@ -249,7 +350,7 @@
             const g = svg.append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const x = d3.scaleLinear().domain([0, 7]).range([0, graphWidth]);
+            const x = d3.scaleLinear().domain([0, 6]).range([0, graphWidth]);
             const y = d3.scaleLinear().domain([0, 100]).range([graphHeight, 20]);
 
             // Define the gradient
@@ -309,11 +410,11 @@
                 const { svg, x, y, graphWidth, graphHeight, margin } = components;
 
                 // Prepare the data for plotting
-                const data1 = Object.values(user1Data).slice(0, 8).map((value, index) => ({x: index, y: value}));
-                const data2 = Object.values(user2Data).slice(0, 8).map((value, index) => ({x: index, y: value}));
+                const data1 = Object.values(user1Data).slice(0, 7).map((value, index) => ({x: index, y: value}));
+                const data2 = Object.values(user2Data).slice(0, 7).map((value, index) => ({x: index, y: value}));
 
                 // Define the x-axis with custom tick names
-                const customTickNames = ["Acousticness", "Danceability", "Energy", "Loudness", "Popularity", "Speechiness", "Tempo", "Happiness"];
+                const customTickNames = ["Acousticness", "Danceability", "Energy", "Popularity", "Speechiness", "Tempo", "Happiness"];
                 const xAxis = svg.selectAll('.x-axis').data([null]); // Select the x-axis if it exists, or prepare to create one
                 const xAxisEnter = xAxis.enter().append("g").attr("class", "x-axis");
                 xAxisEnter.merge(xAxis)
@@ -322,7 +423,7 @@
                         .tickValues(data1.map((d) => d.x))
                         .tickFormat((d, i) => customTickNames[i]))
                     .selectAll("text")
-                    .attr("transform", "translate(20,0) rotate(45)")
+                    .attr("transform", "translate(18,0) rotate(45)")
                     .style("text-anchor", "start")
                     .style("font-family", "'Overpass Mono', monospace")
                     .style("font-size", "16px");

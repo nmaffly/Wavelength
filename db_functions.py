@@ -17,6 +17,16 @@ def generate_four_letter_sharing_token():
     
     return share_code
 
+def taken_tokens():
+    with open('code_names.txt', 'r') as file:
+        code_names = [line.strip() for line in file]
+
+    queried_codes = User.query.with_entities(User.share_token).all()
+    unavailable_codes = {code[0] for code in queried_codes}
+
+    # Convert the set to a list before returning
+    return list(unavailable_codes) or []
+
 def generate_random_sharing_token():
     possible_characters = string.ascii_letters + string.digits
     share_token = ""

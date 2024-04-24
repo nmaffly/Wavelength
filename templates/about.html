@@ -12,119 +12,97 @@
 </head>
 <body>
     <header>
-        <h3><a href="/">wavelength</a></h3>
-        <div id="nav-items">
-            <p><a href="/input_playlist">playlist</a></p>
-            <p><a href="/comparison">compare</a></p>
-            <p><a href="/about">about</a></p>
-            <p><a href="#help">help</a></p>
-        </div>
-        
-        <button id="nav-button">
-            <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
-        </button>
-        <div id="nav-menu">
-            <ul>
-                <li><a href="/">home</a></li>
-                <li><a href="/input_playlist">playlist</a></li>
-                <li><a href="/comparison">compare</a></li>
-                <li><a href="/about">about</a></li>
-                <li><a href="#help">help</a></li>
-            </ul>
-            <div id="icons">
-                <img src="../static/icons/instagram.png" alt="Instagram">
-                <img src="../static/icons/facebook.png" alt="Facebook">
-                <img src="../static/icons/x.png" alt="X (Twitter)">
-            </div>
-        </div>
+        <h3><a href="/display">wavelength</a></h3>
         </header>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const navButton = document.getElementById("nav-button");
-            const navMenu = document.getElementById("nav-menu");
-            const navIcon = document.getElementById("nav-icon");
-            const bodyElement = document.body;
-    
-            // Toggle the menu's visibility when the button is clicked
-            navButton.addEventListener("click", () => {
-                if (navIcon.src.endsWith("Menu2.png")) {
-                    navIcon.src = "../static/icons/Menu_close.png";
-                    navIcon.style.width = "20px";
-                    navMenu.style.display = "flex";
-                    navButton.classList.add("nav-button-spin");
-                    bodyElement.style.opacity = "0.5";
-                    navButton.addEventListener("animationend", () => {
-                        navButton.classList.remove("nav-button-spin");
-                    });
-    
-                } else {
-                    navIcon.src = "../static/icons/Menu2.png";
-                    navIcon.style.width = "30px";
-                    navMenu.style.display = "none";
-                    navIcon.classList.toggle("nav-icon-fade");
-                    navButton.classList.add("nav-button-spin-reverse");
-                    bodyElement.style.opacity = "1";
-                    navIcon.addEventListener("transitionend", () => {
-                        navIcon.classList.remove("nav-button-spin-reverse");
-                    });
-                }
-            });
-        });
-    </script>
     <div id="center-block">
         <h1 class="gradient-high">About us</h1>
         <div id="body-text"> <!-- This is boiler plate stuff, I will be actually writing this later on. Just wanted to get something in here. -->
-            <p>We really like music. And we also really like people. <span class="highlight"><b>Wavelength</b></span> is an idea we came up with to bring these two things together. </p>
-            <p>Music has this incredible way of speaking straight to our hearts, cutting through the noise, and revealing who we truly are. We believe that it can do more than just fill the silence; it can spark connections that are real and lasting.</p>
-            <p>That's the heartbeat behind Wavelength. We're building a space where your favorite tunes can lead you to people who feel like they’ve been your friends for years. This website is our first step towards this vision. Think of it as a place where your music taste is the compass guiding you to your next friend or maybe even a soulmate. It's about finding common ground through music, not just a profile.</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;Wavelength is a startup in UC Davis' PLASMA accelerator program. We're a team of 4 UC Davis students: Sean (founder, 4th year), Ciel (co-founder, 4th year), Nathan (tech lead, 2nd year), and Rishit (tech lead, 2nd year).</p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;The idea started as two passing thoughts: it would be cool to know who around us has our same music taste, and 
+                we were tired of the endless cycle of deleting and redownloading dating apps (this isn't just us, over 60% of college students
+                who use dating apps have experienced the same!). So, we thought up Wavelength, the dating app that matches you through music
+                and gets you meeting in person through personalized first date suggestions, because sometimes it's just easier to have the date planned out for you.
+            </p>
+            <p>&nbsp;&nbsp;&nbsp;&nbsp;We are currently in the process of hosting our first proof-of-concept event, Mix & Match by Wavelength, which is being held in 
+                a new Davis art venue, the Secret Spot, and will feature music, food, drinks, and most importantly, people.
+            </p>
+
         </div>
     </div>
-    <svg id="lineGraph"></svg>
+    <!-- <svg id="lineGraph"></svg> -->
+    <svg id="graphic"></svg>
+    <svg id="graphic2"></svg>
     <script>
-        function drawGraph() {
-            const svgElement = document.getElementById('lineGraph');
-            const width = svgElement.clientWidth;
-            const height = +svgElement.clientHeight;
-            const svg = d3.select(svgElement).attr("viewBox", `0 0 ${width} ${height}`).attr("preserveAspectRatio", "xMidYMid meet");
+        function drawGraph2() {
+            // Common margins used for both graphs
+            const margin = {top: 20, right: 20, bottom: 20, left: 20};
 
-            // Clear any previous graph
-            svg.selectAll("*").remove();
-
-            const margin = {top: 20, right: 20, bottom: 20, left: 20},
-                graphWidth = width - margin.left - margin.right,
-                graphHeight = height - margin.top - margin.bottom;
-            
-            const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
-        
-            // Sample data - replace with your own data points
+            // Common data for both graphs
             const data = [
-                {x: -30, y: 15}, {x: -5, y: 15}, {x: -1, y: 15}, {x: 2, y: -10}, {x: 2.5, y: 30},
-                {x: 3, y: 40}, {x: 4.5, y: 20}, {x: 6.5, y: -5}, 
-                {x: 8, y: 30}, {x: 10, y: 17}, {x: 11, y: 16}, {x: 39, y: 15}
+                {x: 1, y: 5}, {x: 2, y: 4}, {x: 3, y: 4},
+                {x: 4, y: 5}, {x: 5, y: 6}, {x: 6, y: 5},
+                {x: 7, y: 4}, {x: 8, y: 5},
             ];
-        
-            // Scales
-            const x = d3.scaleLinear().domain([d3.min(data, d => d.x), d3.max(data, d => d.x)]).range([0, graphWidth]);
-            const y = d3.scaleLinear().domain([0, d3.max(data, d => d.y)]).range([graphHeight-50, 0]);
-        
-            // Line generator
-            const line = d3.line()
-                           .x(d => x(d.x))
-                           .y(d => y(d.y))
-                           .curve(d3.curveBasis); // This makes the line smooth
-        
-            // Append the path, bind the data, and call the line generator 
-            g.append("path")
-             .datum(data) // 10. Binds data to the line 
-             .attr("fill", "none")
-             .attr("stroke", "white")
-             .attr("stroke-width", 2)
-             .attr("d", line); // 11. Calls the line generator 
+
+            const newData = [
+                {x: 1, y: 5}, {x: 2, y: 6}, {x: 3, y: 5},
+                {x: 4, y: 2}, {x: 5, y: 4}, {x: 6, y: 2.5},
+                {x: 7, y: 3}, {x: 8, y: 2}
+            ];
+
+            // Function to draw a graph given an SVG ID and gradient IDs
+            function drawOnSVG(svgID, gradientID1, gradientID2) {
+                const svgDom = document.getElementById(svgID);
+                const width = svgDom.clientWidth - margin.left - margin.right;
+                const height = svgDom.clientHeight - margin.top - margin.bottom;
+                const svg = d3.select("#" + svgID);
+                svg.selectAll("*").remove(); // This line clears the SVG content
+                const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+                
+
+                svg.attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr("preserveAspectRatio", "xMidYMid meet");
+
+                const x = d3.scaleLinear().domain(d3.extent([...data, ...newData], d => d.x)).range([0, width]);
+                const y = d3.scaleLinear().domain([0, d3.max([...data, ...newData], d => d.y)]).range([height, 0]);
+
+                const defs = svg.append("defs");
+                const gradient1 = defs.append("linearGradient").attr("id", gradientID1).attr("gradientUnits", "userSpaceOnUse")
+                                    .attr("x1", 0).attr("y1", y(0)).attr("x2", 0).attr("y2", y(d3.max([...data, ...newData], d => d.y)));
+                gradient1.selectAll("stop").data([{offset: "85%", color: "#FF8934"}, {offset: "100%", color: "rgba(255,255,255, .8)"}])
+                        .enter().append("stop").attr("offset", d => d.offset).attr("stop-color", d => d.color);
+                const gradient2 = defs.append("linearGradient")
+                    .attr("id", gradientID2)
+                    .attr("gradientUnits", "userSpaceOnUse")
+                    .attr("x1", 0) // Correct these values based on your gradient direction and length
+                    .attr("y1", height-300)
+                    .attr("x2", width)
+                    .attr("y2", 0);
+
+                gradient2.selectAll("stop")
+                    .data([
+                        {offset: "90%", color: "rgba(238, 56, 220, 1)"}, // Starting color
+                        {offset: "100%", color: "rgba(255,255,255, 1)"} // Fading to transparent
+                    ])
+                    .enter().append("stop")
+                    .attr("offset", d => d.offset)
+                    .attr("stop-color", d => d.color);
+
+                const area = d3.area().x(d => x(d.x)).y0(height).y1(d => y(d.y)).curve(d3.curveBasis);
+                g.append("path").datum(data).attr("fill", 'rgba(238, 56, 220, 1)').attr("d", area);
+                g.append("path").datum(newData).attr("fill", '#FF8934').attr("d", area).attr("opacity", "0.9");
+            }
+
+            // Draw on both SVGs with unique gradient IDs for each
+            drawOnSVG('graphic', 'line-gradient-graphic', 'line-gradient1-graphic');
+            drawOnSVG('graphic2', 'line-gradient-graphic2', 'line-gradient1-graphic2');
         }
 
-        drawGraph();
+        // drawGraph();
+        drawGraph2();
 
-        window.addEventListener('resize', drawGraph)
+        // window.addEventListener('resize', drawGraph)
+        window.addEventListener('resize', drawGraph2)
 
         
     </script>

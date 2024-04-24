@@ -33,10 +33,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("MYSQL_USER
 db.init_app(app)
 migrate = Migrate(app, db)
 
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-Session(app)  # Initialize the session
-
 SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
 SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
 SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
@@ -77,7 +73,7 @@ def callback():
     spotify = spotipy.Spotify(auth=token_info['access_token'])
     user_data = spotify.current_user()
     user = User.query.filter_by(spotify_id=user_data['id']).first()
-
+    app.config['SECRET_KEY'] = user_data['id']
     new_user = True
     if user:
         new_user = False

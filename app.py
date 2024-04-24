@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, url_for
 import spotipy
+import uuid
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
@@ -21,8 +22,9 @@ update_db = True
 app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
+#app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SESSION_TYPE'] = 'filesystem'
-#app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] = 'iubf3dfg48d8fbuioa'
 Session(app)  # Initialize the session
 
 import os
@@ -41,6 +43,7 @@ migrate = Migrate(app, db)
 
 #sp_oauth = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=SCOPE)
 #sp = spotipy.Spotify(auth_manager=sp_oauth)
+
 
 # Setting up environment-specific configuration
 def setup_spotify(team):
@@ -66,6 +69,11 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
+    if 'uuid' not in session:
+       session['uuid'] = str(uuid.uuid4())
+       print(session['uuid'])
+    cache_path = f".cache-{session['uuid']}"
+    print(cache_path)
     print("hello2")
     # Get team number from the form
     team = request.form['team_number']
@@ -78,6 +86,11 @@ def login():
 
 @app.route('/callback')
 def callback():
+    session_uuid = session.get("uuid")
+    if not session_uuid: 
+       return redirect(url_for('login'))
+
+    cache_path = f".cache-{session_uuid}"
     team = session.get('team')
     sp, auth_manager = setup_spotify(team)
     code = request.args.get('code')

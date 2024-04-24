@@ -1,0 +1,5 @@
+#define REDIS_GIT_SHA1 "19ba6fa7"
+#define REDIS_GIT_DIRTY "51"
+#define REDIS_BUILD_ID "ip-172-31-5-194.us-east-2.compute.internal-1713941449"
+#include "version.h"
+#define REDIS_BUILD_ID_RAW REDIS_VERSION REDIS_BUILD_ID REDIS_GIT_DIRTY REDIS_GIT_SHA1

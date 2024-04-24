@@ -1,0 +1,12 @@
+STD=-pedantic -DREDIS_STATIC= -std=gnu11
+WARN=-Wall -W -Wno-missing-field-initializers -Werror=deprecated-declarations -Wstrict-prototypes
+OPT=-O3
+MALLOC=jemalloc
+BUILD_TLS=
+USE_SYSTEMD=
+CFLAGS=
+LDFLAGS=
+REDIS_CFLAGS=-flto=auto
+REDIS_LDFLAGS=-O3 -flto
+PREV_FINAL_CFLAGS=-pedantic -DREDIS_STATIC= -std=gnu11 -Wall -W -Wno-missing-field-initializers -Werror=deprecated-declarations -Wstrict-prototypes -O3 -g -ggdb -flto=auto -I../deps/hiredis -I../deps/linenoise -I../deps/lua/src -I../deps/hdr_histogram -I../deps/fpconv -DUSE_JEMALLOC -I../deps/jemalloc/include
+PREV_FINAL_LDFLAGS= -O3 -flto -g -ggdb -rdynamic

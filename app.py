@@ -270,6 +270,8 @@ def display():
     if not processed_data:
         return redirect('/')
     user1 = User.query.filter_by(spotify_id=session['processed_data']['user_data']['id']).first()
+    user_name = session['processed_data']['user_name']
+    share_code = session['processed_data']['share_token']
     median_values_r = get_db_median_values(user1.id, 'r')
     median_values_m = get_db_median_values(user1.id, 'm')
     median_values_a = get_db_median_values(user1.id, 'a')
@@ -316,7 +318,7 @@ def display():
     taken_tokens_list = taken_tokens() or []
     print(taken_tokens_list)
 
-    return render_template('user_dashboard.html', taken_tokens=taken_tokens_list, processed_data=processed_data, matches_data=matches_data)
+    return render_template('user_dashboard.html', user_name = user_name, share_token = share_code, taken_tokens=taken_tokens_list, processed_data=processed_data, matches_data=matches_data)
 
 @app.route('/compare/<user1_share_token>/<user2_share_token>')
 def compare_users(user1_share_token, user2_share_token):

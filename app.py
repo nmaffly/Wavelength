@@ -22,7 +22,6 @@ app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 Session(app)  # Initialize the session
 
 import os

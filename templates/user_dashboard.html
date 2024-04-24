@@ -679,11 +679,14 @@
             const imageSrc = user.imgSrc || '../static/icons/no_user.png';
 
             userDiv.innerHTML = `
-                <img src="${imageSrc}" alt="${user.name}'s profile picture">
-                <div class="matched-user-info-wrapper">
-                    <h2 class="matched-user-name">${user.name}</h2>
-                    <p class="matched-user-info">${user.info}</p>
+                <div id="matched-user-img-info">
+                    <img src="${imageSrc}" alt="${user.name}'s profile picture">
+                    <div class="matched-user-info-wrapper">
+                        <h2 class="matched-user-name">${user.name}</h2>
+                        <p class="matched-user-info">${user.info}</p>
+                    </div>
                 </div>
+
                 <div class="matched-user-percent"><h2>${user.percent}</h2></div>
             `;
 

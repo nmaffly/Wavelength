@@ -361,6 +361,7 @@ body h1{
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    justify-content: space-between;
     flex-direction: row;
     margin-bottom: 15px;
     padding: 10px;
@@ -372,19 +373,24 @@ body h1{
     cursor: pointer;
 }
 
+#matched-user-img-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .matched-user-info-wrapper {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     height: 100%;
-    width: 80%;
     overflow: hidden;
     max-width: 260px;
 }
 
 .matched-user img {
-    width: 50px; /* Adjust the image size as needed */
-    height: 50px; /* Adjust to maintain aspect ratio */
+    width: 50px !important; /* Adjust the image size as needed */
+    height: 50px !important; /* Adjust to maintain aspect ratio */
     border-radius: 5px; /* Circular images */
     object-fit: cover; /* Ensures images cover the area nicely */
     margin-right: 10px;
@@ -398,6 +404,10 @@ body h1{
     color: var(--primary-orange);
     display: flex;
     align-items: flex-end;
+}
+
+.matched-user-percent h2{
+    text-align: right;
 }
 
 .matched-user-info {

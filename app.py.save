@@ -11,7 +11,7 @@ from database import User, UserStats, Matches, db
 from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats
 from urllib.parse import urlparse
 
-load_dotenv('.env')
+load_dotenv()
 
 # FOR TESTNG
 update_db = True
@@ -19,6 +19,7 @@ update_db = True
           # False --> pull stats from DB
 
 app = Flask(__name__)
+
 
 # Configure the Flask app to use Flask-Session
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -29,98 +30,89 @@ import os
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("TEAM1_MYSQL_USER")}:{os.getenv("TEAM1_MYSQL_PASSWORD")}@{os.getenv("TEAM1_MYSQL_HOST")}/{os.getenv("TEAM1_MYSQL_DB")}'
 
-
-db.init_app(app)
-migrate = Migrate(app, db)
-
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-Session(app)  # Initialize the session
-
-#SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
-#SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
-#SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
-#SCOPE = 'user-library-read user-top-read user-read-currently-playing'
-
-#sp_oauth = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=SCOPE)
-#sp = spotipy.Spotify(auth_manager=sp_oauth)
-
-# Setting up environment-specific configuration
-def setup_spotify(team):
-    SPOTIPY_CLIENT_ID = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_ID')
-    SPOTIPY_CLIENT_SECRET = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_SECRET')
-    SPOTIPY_REDIRECT_URI = os.getenv(f'TEAM{team}_SPOTIPY_REDIRECT_URI')
-
-    # Print the values
-    print(f"SPOTIPY_CLIENT_ID: {SPOTIPY_CLIENT_ID}")
-    print(f"SPOTIPY_CLIENT_SECRET: {SPOTIPY_CLIENT_SECRET}")
-    print(f"SPOTIPY_REDIRECT_URI: {SPOTIPY_REDIRECT_URI}")
-
-    # Initialize Spotify auth with team-specific details
-    auth_manager = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI,
-                                scope='user-library-read user-top-read user-read-currently-playing')
-    sp = spotipy.Spotify(auth_manager=auth_manager)
-    return sp, auth_manager
-
 @app.route('/')
 def index():
-    print("hello")
     return render_template('home.html')
 
-@app.route('/login', methods=['POST'])
+def load_team_config(team_number):
+    """Set configuration based on the team number."""
+    prefix = f"TEAM{team_number}_"
+    app.config['SPOTIPY_CLIENT_ID'] = os.getenv(prefix + 'SPOTIPY_CLIENT_ID')
+    app.config['SPOTIPY_CLIENT_SECRET'] = os.getenv(prefix + 'SPOTIPY_CLIENT_SECRET')
+    app.config['SPOTIPY_REDIRECT_URI'] = os.getenv(prefix + 'SPOTIPY_REDIRECT_URI')
+    app.config['SECRET_KEY'] = os.getenv(prefix + 'FLASK_SECRET_KEY')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{os.getenv(prefix + 'MYSQL_USER')}:{os.getenv(prefix + 'MYSQL_PASSWORD')}@{os.getenv(prefix + 'MYSQL_HOST')}/{os.getenv(prefix + 'MYSQL_DB')}"
+
+    # Update Spotify OAuth settings if already initialized
+    if hasattr(app, 'sp_oauth'):
+        app.sp_oauth.client_id = app.config['SPOTIPY_CLIENT_ID']
+        app.sp_oauth.client_secret = app.config['SPOTIPY_CLIENT_SECRET']
+        app.sp_oauth.redirect_uri = app.config['SPOTIPY_REDIRECT_URI']
+
+# Flask and Spotify OAuth initialization
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
+db.init_app(app)
+migrate = Migrate(app, db)
+SCOPE = 'user-library-read user-top-read user-read-currently-playing'
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    print("hello2")
-    # Get team number from the form
-    team = request.form['team_number']
-    session['team'] = team  # Store the team in the session
-   # print("hello2")
-    # Setup Spotify with the specific team environment
-    sp, auth_manager = setup_spotify(team)
-    auth_url = auth_manager.get_authorize_url()
-    return redirect(auth_url)
+    if request.method == 'POST':
+        session.clear()
+        team_option = request.form['options']
+        load_team_config(team_option)
+        app.sp_oauth = SpotifyOAuth(client_id=app.config['SPOTIPY_CLIENT_ID'], client_secret=app.config['SPOTIPY_CLIENT_SECRET'], redirect_uri=app.config['SPOTIPY_REDIRECT_URI'], scope=SCOPE)
+        
+        # Print Spotify values
+        print("SPOTIPY_CLIENT_ID:", app.config['SPOTIPY_CLIENT_ID'])
+        print("SPOTIPY_CLIENT_SECRET:", app.config['SPOTIPY_CLIENT_SECRET'])
+        print("SPOTIPY_REDIRECT_URI:", app.config['SPOTIPY_REDIRECT_URI'])
+        
+        auth_url = app.sp_oauth.get_authorize_url()
+        return redirect(auth_url)
+    return render_template('login.html')
 
 @app.route('/callback')
 def callback():
-    team = session.get('team')
-    sp, auth_manager = setup_spotify(team)
     code = request.args.get('code')
-    token_info = auth_manager.get_access_token(code)
+    cleanup()
+    token_info = app.sp_oauth.get_access_token(code)
     session['token_info'] = token_info
 
     if not token_info:
-        return redirect(url_for('login'))
-    if auth_manager.is_token_expired(token_info):
-        token_info = auth_manager.refresh_access_token(token_info['refresh_token'])
+        return redirect('/login')
+    if app.sp_oauth.is_token_expired(token_info):
+        token_info = app.sp_oauth.refresh_access_token(token_info['refresh_token'])
         session['token_info'] = token_info
 
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    user_data = sp.current_user()
+    spotify = spotipy.Spotify(auth=token_info['access_token'])
+    user_data = spotify.current_user()
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
-    new_user = not user
+    new_user = True
     if user:
-        return render_template('loading.html', new_user=new_user)
+        new_user = False
+        return render_template('loading.html', new_user = new_user)
     else:
         return render_template('new_profile.html')
 
 
 @app.route('/fetch_data')
 def fetch_data():
-    team = session.get('team')
-    if not team:
-        return redirect(url_for('login'))
-
-    sp, auth_manager = setup_spotify(team)
-    token_info = session.get('token_info')
-
+    token_info = session.get('token_info', None)
     if not token_info:
-        return redirect(url_for('login'))
-    if auth_manager.is_token_expired(token_info):
-        token_info = auth_manager.refresh_access_token(token_info['refresh_token'])
+        return redirect('/login')
+    if app.sp_oauth.is_token_expired(token_info):
+        token_info = app.sp_oauth.refresh_access_token(token_info['refresh_token'])
         session['token_info'] = token_info
 
-    sp = spotipy.Spotify(auth_manager=auth_manager)
-    user_data = sp.current_user()
+    spotify = spotipy.Spotify(auth=token_info['access_token'])
+
+    # Extracted and stored user data
+    user_data = spotify.current_user()
+    print("Here_fetched")
+    # check if user exists
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
     print("User acquired from database")
@@ -190,29 +182,26 @@ def fetch_data():
         print("User doesn't exist, or it's been longer than 30 seconds, new data being pulled")
         # stored user data
         user_name = user_data['display_name']
-        if 'images' in user_data and len(user_data['images']) > 1:
-            profile_pic = user_data['images'][1]['url']
-        else:
-            profile_pic = "../static/icons/no_user.png"
+        profile_pic = user_data['images'][1]['url']
 
         # extracted recent data 
-        top_artists_r = sp.current_user_top_artists(limit=25, time_range='short_term')['items']
-        top_tracks_r = sp.current_user_top_tracks(limit=50, time_range='short_term')['items']
+        top_artists_r = spotify.current_user_top_artists(limit=50, time_range='short_term')['items']
+        top_tracks_r = spotify.current_user_top_tracks(limit=50, time_range='short_term')['items']
 
         # extracted all time data
-        top_artists_m = sp.current_user_top_artists(limit=25, time_range='medium_term')['items']
-        top_tracks_m = sp.current_user_top_tracks(limit=50, time_range='medium_term')['items']
+        top_artists_m = spotify.current_user_top_artists(limit=50, time_range='medium_term')['items']
+        top_tracks_m = spotify.current_user_top_tracks(limit=50, time_range='medium_term')['items']
         
         # extracted all time data
-        top_artists_a = sp.current_user_top_artists(limit=25, time_range='long_term')['items']
-        top_tracks_a = sp.current_user_top_tracks(limit=50, time_range='long_term')['items']
+        top_artists_a = spotify.current_user_top_artists(limit=50, time_range='long_term')['items']
+        top_tracks_a = spotify.current_user_top_tracks(limit=50, time_range='long_term')['items']
 
         # Recent (1 month) stats
         artists_info_r = get_artists_info(top_artists_r) # dictionary with top artists and associated info
         genres_r = get_genre_count(artists_info_r)
         tracks_r = get_tracks_info(top_tracks_r)
         popularity_r = get_popularity(top_artists_r)
-        median_values_r = get_audio_features_tracks(tracks_r, sp)
+        median_values_r = get_audio_features_tracks(tracks_r, spotify)
         variance_r = get_variance() 
         median_values_r['popularity'] = popularity_r
         median_values_r['variance'] = variance_r
@@ -222,7 +211,7 @@ def fetch_data():
         genres_m = get_genre_count(artists_info_m)
         tracks_m = get_tracks_info(top_tracks_m)
         popularity_m = get_popularity(top_artists_m)
-        median_values_m = get_audio_features_tracks(tracks_m, sp)
+        median_values_m = get_audio_features_tracks(tracks_m, spotify)
         variance_m = get_variance()
         median_values_m['popularity'] = popularity_m
         median_values_m['variance'] = variance_m
@@ -232,7 +221,7 @@ def fetch_data():
         genres_a = get_genre_count(artists_info_a)
         tracks_a = get_tracks_info(top_tracks_a)
         popularity_a = get_popularity(top_artists_a)
-        median_values_a = get_audio_features_tracks(tracks_a, sp)
+        median_values_a = get_audio_features_tracks(tracks_a, spotify)
         variance_a = get_variance()
         median_values_a['popularity'] = popularity_a
         median_values_a['variance'] = variance_a
@@ -268,14 +257,13 @@ def fetch_data():
             )
 
             print("user instance made")
+            db.session.add(user)
             try:
-                db.session.add(user)
                 db.session.commit()
             except Exception as e:
                 # Handle database errors, such as connection issues or constraints violations
                 print(f"Unable to commit to session: {e}")
                 db.session.rollback()
-                print('db session rolled back')
                 return jsonify(error=str(e)), 500
             
             print("user instanced added to db session")
@@ -327,8 +315,9 @@ def fetch_data():
         # Handle database errors, such as connection issues or constraints violations
         print(f"Unable to commit to session: {e}")
         db.session.rollback()
-        return jsonify(error=str(e)), 500
+        return redirect(url_for('error_page'))
 
+    
     # Get user's matches
 
     matches_data = []
@@ -427,8 +416,10 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_a,
         'danceability': user_stats.danceability_a,
         'energy': user_stats.energy_a,
+        'loudness': user_stats.loudness_a,
         'speechiness': user_stats.speechiness_a,
         'popularity': user_stats.popularity_a,
+        'speechiness': user_stats.speechiness_a,
         'tempo': user_stats.tempo_a,
         'valence': user_stats.valence_a
     }
@@ -436,8 +427,10 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_r,
         'danceability': user_stats.danceability_r,
         'energy': user_stats.energy_r,
+        'loudness': user_stats.loudness_r,
         'speechiness': user_stats.speechiness_r,
         'popularity': user_stats.popularity_r,
+        'speechiness': user_stats.speechiness_r,
         'tempo': user_stats.tempo_r,
         'valence': user_stats.valence_r
     }
@@ -445,8 +438,10 @@ def get_graph_data(user_id):
         'acousticness': user_stats.acousticness_m,
         'danceability': user_stats.danceability_m,
         'energy': user_stats.energy_m,
+        'loudness': user_stats.loudness_m,
         'speechiness': user_stats.speechiness_m,
         'popularity': user_stats.popularity_m,
+        'speechiness': user_stats.speechiness_m,
         'tempo': user_stats.tempo_m,
         'valence': user_stats.valence_m
     }
@@ -463,14 +458,13 @@ def comparison():
     user1_share_token = session['processed_data']['share_token']
 
     user1 = User.query.filter_by(share_token=user1_share_token).first()
-    print(vars(user1))
     user2 = User.query.filter_by(share_token=user_share_token).first()
+
+    if not user1 or not user2:
+        return jsonify({"error": "One or both users not found"}), 404
     
     user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium = get_graph_data(user1.id)
     user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium = get_graph_data(user2.id)
-
-    shared_genres_r, shared_genres_m, shared_genres_a = get_shared_genres(user1.id, user2.id)
-    shared_artists_r, shared_artists_m, shared_artists_a = get_shared_artists(user1.id, user2.id)
 
     # user1_avg_values = get_avg_values(user1_graph_data_all_time, user1_graph_data_recent, user1_graph_data_medium)
     # user2_avg_values = get_avg_values(user2_graph_data_all_time, user2_graph_data_recent, user2_graph_data_medium)
@@ -493,7 +487,6 @@ def comparison():
             user2_id=user2.id, 
             compatibility=compatibility_score
         )
-    print(user1.first_name)
     db.session.add(match)
     db.session.commit()
 
@@ -504,49 +497,10 @@ def comparison():
                     user2_graph_data_all_time=user2_graph_data_all_time, 
                     user2_graph_data_recent=user2_graph_data_recent, 
                     user2_graph_data_medium=user2_graph_data_medium, 
-                    user1_name=user1.first_name, 
-                    user2_name=user2.first_name,
-                    compatibility_score=int(round(compatibility_score, 0)),
-                    shared_genres_r=shared_genres_r[:10], 
-                    shared_genres_m=shared_genres_m[:10], 
-                    shared_genres_a=shared_genres_a[:10], 
-                    shared_artists_r=shared_artists_r[:10], 
-                    shared_artists_m=shared_artists_m[:10], 
-                    shared_artists_a=shared_artists_a[:10]
+                    user1_name=user1.display_name, 
+                    user2_name=user2.display_name,
+                    compatibility_score=int(round(compatibility_score, 0))
                 )
-
-def get_shared_genres(user1_id, user2_id):
-    user1_genres_r = set(get_db_genres(user1_id, 'r'))
-    user2_genres_r = set(get_db_genres(user2_id, 'r'))
-
-    user1_genres_m = set(get_db_genres(user1_id, 'm'))
-    user2_genres_m = set(get_db_genres(user2_id, 'm'))
-
-    user1_genres_a = set(get_db_genres(user1_id, 'a'))
-    user2_genres_a = set(get_db_genres(user2_id, 'a'))
-
-    common_genres_r = list(user1_genres_r.intersection(user2_genres_r))
-    common_genres_m = list(user1_genres_m.intersection(user2_genres_m))
-    common_genres_a = list(user1_genres_a.intersection(user2_genres_a))
-
-    return common_genres_r, common_genres_m, common_genres_a
-
-def get_shared_artists(user1_id, user2_id):
-    user1_artists_r = set([artist['name'] for artist in get_db_artists(user1_id, 'r')])
-    user2_artists_r = set([artist['name'] for artist in get_db_artists(user2_id, 'r')])
-
-    user1_artists_m = set([artist['name'] for artist in get_db_artists(user1_id, 'm')])
-    user2_artists_m = set([artist['name'] for artist in get_db_artists(user2_id, 'm')])
-
-    user1_artists_a = set([artist['name'] for artist in get_db_artists(user1_id, 'a')])
-    user2_artists_a = set([artist['name'] for artist in get_db_artists(user2_id, 'a')])
-
-    common_artists_r = list(user1_artists_r.intersection(user2_artists_r))
-    common_artists_m = list(user1_artists_m.intersection(user2_artists_m))
-    common_artists_a = list(user1_artists_a.intersection(user2_artists_a))
-    print(common_artists_a)
-
-    return common_artists_r, common_artists_m, common_artists_a
 
 
 def get_avg_values(all_time, recent, medium):
@@ -554,6 +508,7 @@ def get_avg_values(all_time, recent, medium):
     avg_values.append((all_time['acousticness'] + recent['acousticness'] + medium['acousticness']) / 3)
     avg_values.append((all_time['danceability'] + recent['danceability'] + medium['danceability']) / 3)
     avg_values.append((all_time['energy'] + recent['energy'] + medium['energy']) / 3)
+    avg_values.append((all_time['loudness'] + recent['loudness'] + medium['loudness']) / 3)
     avg_values.append((all_time['speechiness'] + recent['speechiness'] + medium['speechiness']) / 3)
     avg_values.append((all_time['popularity'] + recent['popularity'] + medium['popularity']) / 3)
     avg_values.append((all_time['tempo'] + recent['tempo'] + medium['tempo']) / 3)
@@ -562,18 +517,33 @@ def get_avg_values(all_time, recent, medium):
     return avg_values
 
 def calculate_compatibility(user1_id, user2_id, user1_values, user2_values):
+    # Factors for compatibility score calculation:
+    # - Common genres
+    # - Common artists
+    # - Common tracks?
+    # - Audio features similarity
+    #    - Popularity
+    #    - Tempo
+    #    - Loudness
+    #    - Acousticness
+    #    - Danceability
+    #    - Valence
+    #    - Energy
+    #    - Speechiness
+    # - Variance? 
+
     score = 0
 
-    user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
-    user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
+    user1_vals_list = [user1_values['acousticness'], user1_values['danceability'], user1_values['energy'], user1_values['loudness'], user1_values['speechiness'], user1_values['popularity'], user1_values['tempo'], user1_values['valence']]
+    user2_vals_list = [user2_values['acousticness'], user2_values['danceability'], user2_values['energy'], user2_values['loudness'], user2_values['speechiness'], user2_values['popularity'], user2_values['tempo'], user2_values['valence']]
 
     for x in range(0, len(user1_vals_list)):
-        larger_val = max(user1_vals_list[x], user2_vals_list[x])
-        smaller_val = min(user1_vals_list[x], user2_vals_list[x])
-        percent_diff = (larger_val - smaller_val) / larger_val
-        print(f'percent diff: {percent_diff}')
-        score_multiplier = 1 - percent_diff
-        score += (14.2857 * score_multiplier)
+        diff = (abs(user1_vals_list[x] - user2_vals_list[x]))
+        diff /= ((user1_vals_list[x] + user2_vals_list[x]) / 2) 
+        score_multiplier = 1 - diff
+        print((12.5 * score_multiplier))
+        score += (12.5 * score_multiplier)
+
 
     return score
 
@@ -673,21 +643,15 @@ def new_profile():
 @app.route('/submit_new_profile', methods=['POST'])
 def submit_new_profile():
     if request.method == 'POST':
-        print('Submission of new profile route reached')
-        first_name = request.form.get('first_name')
-        last_name = request.form.get('last_name')
+        print('submission of new profile route reached')
+        first_name = request.form.get('first-name')
+        last_name = request.form.get('last-name')
         age = request.form.get('age')
         hometown = request.form.get('hometown')
-        print("First Name:", first_name)  # This will help verify what is being received
-        
-        # Assuming the user data is stored in the session correctly
-        user_data = session.get('processed_data', {}).get('user_data')
-        if not user_data or 'id' not in user_data:
-            raise Exception("No user data available or user data is incomplete.")
+
+        user_data = session['processed_data']['user_data']
 
         user = User.query.filter_by(spotify_id=user_data['id']).first()
-        if not user:
-            raise Exception("No user found with the given Spotify ID.")
 
         user.first_name = first_name
         user.last_name = last_name
@@ -697,7 +661,6 @@ def submit_new_profile():
         db.session.commit()
 
     return redirect(url_for('display'))
-
 
 @app.route('/delete_user', methods=['POST'])
 def delete_user():
@@ -719,25 +682,6 @@ def delete_user():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500 
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    return render_template('error.html', error_message=e), 500
-
-@app.route('/test-error')
-def test_error():
-    raise Exception("This is a test error")
-
-@app.route('/test_error_page')
-def test_error_page():
-    # Directly testing error page redirection
-    return redirect(url_for('error_page', error_message="Test error message"))
-
-@app.route('/error_page')
-def error_page():
-    print('Error page reached')
-    error_message = request.args.get('error_message', default='An unexpected error occurred.')
-    return render_template('error.html', error_message=error_message)
 
 
 if __name__ == '__main__':

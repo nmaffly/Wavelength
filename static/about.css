@@ -1,6 +1,7 @@
 body {
-    overflow: hidden;
     height: 100vh;
+    padding-bottom: 150px;
+    overflow-y: hidden;
 }
 #center-block {
     margin-top: 8%;
@@ -30,6 +31,34 @@ body {
     animation: fade 1s 1;
 }
 
+#graphic {
+    position: fixed;
+    bottom: -630px; /* Aligns it to the bottom of the nearest positioned ancestor */
+    left: -400px;
+    width: 1400px; /* Makes it responsive, taking the full width of its container */
+    height: 600px; /* Fixed height */
+    z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
+    transform: rotate(20deg);
+    transform-origin: bottom right;
+    overflow: hidden;
+    animation: fadein-left 1s 1;
+/*     transition: width 1s ease; */
+}
+
+#graphic2 {
+    position: fixed;
+    top: -1250px; /* Aligns it to the bottom of the nearest positioned ancestor */
+    right: 900px;
+    width: 1400px; /* Makes it responsive, taking the full width of its container */
+    height: 600px; /* Fixed height */
+    z-index: 1000; /* Ensures it's on top of other content (adjust as needed) */
+    transform: rotate(200deg);
+    transform-origin: bottom right;
+    overflow: hidden;
+    animation: fadein-top 1s 1;
+/*     transition: height 1s ease; */
+}
+
 /* Add in a middle 50% to the below to fix? */
 
 @keyframes fade {
@@ -38,11 +67,30 @@ body {
     100% { opacity: 1 }
 }
 
-@media (max-width: 900px) {
-    body {
-        overflow: hidden;
-    }
+@keyframes fadein-lower { 
+    0% {    left: -400px;
+            bottom: -300px; }
+    100% { height: -200px } 
+}
 
+@keyframes fadein-left {
+    0% {    left: -100vw;
+            bottom: -800px; }
+    100% {  left: -400px;
+            bottom: -630px; }
+}
+
+@keyframes fadeout-top {
+    0% { top: -1250px}
+    100% { top: -2000px }
+}
+
+@keyframes fadein-top {
+    0% { top: -2000px}
+    100% { top: -1250px }
+}
+
+@media (max-width: 900px) {
     #center-block {
         margin-top: 20%;
         width: 85%;
@@ -51,6 +99,40 @@ body {
     #lineGraph {
         height: 200px;
         bottom: 80px;
+    }
+}
+
+@media (max-width: 950px) {
+    body {
+        padding-bottom: 100px;
+        overflow-y: auto;
+    }
+
+    #nav-button {
+        display: block;
+    }
+
+    #nav-items {
+        display: none;
+    }
+
+    #graphic {
+        animation: fadein-lower 1s 1;
+        bottom: -50px;
+        left: auto;
+        transform: rotate(0deg);
+        height: 25%;
+        width: 110%;
+        position:fixed;
+    }
+
+    #graphic2 {
+        animation: fadeout-top 1s 1;
+        top: -2000px;
+    }
+
+    #center-block {
+        margin-top: 5vh;
     }
 }
 

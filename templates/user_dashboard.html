@@ -56,20 +56,12 @@
                 navIcon.src = "../static/icons/Menu_close.png";
                 navIcon.style.width = "20px";
                 navMenu.style.display = "flex";
-                navButton.classList.add("nav-button-spin");
-                navButton.addEventListener("animationend", () => {
-                    navButton.classList.remove("nav-button-spin");
-                });
 
             } else {
                 navIcon.src = "../static/icons/Menu2.png";
                 navIcon.style.width = "30px";
                 navMenu.style.display = "none";
                 navIcon.classList.toggle("nav-icon-fade");
-                navButton.classList.add("nav-button-spin-reverse");
-                navIcon.addEventListener("transitionend", () => {
-                    navIcon.classList.remove("nav-button-spin-reverse");
-                });
             }
         });
     });
@@ -136,7 +128,7 @@
             </div>
         </div>
     </div>
-    <p id="tops-explainer" class="explainer"><i><b>Anthem:</b> The song that most aligns with your Wavelength.</i></p>
+    <p id="tops-explainer" class="explainer"><i><b>Anthem:</b> Your most played song for the selected timeframe.</i></p>
     
 
     <script>
@@ -150,9 +142,9 @@
             const artistsWrapper = document.getElementById('top-artists');
             // Object to hold the explanations for each view
             const explanations = {
-                'anthem': '<i><b>Anthem:</b> The song that most aligns with your Wavelength.</i>',
+                'anthem': '<i><b>Anthem:</b> Your most played song for the selected timeframe.</i>',
                 'genres': '<i><b>Genres:</b> Your top genres for the selected timeframe.</i>',
-                'artists': '<i><b>Artists:</b> Your top artists for the selected timeframe.</i>'
+                'artists': '<i><b>Artists:</b> Your top artists for the selected timeframe. (clickable)</i>'
             };
     
             // Update the highlight class on buttons
@@ -180,15 +172,20 @@
 
     <!-- Code export section -->
     <div id="code">
-        <h2 class="gradient-high" id="code-h2">My Code: <span class="highlight"><b>{{ share_token }}</b></span></h2>
+        <h2 class="gradient-high" id="code-h2">Compare Wavelengths!</h2>
     </div>
-    
     <div id="codeForm-wrapper">
         <form id="codeForm" action="/comparison" method="POST">
             <input type="text" name="user_share_token" id="inputCode" placeholder="Enter a code here!" required>
             <button type="submit">Compare</button> <!-- Need a catch to check if string is 4 letters and exists in code_names.txt -->
         </form>
+        
     </div>
+    <p id="error" class='widget-border'style="display:none;">Either the user does not exist or the spelling is incorrect. Please try again!</p>
+    <h3 id="share-code-h3">My Share Code: <span class="highlight"><b>{{ share_token }}</b></span></h3>
+    <p id="share-code-explainer" class="explainer">Share your code with someone else or input another user's code to see how your Wavelengths compare. Users you compare with will appear below!</p>
+
+
     
     <script>
         function copyButton() {
@@ -207,6 +204,34 @@
             alertContainer.style.display = 'block';
             setTimeout(function() { alertContainer.style.display = 'none'; }, 3000); // Hide alert after 3 seconds
         }
+        const validTokens = {{ taken_tokens | tojson | safe }}.map(token => token.toLowerCase());
+
+        document.getElementById('codeForm').onsubmit = function(event) {
+            var inputToken = document.getElementById('inputCode').value.toLowerCase(); // Convert input to lowercase
+            var errorElement = document.getElementById('error');
+
+            if (inputToken.length === 4 && validTokens.includes(inputToken)) {
+                return true;
+            } else {
+                event.preventDefault();
+                // Show error initially and reset opacity for repeated errors
+                errorElement.style.display = 'block';
+                errorElement.style.opacity = 1;
+                errorElement.classList.remove('error-fade-out'); // Remove class to reset animation if needed
+
+                // Wait for next tick to re-apply class to restart the animation
+                setTimeout(function() { errorElement.classList.add('error-fade-out'); }, 2000);
+
+                // Set to display none after animation ends (3 seconds here)
+                setTimeout(function() {
+                    errorElement.style.display = 'none';
+                }, 3000);
+
+                return false;
+            }
+        };
+
+
     </script>
         
 
@@ -596,11 +621,11 @@
                     totalDifference += Math.abs(song[attribute] - medianValues[attribute]);
                 }
             });
+            console.log(totalDifference);
             if (totalDifference < minDifference) { 
                 minDifference = totalDifference; 
                 anthem = song;
             }
-
         });
         anthem.imageURL = anthem.album_art_img_url;
         console.log(anthem);
@@ -643,17 +668,20 @@
 
         users.forEach(user => {
             const userDiv = document.createElement('div');
-            userDiv.classList.add('matched-user');
-            userDiv.classList.add('widget-border');
-            
+            userDiv.classList.add('matched-user', 'widget-border');
+
+            // Check if user.imgSrc is not provided and use a default image if necessary
+            const imageSrc = user.imgSrc || '../static/icons/no_user.png';
+
             userDiv.innerHTML = `
-                <img src="${user.imgSrc}" alt="">
+                <img src="${imageSrc}" alt="${user.name}'s profile picture">
                 <div class="matched-user-info-wrapper">
                     <h2 class="matched-user-name">${user.name}</h2>
-                    <p class="matched-user-info">${user.info}</p> 
+                    <p class="matched-user-info">${user.info}</p>
                 </div>
                 <div class="matched-user-percent"><h2>${user.percent}</h2></div>
             `;
+
 
             userDiv.onclick = function() {
                 window.location.href = '/comparison?token=' + user.share_token;

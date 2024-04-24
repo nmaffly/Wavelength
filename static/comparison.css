@@ -82,6 +82,104 @@ body h1{
     height: 200px;
     padding: 20px 0px;
 }
+
+#center-block {
+    margin-top: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
+    position: relative;
+    width: 400px;  /* Adjust the width as necessary */
+}
+
+#center-block-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 20px;
+}
+
+#select-wrapper {
+    width: 100%;
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    top: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.select-button {
+    width: 33.33333%;
+    border-radius: 0;
+    border-bottom: 1px solid white;
+    height: 35px;
+    background-color: rgba(0,0,0,0);
+    color: white;
+    box-shadow: inset 0px -10px 20px rgba(255, 255, 255, 0.15);
+    transition: color .25s ease;
+    margin: 0px;
+}
+
+.select-button-highlight {
+    background-color: white;
+    color: black;
+    font-weight: bold; /* changed from 700px to bold */
+}
+
+.select-button-highlight:hover {
+    color: black !important;
+    box-shadow: none !important;
+}
+
+.select-button:hover {
+    color: var(--primary-orange);
+    box-shadow: inset 0px -10px 20px rgba(255, 255, 255, 0.25);
+}
+
+#button-artists {
+    border-right: 1px solid white;
+    border-top-left-radius: 8px;  /* This assumes 'artists' is now the first button */
+}
+
+#button-genres {
+    border-right: 1px solid white;
+}
+
+#button-questions {
+    border-top-right-radius: 8px;  /* 'questions' is now the last button */
+}
+
+#shared-artists-text, #shared-genres-text {
+    padding: 20px;
+}
+
+.bullet {
+    color: var(--primary-orange); /* Change to any color you like */
+    padding: 0 5px; /* Adjust space around the bullet */
+}
+
+#shared-artists-text p:hover, #shared-genres-text p:hover {
+    color: var(--primary-orange);
+}
+
+#questions-wrapper {
+    width: 100%; /* Full width within the container */
+    padding: 10px;
+    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+}
+
+#question-text {
+    margin-top: 10px;
+    margin-bottom: 1rem;
+}
+
+#questions-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
   
 #tops {
     display: flex;
@@ -104,6 +202,11 @@ body h1{
     margin: 0px;
     margin-bottom: 15px;
     text-align: center;
+}
+
+#tops-explainer {
+    text-align: center;
+    margin-top: 10px;
 }
 
 
@@ -135,7 +238,6 @@ body h1{
 }
 
 #questions-wrapper {
-    margin-top: 30px;
     width: 360px;
     display: flex;
     flex-direction: column;
@@ -143,17 +245,21 @@ body h1{
     justify-content: center;
     text-align: center;
     margin-bottom: 40px;
+    height: 170px;
+    padding: 10px;
 }
 
 #questions-header {
     margin: 0px;
     width: 100%;
-    border-bottom: 1px solid white;
-    padding-bottom: 10px;
+    position: absolute;
+    top: 50px;
 }
 
 #question-text {
     margin-bottom: 20px;
+    width: 310px;
+    padding-top: 60px;
 }
 
 #questions-buttons {
@@ -161,6 +267,8 @@ body h1{
     flex-direction: row;
     width: 160px;
     justify-content: space-between;
+    position: absolute;
+    bottom: 20px;
 }
 
 #questions-buttons button {
@@ -186,15 +294,16 @@ body h1{
 
 @media (max-width: 500px) {
     #lineGraph {
-        width: 95%;
+        width: 108%;
         height: 180px;
         padding: 35px 0px;
         margin: 0px;
     }
 
-    #tops {
-        width: 300px;
+    #center-block {
+        width: 90%;
     }
+
     
     #view-more {
         margin-top: 50px;
@@ -202,6 +311,12 @@ body h1{
 
     #percent-wrapper {
         width: 80%;
+        margin-top: 0px;
+        padding-bottom: 10px;
+    }
+
+    #percent {
+        margin: 0px;
     }
 
     #questions-wrapper {
@@ -209,6 +324,7 @@ body h1{
     }
 
     #user-ids {
-        width: 90%;
+        width: 70%;
+        margin-top: 10px;
     }
 }

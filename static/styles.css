@@ -276,6 +276,7 @@ header img:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-bottom: 20px;
 }
 
 #highlight-link {
@@ -341,6 +342,7 @@ ol {
 
 .explainer {
     font-size: 12px;
+    margin: 0px;
 }
 
 @media (max-width: 500px) {

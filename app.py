@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, session, jsonify, url_for
 import spotipy
+import redis
 import os
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
@@ -19,11 +20,14 @@ update_db = True
           # False --> pull stats from DB
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'asljdfhds'
+app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_PERMANENT'] = False
+app.config['SESSION_USE_SIGNER'] = True  # Optional: To enhance security by signing the cookie
+app.config['SESSION_REDIS'] = redis.StrictRedis(host='wavelength-t1gral.serverless.use2.cache.amazonaws.com', port=6379, db=0)
 
-# Configure the Flask app to use Flask-Session
-app.config['SESSION_TYPE'] = 'filesystem'
-#app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-Session(app)  # Initialize the session
+
+Session(app)
 
 import os
 
@@ -64,17 +68,34 @@ def index():
     print("hello")
     return render_template('home.html')
 
-@app.route('/login', methods=['POST'])
-def login():
-    print("hello2")
-    # Get team number from the form
-    team = request.form['team_number']
-    session['team'] = team  # Store the team in the session
+#@app.route('/login', methods=['POST'])
+#def login():
+#    print("hello2")
+#    # Get team number from the form
+ #   team = request.form['team_number']
+#    session['team'] = team  # Store the team in the session
    # print("hello2")
     # Setup Spotify with the specific team environment
-    sp, auth_manager = setup_spotify(team)
-    auth_url = auth_manager.get_authorize_url()
-    return redirect(auth_url)
+#    sp, auth_manager = setup_spotify(team)
+#    auth_url = auth_manager.get_authorize_url()
+#    return redirect(auth_url)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        print("hello2")
+        # Get team number from the form
+        team = request.form['team_number']
+        session['team'] = team  # Store the team in the session
+        # print("hello2")
+        # Setup Spotify with the specific team environment
+        sp, auth_manager = setup_spotify(team)
+        auth_url = auth_manager.get_authorize_url()
+        return redirect(auth_url)
+    else:
+        # Show the login or profile form when method is GET
+        return render_template('new_profile.html')
+
 
 @app.route('/callback')
 def callback():
@@ -92,7 +113,7 @@ def callback():
 
     sp = spotipy.Spotify(auth=token_info['access_token'])
     user_data = sp.current_user()
-    app.config['SECRET_KEY'] = user_data['id'] 
+#    app.config['SECRET_KEY'] = user_data['id'] 
     user = User.query.filter_by(spotify_id=user_data['id']).first()
 
     new_user = not user
@@ -736,6 +757,15 @@ def error_page():
     print('Error page reached')
     error_message = request.args.get('error_message', default='An unexpected error occurred.')
     return render_template('error.html', error_message=error_message)
+
+@app.route('/user_dashboard')
+def user_dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user_display_name = session['user_display_name']
+    return render_template('user_dashboard.html', user_id=user_id, user_display_name=user_display_name)
 
 
 if __name__ == '__main__':

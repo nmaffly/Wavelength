@@ -21,9 +21,7 @@ update_db = True
 app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
-app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
-Session(app)  # Initialize the session
 
 import os
 
@@ -128,36 +126,10 @@ def fetch_data():
         median_values_a = get_db_median_values(user.id, 'a')
 
         session['processed_data'] = {
-            "graph_json": {
-                "median_values_r": median_values_r, 
-                "median_values_m": median_values_m, 
-                "median_values_a": median_values_a
-            },
-            "median_values_r": median_values_r,
-            "median_values_m": median_values_m, 
-            "median_values_a": median_values_a,
             "user_data": user_data,
             "user_name": user.display_name,
             "profile_pic": user.profile_pic,
             "share_token": user.share_token,
-            "genre_r": get_db_genres(user.id, 'r'),
-            "genre_m": get_db_genres(user.id, 'm'),
-            "genre_a": get_db_genres(user.id, 'a'),
-            "artists_a": get_db_artists(user.id, 'a'),
-            "artists_m": get_db_artists(user.id, 'm'),
-            "artists_r": get_db_artists(user.id, 'r'),
-            "tracks_r": get_db_tracks(user.id,'r'),
-            "tracks_m": get_db_tracks(user.id, 'm'),
-            "tracks_a": get_db_tracks(user.id,'a'),
-            "popularity_r": median_values_r["popularity"],
-            "tempo_r": median_values_r["tempo"],
-            "loudness_r": median_values_r["loudness"],
-            "acousticness_r": median_values_r["acousticness"],
-            "danceability_r": median_values_r["danceability"],
-            "valence_r": median_values_r["valence"],
-            "energy_r": median_values_r["energy"],
-            "speechiness_r": median_values_r["speechiness"],
-            "variance_r": median_values_r["variance"]
         }
 
     else:
@@ -269,36 +241,10 @@ def fetch_data():
             load_user_stats(user.id, median_values_r, median_values_m, median_values_a, new_data, update=True)
             
         session['processed_data'] = {
-            "graph_json": {
-                "median_values_r": median_values_r,
-                "median_values_m": median_values_m, 
-                "median_values_a": median_values_a
-            },
-            "median_values_r": median_values_r,
-            "median_values_m": median_values_m,
-            "median_values_a": median_values_a,
             "user_data": user_data,
             "user_name": user_name,
             "profile_pic": profile_pic,
             "share_token": user.share_token,
-            "genre_r": genres_r,
-            "genre_m": genres_m,
-            "genre_a": genres_a,
-            "artists_a": artists_info_a,
-            "artists_m": artists_info_m,
-            "artists_r": artists_info_r,
-            "tracks_r": tracks_r,
-            "tracks_m": tracks_m,
-            "tracks_a": tracks_a,
-            "popularity_r": popularity_r,
-            "tempo_r": median_values_r['tempo'],
-            "loudness_r": median_values_r['loudness'],
-            "acousticness_r": median_values_r['acousticness'],
-            "danceability_r": median_values_r['danceability'],
-            "valence_r": median_values_r['valence'],
-            "energy_r": median_values_r['energy'],
-            "speechiness_r": median_values_r['speechiness'],
-            "variance_r": variance_r,
         }
 
     try:
@@ -309,27 +255,6 @@ def fetch_data():
         print(f"Unable to commit to session: {e}")
         db.session.rollback()
         return jsonify(error=str(e)), 500
-
-    # Get user's matches
-
-    matches_data = []
-
-    if(get_matches):
-        matches = Matches.query.filter((Matches.user1_id == user.id) | (Matches.user2_id == user.id)).all()
-        for match in matches:
-            other_user_id = match.user1_id if match.user1_id != user.id else match.user2_id
-            other_user = User.query.get(other_user_id)
-            match_data = {
-                "name": f"{other_user.first_name} {other_user.last_name}",
-                "profile_pic": other_user.profile_pic,
-                "home_town": other_user.hometown,
-                "age": other_user.age,
-                "match_percentage": match.compatibility,
-                "share_token": other_user.share_token
-            }
-            matches_data.append(match_data)
-
-    session['processed_data']['matches_data'] = matches_data
 
     return jsonify(success=True)
 
@@ -345,6 +270,34 @@ def display():
     if not processed_data:
         return redirect('/')
     user1 = User.query.filter_by(spotify_id=session['processed_data']['user_data']['id']).first()
+    median_values_r = get_db_median_values(user1.id, 'r')
+    median_values_m = get_db_median_values(user1.id, 'm')
+    median_values_a = get_db_median_values(user1.id, 'a')
+
+    processed_data = {
+            "graph_json": {
+                "median_values_r": median_values_r, 
+                "median_values_m": median_values_m, 
+                "median_values_a": median_values_a
+            },
+            "median_values_r": median_values_r,
+            "median_values_m": median_values_m, 
+            "median_values_a": median_values_a,
+            "user_data": session['processed_data']['user_data'],
+            "user_name": session['processed_data']['user_name'],
+            "profile_pic": session['processed_data']['profile_pic'],
+            "share_token": session['processed_data']['share_token'],
+            "genre_r": get_db_genres(user1.id, 'r'),
+            "genre_m": get_db_genres(user1.id, 'm'),
+            "genre_a": get_db_genres(user1.id, 'a'),
+            "artists_a": get_db_artists(user1.id, 'a'),
+            "artists_m": get_db_artists(user1.id, 'm'),
+            "artists_r": get_db_artists(user1.id, 'r'),
+            "tracks_r": get_db_tracks(user1.id,'r'),
+            "tracks_m": get_db_tracks(user1.id, 'm'),
+            "tracks_a": get_db_tracks(user1.id,'a'),
+        }
+
     matches_data = []
     matches = Matches.query.filter((Matches.user1_id == user1.id) | (Matches.user2_id == user1.id)).all()
     for match in matches:
@@ -360,13 +313,10 @@ def display():
         }
         matches_data.append(match_data)
 
-    session['processed_data']['matches_data'] = matches_data
     taken_tokens_list = taken_tokens() or []
     print(taken_tokens_list)
-    processed_data = session.get('processed_data', {})
-    if not processed_data:
-        return redirect('/login')
-    return render_template('user_dashboard.html', taken_tokens=taken_tokens_list, **processed_data)
+
+    return render_template('user_dashboard.html', taken_tokens=taken_tokens_list, processed_data=processed_data, matches_data=matches_data)
 
 @app.route('/compare/<user1_share_token>/<user2_share_token>')
 def compare_users(user1_share_token, user2_share_token):

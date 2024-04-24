@@ -254,15 +254,19 @@
     </form>
     
     <script>
-        var matches_data = {{ session['processed_data']['matches_data'] | tojson | safe }};
-        console.log(matches_data)
-        var graphData = {{ session['processed_data']['graph_json'] | tojson | safe }};
-        var artistData_r = {{ session['processed_data']['artists_r'] | tojson | safe }};
-        var artistData_a = {{ session['processed_data']['artists_a'] | tojson | safe }};
-        var genreData_r = {{ session['processed_data']['genre_r'] | tojson | safe }};
-        var genreData_a = {{ session['processed_data']['genre_a'] | tojson | safe }};
-        var artistData_m = {{ session['processed_data']['artists_m'] | tojson | safe }};
-        var genreData_m = {{ session['processed_data']['genre_m'] | tojson | safe }};
+        var matches_data = {{ matches_data | tojson | safe }};
+
+        // Accessing graph data
+        var graphData = {{ processed_data.graph_json | tojson | safe }};
+
+        // Accessing artist and genre data by range
+        var artistData_r = {{ processed_data.artists_r | tojson | safe }};
+        var artistData_m = {{ processed_data.artists_m | tojson | safe }};
+        var artistData_a = {{ processed_data.artists_a | tojson | safe }};
+
+        var genreData_r = {{ processed_data.genre_r | tojson | safe }};
+        var genreData_m = {{ processed_data.genre_m | tojson | safe }};
+        var genreData_a = {{ processed_data.genre_a | tojson | safe }};
         initializedData = [50, 50, 50, 50, 50, 50, 50, 50, 50];
         let graphComponents = initializeGraph(); // Store returned components for later use
         window.onload = function() {
@@ -603,12 +607,13 @@
             }, 500); // 1000 milliseconds = 1 second
         }
 
-    var tracks_r = {{ session['processed_data']['tracks_r'] | tojson | safe }};
-    var tracks_m = {{ session['processed_data']['tracks_m'] | tojson | safe }};
-    var tracks_a = {{ session['processed_data']['tracks_a'] | tojson | safe }};
-    var median_values_r = {{ session['processed_data']['median_values_r'] | tojson | safe }};
-    var median_values_m = {{ session['processed_data']['median_values_m'] | tojson | safe }};
-    var median_values_a = {{ session['processed_data']['median_values_a'] | tojson | safe }};
+    var tracks_r = {{ processed_data.tracks_r | tojson | safe }};
+    var tracks_m = {{ processed_data.tracks_m | tojson | safe }};
+    var tracks_a = {{ processed_data.tracks_a | tojson | safe }};
+
+    var median_values_r = {{ processed_data.median_values_r | tojson | safe }};
+    var median_values_m = {{ processed_data.median_values_m | tojson | safe }};
+    var median_values_a = {{ processed_data.median_values_a | tojson | safe }};
 
     function findAnthem(songList, medianValues) { 
         let minDifference = Infinity; 

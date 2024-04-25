@@ -67,6 +67,9 @@
     <svg id="graphic"></svg>
     <svg id="graphic2"></svg>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            drawGraph();
+        });
         const datasets = [
             [
                 {x: 0, y: 10}, {x: 1, y: 10}, {x: 2, y: -20}, {x: 2.5, y: 30},
@@ -148,7 +151,6 @@
             }, 2000);
         }
     
-        drawGraph();
         window.addEventListener('resize', drawGraph);
 
         function drawGraph2() {

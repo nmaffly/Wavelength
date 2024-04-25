@@ -180,6 +180,10 @@ body h1{
     justify-content: space-between;
 }
 
+#questions-buttons button {
+    width: 100px;
+}
+
   
 #tops {
     display: flex;
@@ -245,7 +249,7 @@ body h1{
     justify-content: center;
     text-align: center;
     margin-bottom: 40px;
-    height: 170px;
+    height: 200px;
     padding: 10px;
 }
 
@@ -258,21 +262,23 @@ body h1{
 
 #question-text {
     margin-bottom: 20px;
-    width: 310px;
-    padding-top: 60px;
+    width: 260px;
+    margin-top: 60px;
+    padding-bottom: 10px;
 }
 
 #questions-buttons {
     display: flex;
     flex-direction: row;
-    width: 160px;
+    width: 220px;
     justify-content: space-between;
     position: absolute;
     bottom: 20px;
 }
 
 #questions-buttons button {
-    width: 70px;
+    width: 100px !important;
+    height: 40px;
 }
 
 #next-question:hover {

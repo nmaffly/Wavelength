@@ -214,17 +214,36 @@ label input[type="radio"] {
         animation: fadeout-top 1s 1;
         top: -2000px;
     }
+
+    #lineGraph {
+        width: 90%;
+    }
+}
+
+@media (max-width: 667px) {
+    #center-block {
+        margin-top: 8vh;
+    }
+
+    #center-block2 {
+        margin-top: 10vh;
+    }
+
+    #graphic {
+        animation: fadein-lower 1s 1;
+        bottom: -30px;
+        left: auto;
+        transform: rotate(0deg);
+        height: 25%;
+        width: 110%;
+        position: fixed;
+    }
+
 }
 
 @media (min-width: 1500px) { /* Need to fix refresh weirdness for iPhone screen */
     #graphic {
         transition: left 0.5s ease-out;
         left: -20vw;
-    }
-}
-
-@media (max-width: 500px) {
-    #lineGraph {
-        width: 110%;
     }
 }

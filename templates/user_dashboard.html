@@ -35,11 +35,11 @@
             <li><a href="/">home</a></li>
             <li><a href="/about">about</a></li>
         </ul>
-        <div id="icons">
+        <!-- <div id="icons">
             <img src="../static/icons/instagram.png" alt="Instagram">
             <img src="../static/icons/facebook.png" alt="Facebook">
             <img src="../static/icons/x.png" alt="X (Twitter)">
-        </div>
+        </div> -->
     </div>
     </header>
 <script>
@@ -626,14 +626,12 @@
                     totalDifference += Math.abs(song[attribute] - medianValues[attribute]);
                 }
             });
-            console.log(totalDifference);
             if (totalDifference < minDifference) { 
                 minDifference = totalDifference; 
                 anthem = song;
             }
         });
         anthem.imageURL = anthem.album_art_img_url;
-        console.log(anthem);
         return anthem;
     }
     let anthemOneMonth = findAnthem(tracks_r, median_values_r);

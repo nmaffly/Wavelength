@@ -660,7 +660,14 @@ def page_not_found(e):
     # you can log the error here if you want
     print("A 404 error occurred:", str(e))
     # Redirect to the error page with error information
-    return render_template('error.html', error=e), 404
+    return render_template('error.html', error_message=e), 404
+
+@app.errorhandler(500)
+def wrong_team(e):
+    # you can log the error here if you want
+    print("A 404 error occurred:", str(e))
+    # Redirect to the error page with error information
+    return render_template('wrong_team.html', error_message=e), 500
 
 @app.errorhandler(Exception)
 def handle_exception(e):

@@ -21,11 +21,11 @@ update_db = True
 app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
-app.config['SECRET_KEY'] = os.getenv('TEAM1_FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
 
 import os
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("TEAM1_MYSQL_USER")}:{os.getenv("TEAM1_MYSQL_PASSWORD")}@{os.getenv("TEAM1_MYSQL_HOST")}/{os.getenv("TEAM1_MYSQL_DB")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("MYSQL_USER")}:{os.getenv("MYSQL_PASSWORD")}@{os.getenv("MYSQL_HOST")}/{os.getenv("MYSQL_DB")}'
 
 
 db.init_app(app)
@@ -33,14 +33,11 @@ migrate = Migrate(app, db)
 
 def setup_spotify(team):
     print(f"Setting up Spotify for team {team}")
-    SPOTIPY_CLIENT_ID = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_ID')
-    SPOTIPY_CLIENT_SECRET = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_SECRET')
-    SPOTIPY_REDIRECT_URI = os.getenv(f'TEAM{team}_SPOTIPY_REDIRECT_URI')
+    SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
+    SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
+    SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 
-    # Print the values
-    print(f"SPOTIPY_CLIENT_ID: {SPOTIPY_CLIENT_ID}")
-    print(f"SPOTIPY_CLIENT_SECRET: {SPOTIPY_CLIENT_SECRET}")
-    print(f"SPOTIPY_REDIRECT_URI: {SPOTIPY_REDIRECT_URI}")
+
 
     # Initialize Spotify auth with team-specific details
     auth_manager = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI,
@@ -282,6 +279,8 @@ def display():
     if not processed_data:
         return redirect('/')
     user1 = User.query.filter_by(spotify_id=session['processed_data']['user_data']['id']).first()
+    if user1.first_name == None:
+        return redirect('/new_profile')
     user_name = session['processed_data']['user_name']
     share_code = session['processed_data']['share_token']
     median_values_r = get_db_median_values(user1.id, 'r')

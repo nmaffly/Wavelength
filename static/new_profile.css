@@ -66,3 +66,13 @@ body {
         margin-top: 5vh;
     }
 }
+
+@media (max-width: 667px) {
+    #form-wrapper {
+        margin-top: 4vh;
+    }
+
+    #graphic {
+        display: none;
+    }
+}

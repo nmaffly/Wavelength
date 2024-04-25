@@ -15,13 +15,42 @@
 </head>
 <body>
     <header>
-        <h3 id="home-nav">wavelength</h3>
-        <img src="../static/icons/menu.png" alt="Navigation Bars">
-    </header>
+        <h3><a href="/">wavelength</a></h3>
+        <div id="nav-items">
+            <p><a href="/about">about</a></p>
+        </div>
+        
+        <button id="nav-button">
+            <img src="../static/icons/Menu2.png" id="nav-icon" alt="Navigation Icon" class="fade-in">
+        </button>
+        <div id="nav-menu">
+            <ul>
+                <li><a href="/">home</a></li>
+            </ul>
+        </div>
+        </header>
     <script>
-        // This code assumes you've given your <header> an id of "clickableHeader"
-        document.getElementById('home-nav').addEventListener('click', function() {
-            window.location.href = '/';
+        document.addEventListener("DOMContentLoaded", function() {
+            const navButton = document.getElementById("nav-button");
+            const navMenu = document.getElementById("nav-menu");
+            const navIcon = document.getElementById("nav-icon");
+            const bodyElement = document.body;
+            document.body.classList.add('fade-in');
+    
+            // Toggle the menu's visibility when the button is clicked
+            navButton.addEventListener("click", () => {
+                if (navIcon.src.endsWith("Menu2.png")) {
+                    navIcon.src = "../static/icons/Menu_close.png";
+                    navIcon.style.width = "20px";
+                    navMenu.style.display = "flex";
+    
+                } else {
+                    navIcon.src = "../static/icons/Menu2.png";
+                    navIcon.style.width = "30px";
+                    navMenu.style.display = "none";
+                    navIcon.classList.toggle("nav-icon-fade");
+                }
+            });
         });
     </script>
     <div id="center-block" style="display: none;">
@@ -76,7 +105,9 @@
         function attemptRedirect() {
             if (formSubmitted && ajaxCompleted) {
                 // If form has been submitted and AJAX call is complete, redirect
-                window.location.href = "/display";
+                setTimeout(function() {
+                            window.location.href = "/display"; // Redirect to the page where data will be displayed
+                        }, 40000); // Delay in milliseconds (2000ms = 2 seconds)
             }
         }
     
@@ -99,6 +130,7 @@
             // Handle form submission
             $('#profile-form').on('submit', function(e) {
                 e.preventDefault(); // Prevent default form submission
+                drawGraph();
                 
                 // Collect form data
                 let formData = {
@@ -226,7 +258,6 @@
             }, 2000);
         }
     
-        drawGraph();
         window.addEventListener('resize', drawGraph);
 
         function drawGraph2() {

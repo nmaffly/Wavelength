@@ -12,26 +12,29 @@ def mix_and_match_playlist():
     for track in all_time_tracks:
         i += 1
         track_name = track.song
-        if track_name in track_occurrences:
-            track_occurrences[track_name] += 1
+        artist_name = track.artist
+        if (track_name, artist_name) in track_occurrences:
+            track_occurrences[(track_name, artist_name)] += 1
         else:
-            track_occurrences[track_name] = 1
+            track_occurrences[(track_name, artist_name)] = 1
     
     for track in medium_tracks:
         i += 1
         track_name = track.song
-        if track_name in track_occurrences:
-            track_occurrences[track_name] += 1
+        artist_name = track.artist
+        if (track_name, artist_name) in track_occurrences:
+            track_occurrences[(track_name, artist_name)] += 1
         else:
-            track_occurrences[track_name] = 1
+            track_occurrences[(track_name, artist_name)] = 1
     
     for track in recent_tracks:
         i += 1
         track_name = track.song
-        if track_name in track_occurrences:
-            track_occurrences[track_name] += 1
+        artist_name = track.artist
+        if (track_name, artist_name) in track_occurrences:
+            track_occurrences[(track_name, artist_name)] += 1
         else:
-            track_occurrences[track_name] = 1
+            track_occurrences[(track_name, artist_name)] = 1
 
     sorted_tracks = sorted(track_occurrences.items(), key=lambda x: x[1], reverse=True)
 

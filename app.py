@@ -8,13 +8,13 @@ from datetime import datetime, timedelta
 from flask_migrate import Migrate
 from flask_session import Session
 from database import User, UserStats, Matches, db
-from db_functions import get_db_genres, get_db_artists, get_db_median_values, get_db_tracks, generate_random_sharing_token, generate_four_letter_sharing_token, load_user_stats, taken_tokens
+from db_functions import *
 from urllib.parse import urlparse
 
 load_dotenv()
 
 # FOR TESTNG
-update_db = True
+update_db = False
           # True --> immediate spotify extraction and DB update
           # False --> pull stats from DB
 
@@ -678,18 +678,9 @@ def wrong_team(e):
     # Redirect to the error page with error information
     return render_template('wrong_team.html', error_message=e), 500
 
-# @app.errorhandler(Exception)
-# def handle_exception(e):
-#     return render_template('error.html', error_message=e), 500
-
-@app.route('/test-error')
-def test_error():
-    raise Exception("This is a test error")
-
-@app.route('/test_error_page')
-def test_error_page():
-    # Directly testing error page redirection
-    return redirect(url_for('error_page', error_message="Test error message"))
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return render_template('error.html', error_message=e), 500
 
 @app.route('/error_page')
 def error_page():
@@ -697,6 +688,14 @@ def error_page():
     error_message = request.args.get('error_message', default='An unexpected error occurred.')
     return render_template('error.html', error_message=error_message)
 
+@app.route('/playlist')
+def playlist():
+    try:
+        playlist_data = mix_and_match_playlist()
+        # Return as JSON
+        return jsonify(playlist_data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=4000)

@@ -21,23 +21,32 @@ update_db = True
 app = Flask(__name__)
 
 # Configure the Flask app to use Flask-Session
-app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY')
+app.config['SECRET_KEY'] = os.getenv('TEAM1_FLASK_SECRET_KEY')
 
 import os
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("MYSQL_USER")}:{os.getenv("MYSQL_PASSWORD")}@{os.getenv("MYSQL_HOST")}/{os.getenv("MYSQL_DB")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{os.getenv("TEAM1_MYSQL_USER")}:{os.getenv("TEAM1_MYSQL_PASSWORD")}@{os.getenv("TEAM1_MYSQL_HOST")}/{os.getenv("TEAM1_MYSQL_DB")}'
 
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
-SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
-SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
-SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
-SCOPE = 'user-library-read user-top-read user-read-currently-playing'
+def setup_spotify(team):
+    print(f"Setting up Spotify for team {team}")
+    SPOTIPY_CLIENT_ID = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_ID')
+    SPOTIPY_CLIENT_SECRET = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_SECRET')
+    SPOTIPY_REDIRECT_URI = os.getenv(f'TEAM{team}_SPOTIPY_REDIRECT_URI')
 
-sp_oauth = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=SCOPE)
-sp = spotipy.Spotify(auth_manager=sp_oauth)
+    # Print the values
+    print(f"SPOTIPY_CLIENT_ID: {SPOTIPY_CLIENT_ID}")
+    print(f"SPOTIPY_CLIENT_SECRET: {SPOTIPY_CLIENT_SECRET}")
+    print(f"SPOTIPY_REDIRECT_URI: {SPOTIPY_REDIRECT_URI}")
+
+    # Initialize Spotify auth with team-specific details
+    auth_manager = SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID, client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI,
+                                scope='user-library-read user-top-read user-read-currently-playing')
+    sp = spotipy.Spotify(auth_manager=auth_manager)
+    return sp, auth_manager
 
 @app.route('/')
 def index():
@@ -48,24 +57,24 @@ def login():
     if request.method == 'POST':
         team_option = request.form['options'] ## We can use this value to switch between the OAuth
         print('Selected team option:', team_option)
+        session['team_option'] = team_option
     cleanup()
-    auth_url = sp_oauth.get_authorize_url() #I'm trying to think abt how we can get around the max user issue and I think it might require giving
-                                            #people unique IDs associated with whoever's account they're using (ie. Sean's, Nathan's, etc.) and then
-                                            #having them plug that in before they sign in so that we can change the env variables and connect them
-                                            #to the right account. Otherwise we will be stuck at 25. Might be too problematic, we'll have to test
+    sp, auth_manager = setup_spotify(team_option)
+    auth_url = auth_manager.get_authorize_url() 
     return redirect(auth_url)
 
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
     cleanup()
-    token_info = sp_oauth.get_access_token(code)
+    sp, auth_manager = setup_spotify(session.get('team_option', 1))
+    token_info = auth_manager.get_access_token(code)
     session['token_info'] = token_info
 
     if not token_info:
         return redirect('/login')
-    if sp_oauth.is_token_expired(token_info):
-        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+    if auth_manager.is_token_expired(token_info):
+        token_info = auth_manager.refresh_access_token(token_info['refresh_token'])
         session['token_info'] = token_info
 
     spotify = spotipy.Spotify(auth=token_info['access_token'])
@@ -81,6 +90,9 @@ def callback():
 
 @app.route('/fetch_data')
 def fetch_data():
+    team = session.get('team_option', 1)
+
+    sp, sp_oauth = setup_spotify(team)
     token_info = session.get('token_info', None)
     if not token_info:
         return redirect('/login')
@@ -669,9 +681,9 @@ def wrong_team(e):
     # Redirect to the error page with error information
     return render_template('wrong_team.html', error_message=e), 500
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    return render_template('error.html', error_message=e), 500
+# @app.errorhandler(Exception)
+# def handle_exception(e):
+#     return render_template('error.html', error_message=e), 500
 
 @app.route('/test-error')
 def test_error():

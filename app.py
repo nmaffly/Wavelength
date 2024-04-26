@@ -65,6 +65,10 @@ def callback():
     sp, auth_manager = setup_spotify(session.get('team_option', 1))
     token_info = auth_manager.get_access_token(code)
     session['token_info'] = token_info
+    
+        # Check if token_info is missing or expired
+    if not token_info or auth_manager.is_token_expired(token_info):
+        return redirect('/login')
 
     if not token_info:
         return redirect('/login')

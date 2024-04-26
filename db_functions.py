@@ -1,31 +1,47 @@
 from database import User, UserStats, RecentGenres, MediumGenres, AllTimeGenres, RecentArtists, MediumArtists, AllTimeArtists, RecentTracks, MediumTracks, AllTimeTracks, db
 import string, random
 
-def mix_and_match_playlist():
+def mix_and_match_playlist_genres():
+    genre_occurrences = {}
+    i = 0
+
+    recent_genres = RecentGenres.query.all()
+    
+    for genre in recent_genres:
+        i += 1
+        genre_name = genre.genre
+        if genre_name in genre_occurrences:
+            genre_occurrences[genre_name] += 1
+        else:
+            genre_occurrences[genre_name] = 1
+    print(i)
+    sorted_artists = sorted(genre_occurrences.items(), key=lambda x: x[1], reverse=True)
+
+    return sorted_artists
+
+def mix_and_match_playlist_artists():
+    artist_occurrences = {}
+    i = 0
+
+    recent_artists = RecentArtists.query.all()
+    
+    for artist in recent_artists:
+        i += 1
+        artist_name = artist.artist
+        if artist_name in artist_occurrences:
+            artist_occurrences[artist_name] += 1
+        else:
+            artist_occurrences[artist_name] = 1
+    print(i)
+    sorted_artists = sorted(artist_occurrences.items(), key=lambda x: x[1], reverse=True)
+
+    return sorted_artists
+
+def mix_and_match_playlist_songs():
     track_occurrences = {}
     i = 0
 
-    medium_tracks = MediumTracks.query.all()
-    all_time_tracks = AllTimeTracks.query.all()
     recent_tracks = RecentTracks.query.all()
-
-    # for track in all_time_tracks:
-    #     i += 1
-    #     track_name = track.song
-    #     artist_name = track.artist
-    #     if (track_name, artist_name) in track_occurrences:
-    #         track_occurrences[(track_name, artist_name)] += 1
-    #     else:
-    #         track_occurrences[(track_name, artist_name)] = 1
-    
-    # for track in medium_tracks:
-    #     i += 1
-    #     track_name = track.song
-    #     artist_name = track.artist
-    #     if (track_name, artist_name) in track_occurrences:
-    #         track_occurrences[(track_name, artist_name)] += 1
-    #     else:
-    #         track_occurrences[(track_name, artist_name)] = 1
     
     for track in recent_tracks:
         i += 1
@@ -35,7 +51,7 @@ def mix_and_match_playlist():
             track_occurrences[(track_name, artist_name)] += 1
         else:
             track_occurrences[(track_name, artist_name)] = 1
-
+    print(i)
     sorted_tracks = sorted(track_occurrences.items(), key=lambda x: x[1], reverse=True)
 
     return sorted_tracks

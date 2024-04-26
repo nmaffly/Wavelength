@@ -692,10 +692,28 @@ def error_page():
     error_message = request.args.get('error_message', default='An unexpected error occurred.')
     return render_template('error.html', error_message=error_message)
 
-@app.route('/playlist')
-def playlist():
+@app.route('/playlist_songs')
+def playlist_songs():
     try:
-        playlist_data = mix_and_match_playlist()
+        playlist_data = mix_and_match_playlist_songs()
+        # Return as JSON
+        return jsonify(playlist_data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+    
+@app.route('/playlist_artists')
+def playlist_artists():
+    try:
+        playlist_data = mix_and_match_playlist_artists()
+        # Return as JSON
+        return jsonify(playlist_data)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+    
+@app.route('/playlist_genres')
+def playlist_genres():
+    try:
+        playlist_data = mix_and_match_playlist_genres()
         # Return as JSON
         return jsonify(playlist_data)
     except Exception as e:

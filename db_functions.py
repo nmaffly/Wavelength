@@ -5,27 +5,27 @@ def mix_and_match_playlist():
     track_occurrences = {}
     i = 0
 
-    all_time_tracks = AllTimeTracks.query.all()
     medium_tracks = MediumTracks.query.all()
+    all_time_tracks = AllTimeTracks.query.all()
     recent_tracks = RecentTracks.query.all()
 
-    for track in all_time_tracks:
-        i += 1
-        track_name = track.song
-        artist_name = track.artist
-        if (track_name, artist_name) in track_occurrences:
-            track_occurrences[(track_name, artist_name)] += 1
-        else:
-            track_occurrences[(track_name, artist_name)] = 1
+    # for track in all_time_tracks:
+    #     i += 1
+    #     track_name = track.song
+    #     artist_name = track.artist
+    #     if (track_name, artist_name) in track_occurrences:
+    #         track_occurrences[(track_name, artist_name)] += 1
+    #     else:
+    #         track_occurrences[(track_name, artist_name)] = 1
     
-    for track in medium_tracks:
-        i += 1
-        track_name = track.song
-        artist_name = track.artist
-        if (track_name, artist_name) in track_occurrences:
-            track_occurrences[(track_name, artist_name)] += 1
-        else:
-            track_occurrences[(track_name, artist_name)] = 1
+    # for track in medium_tracks:
+    #     i += 1
+    #     track_name = track.song
+    #     artist_name = track.artist
+    #     if (track_name, artist_name) in track_occurrences:
+    #         track_occurrences[(track_name, artist_name)] += 1
+    #     else:
+    #         track_occurrences[(track_name, artist_name)] = 1
     
     for track in recent_tracks:
         i += 1

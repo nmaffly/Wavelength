@@ -23,8 +23,9 @@
     <div id="center-block">
         <h1 class="text-gradient">Who's on your <i>Wavelength?</i></h1>
         <svg id="lineGraph"></svg>
-        <p>Let's find out.</p>
+        <p id="center-text">Let's find out.</p>
         <button id="center-button" onclick="showSecondBlock();">Get Started</button>
+        <p id="register-text" class="explainer">New to our site? <a id="" href="https://docs.google.com/forms/d/e/1FAIpQLScom8YfPsGbFHmRAXGyDE8hWZlhA8ee-pc7VBprnD57UOKbKw/viewform?usp=sf_link">Click here to register and gain access!</a><br><b>Note:</b> Must have a Spotify account to register.</p>
     </div>
     <div style="display: none;" id="center-block2">
         <form action="/login" method="post" id="team-select">
@@ -33,9 +34,10 @@
                 <button class="team-select-button" type="button" onclick="submitForm(1)" class="team-button"><span>Azure</span></button>
                 <button class="team-select-button" type="button" onclick="submitForm(2)" class="team-button"><span>Dance</span></button>
                 <button class="team-select-button" type="button" onclick="submitForm(3)" class="team-button"><span>Crimson</span></button>
-                <button class="team-select-button" type="button" onclick="submitForm(3)" class="team-button"><span>Breathe</span></button>
+                <button class="team-select-button" type="button" onclick="submitForm(4)" class="team-button"><span>Breathe</span></button>
             </fieldset>
         </form>
+        <p id="register-text" class="explainer">Check your email for your referral code!<br>If you haven't registered, <a id="" href="https://docs.google.com/forms/d/e/1FAIpQLScom8YfPsGbFHmRAXGyDE8hWZlhA8ee-pc7VBprnD57UOKbKw/viewform?usp=sf_link">click here to gain access!</a></p>
     </div>
     <script>
         function submitForm(teamValue) {

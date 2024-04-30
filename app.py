@@ -33,8 +33,8 @@ migrate = Migrate(app, db)
 
 def setup_spotify(team):
     print(f"Setting up Spotify for team {team}")
-    SPOTIPY_CLIENT_ID = os.getenv('SPOTIPY_CLIENT_ID')
-    SPOTIPY_CLIENT_SECRET = os.getenv('SPOTIPY_CLIENT_SECRET')
+    SPOTIPY_CLIENT_ID = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_ID')
+    SPOTIPY_CLIENT_SECRET = os.getenv(f'TEAM{team}_SPOTIPY_CLIENT_SECRET')
     SPOTIPY_REDIRECT_URI = os.getenv('SPOTIPY_REDIRECT_URI')
 
 
@@ -680,18 +680,13 @@ def wrong_team(e):
     # Redirect to the error page with error information
     return render_template('wrong_team.html', error_message=e), 500
 
-# @app.errorhandler(Exception)
-# def handle_exception(e):
-#     return render_template('error.html', error_message=e), 500
-
-@app.route('/test-error')
-def test_error():
-    raise Exception("This is a test error")
-
-@app.route('/test_error_page')
-def test_error_page():
-    # Directly testing error page redirection
-    return redirect(url_for('error_page', error_message="Test error message"))
+@app.errorhandler(Exception)
+def handle_exception(e):
+    is_invalid_error = False
+    print(str(e).lower())
+    if 'invalid' in str(e).lower() or 'user not registered' in str(e).lower():
+        is_invalid_error = True
+    return render_template('error.html', error_message=str(e), is_invalid_error=is_invalid_error), 500
 
 @app.route('/error_page')
 def error_page():

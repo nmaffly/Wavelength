@@ -15,7 +15,18 @@
     <div id="center-block">
         <img src="../static/icons/giphy2.gif" alt="Awkward gif" id="gif">
         <h1 class="gradient-high">Oops! That's awkward...</h1>
-        <p>Something seems to have broken. Luckily, if you go back everything should fix itself!</p>
+        {% if is_invalid_error %}
+        <h3>It seems like there was an issue... try one of the following:</h3>
+            <ul style="text-align: left;">
+            <li>If you haven't registered, please do so <a id="" href="https://docs.google.com/forms/d/e/1FAIpQLScom8YfPsGbFHmRAXGyDE8hWZlhA8ee-pc7VBprnD57UOKbKw/viewform?usp=sf_link" style="color: white;">here</a></li>
+            <br>
+            <li>Once you're registered, it might take a couple minutes for the system to update, so give it a minute and retry</li>
+            <br>
+            <li>Make sure you're using the correct referral team (Azure, Dance, Crimson, Breathe), which you should be able to find in your email</li>
+            </ul>
+        {% else %}
+            <p>Something seems to have broken. Luckily, if you go back everything should fix itself!</p>
+        {% endif %}
         <button id="goBackHome">Go Back Home</button>
         <p class="explainer">We would also greatly appreciate if you took a screenshot of the error below and sent it to us!</p>
     </div>

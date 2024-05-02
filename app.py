@@ -684,7 +684,7 @@ def wrong_team(e):
 def handle_exception(e):
     is_invalid_error = False
     print(str(e).lower())
-    if 'invalid' in str(e).lower() or 'user not registered' in str(e).lower():
+    if 'invalid' in str(e).lower() or 'user not registered' in str(e).lower() or 'html' in str(e).lower():
         is_invalid_error = True
     return render_template('error.html', error_message=str(e), is_invalid_error=is_invalid_error), 500
 
